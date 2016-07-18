@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="10dp">
+
+    <GridView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/resultList"
+        android:numColumns="3"
+        android:layout_centerVertical="false"
+        android:layout_centerHorizontal="true"
+        android:background="@color/abc_input_method_navigation_guard"
+        android:horizontalSpacing="1dp"
+        android:verticalSpacing="1dp"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentBottom="false"
+        android:layout_above="@+id/uploadButton" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/send_results"
+        android:id="@+id/uploadButton"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
