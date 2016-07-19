@@ -14,6 +14,7 @@ import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceAdapter;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
+import org.videolan.vlcbenchmark.service.Score;
 import org.videolan.vlcbenchmark.service.TestInfo;
 
 import java.io.Serializable;
@@ -54,12 +55,11 @@ public class TestPage extends AppCompatActivity {
             }
 
             @Override
-            public void doneReceived(double score) {
+            public void doneReceived(Score score) {
                 Intent intent = new Intent(TestPage.this, ResultPage.class);
-                intent.putParcelableArrayListExtra("resultsTestOne", (ArrayList<TestInfo>) resultsTestOne);
-                intent.putParcelableArrayListExtra("resultsTestTwo", (ArrayList<TestInfo>) resultsTestTwo);
-                intent.putParcelableArrayListExtra("resultsTestThree", (ArrayList<TestInfo>) resultsTestThree);
-                intent.putExtra("results", (ArrayList<TestInfo>) resultsTestOne);
+                intent.putExtra("resultsTestOne", (ArrayList<TestInfo>) resultsTestOne);
+                intent.putExtra("resultsTestTwo", (ArrayList<TestInfo>) resultsTestTwo);
+                intent.putExtra("resultsTestThree", (ArrayList<TestInfo>) resultsTestThree);
                 intent.putExtra("soft", softScore);
                 intent.putExtra("hard", hardScore);
                 startActivity(intent);
