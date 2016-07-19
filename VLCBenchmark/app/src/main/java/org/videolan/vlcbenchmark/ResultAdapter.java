@@ -22,7 +22,7 @@ public class ResultAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return results.size();
+        return results.size() * 3;
     }
 
     @Override

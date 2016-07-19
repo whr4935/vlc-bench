@@ -2,6 +2,7 @@ package org.videolan.vlcbenchmark;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -33,7 +34,7 @@ public class ResultPage extends AppCompatActivity {
         softView.setText("Software score : " + soft);
 
         TextView hardView = (TextView)findViewById(R.id.hardAvg);
-        softView.setText("Hardware score : " + hard);
+        hardView.setText("Hardware score : " + hard);
 
     }
 
