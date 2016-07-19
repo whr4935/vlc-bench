@@ -49,6 +49,8 @@ public class BenchService extends IntentService {
     private static MediaInfo resumeMedia = null;
 
     public static void startService(Context context, BenchServiceDispatcher dispatcher, int numberOfTests) {
+        if (numberOfTests <= 0)
+            throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
         Intent intent = new Intent(context, BenchService.class);
         intent.setAction(ACTION_LAUNCH_SERVICE);
         intent.putExtra(NUMBER_OF_TESTS, numberOfTests);
@@ -69,16 +71,9 @@ public class BenchService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent == null || !ACTION_LAUNCH_SERVICE.equals(intent.getAction()))
             return;
-        startService(intent.getIntExtra(NUMBER_OF_TESTS, 0));
-    }
-
-    private void reportStatus(String action, Serializable data) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, data));
-    }
-
-    private void startService(int numberOfLoops) {
+        int numberOfLoops = intent.getIntExtra(NUMBER_OF_TESTS, 0);
         if (numberOfLoops <= 0)
-            return;
+            return ;
         try {
             downloadFiles();
         } catch (IOException e) {
@@ -89,6 +84,10 @@ public class BenchService extends IntentService {
             return;
         }
         mainLoop(numberOfLoops);
+    }
+
+    private void reportStatus(String action, Serializable data) {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, data));
     }
 
     private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {
