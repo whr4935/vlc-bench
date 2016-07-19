@@ -8,7 +8,7 @@ public interface BenchServiceListener {
     void downloadFailed(Exception exception);
     void doneReceived(double score);
     void testPassed(String testName);
-    void filePassed(String fileName);
+    void filePassed(TestInfo fileName);
     void updatePercent(double purcent);
 
 }

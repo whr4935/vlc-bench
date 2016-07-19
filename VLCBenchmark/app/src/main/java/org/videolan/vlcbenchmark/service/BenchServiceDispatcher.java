@@ -57,7 +57,7 @@ public class BenchServiceDispatcher extends BroadcastReceiver {
                 break;
             case BenchService.FILE_TESTED_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.filePassed(intent.getStringExtra(BenchService.EXTRA_CONTENT));
+                    listener.filePassed((TestInfo) intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
                 break;
             case BenchService.PERCENT_STATUS:
                 for (BenchServiceListener listener : listeners)

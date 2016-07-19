@@ -22,7 +22,7 @@ public class BenchServiceAdapter implements BenchServiceListener {
     }
 
     @Override
-    public void filePassed(String fileName) {
+    public void filePassed(TestInfo fileName) {
     }
 
     @Override

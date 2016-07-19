@@ -179,7 +179,7 @@ public class BenchService extends IntentService {
         for (int index = 0; index < numberOfLoops; index++) {
             for (MediaInfo fileData : filesInfo) {
                 //reportStatus(TEST_PASSED_STATUS, (String) null);
-                reportStatus(FILE_TESTED_STATUS, fileData.name);
+                reportStatus(FILE_TESTED_STATUS, new TestInfo(fileData.name, 0.0, 0.0));
             }
         }
         reportStatus(DONE_STATUS, score);

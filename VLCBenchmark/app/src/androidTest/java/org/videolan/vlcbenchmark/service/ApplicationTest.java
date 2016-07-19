@@ -39,8 +39,8 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             }
 
             @Override
-            public void filePassed(String fileName) {
-                Log.e("TEST::FILE TESTED", fileName);
+            public void filePassed(TestInfo testInfo) {
+                Log.e("TEST::FILE TESTED", testInfo.getName());
             }
 
             @Override
