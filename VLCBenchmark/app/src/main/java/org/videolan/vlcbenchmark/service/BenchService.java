@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.GeneralSecurityException;
@@ -71,16 +72,8 @@ public class BenchService extends IntentService {
         startService(intent.getIntExtra(NUMBER_OF_TESTS, 0));
     }
 
-    private void reportStatus(String action, String extra) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, extra));
-    }
-
-    private void reportStatus(String action, double extra) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, extra));
-    }
-
-    private void reportStatus(String action, Exception exception) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, exception));
+    private void reportStatus(String action, Serializable data) {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, data));
     }
 
     private void startService(int numberOfLoops) {
