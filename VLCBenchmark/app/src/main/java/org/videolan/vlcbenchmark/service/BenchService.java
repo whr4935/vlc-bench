@@ -175,14 +175,14 @@ public class BenchService extends IntentService {
 
     private static final double NUMBER_OF_TESTS_PER_FILE = 4;
 
-    public Score testFile(MediaInfo info, double percent, double pas) {
+    public Score testFile(int loopIndex, MediaInfo info, double percent, double pas) {
         Score score = new Score();
         for (int i = 0; i < NUMBER_OF_TESTS_PER_FILE; i++) {
             //Insert testing here
             percent += pas;
             reportStatus(PERCENT_STATUS, percent);
         }
-        reportStatus(FILE_TESTED_STATUS, new TestInfo(info.name, score));
+        reportStatus(FILE_TESTED_STATUS, new TestInfo(info.name, score, loopIndex));
         return score;
     }
 
@@ -191,9 +191,9 @@ public class BenchService extends IntentService {
         double percent = DOWNLOAD_FINISHED_PERCENT;
         double pas = (DONE_PERCENT - DOWNLOAD_FINISHED_PERCENT) / (Double.valueOf(numberOfLoops) * filesInfo.size());
 
-        for (int index = 0; index < numberOfLoops; index++) {
+        for (int loopIndex = 0; loopIndex < numberOfLoops; loopIndex++) {
             for (MediaInfo fileData : filesInfo) {
-                score.add(testFile(fileData, percent, pas / NUMBER_OF_TESTS_PER_FILE));
+                score.add(testFile(loopIndex, fileData, percent, pas / NUMBER_OF_TESTS_PER_FILE));
                 percent += pas;
             }
         }

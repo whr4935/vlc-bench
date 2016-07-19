@@ -10,9 +10,12 @@ public class TestInfo implements Serializable {
 
     private Score score = null;
 
-    public TestInfo(String name, Score score) {
+    private int loopNumber;
+
+    public TestInfo(String name, Score score, int loopNumber) {
         this.name = name;
         this.score = score;
+        this.loopNumber = loopNumber;
     }
 
     public String getName() {
@@ -25,5 +28,9 @@ public class TestInfo implements Serializable {
 
     public double getSoftwareScore() {
         return score.software;
+    }
+
+    public int getLoopNumber() {
+        return loopNumber;
     }
 }
