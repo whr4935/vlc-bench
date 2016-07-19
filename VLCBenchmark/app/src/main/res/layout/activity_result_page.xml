@@ -29,4 +29,24 @@
         android:id="@+id/uploadButton"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/softAvg"
+        android:layout_toStartOf="@+id/uploadButton"
+        android:layout_below="@+id/resultList"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/hardAvg"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/uploadButton"
+        android:layout_below="@+id/resultList"
+        android:layout_marginTop="10dp"
+        android:gravity="center" />
 </RelativeLayout>

@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/bench_x1"
-                />
+                android:onClick="testOne" />
 
         </LinearLayout>
         <LinearLayout
@@ -41,19 +41,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/bench_x3"
-                />
+                android:onClick="testThree" />
 
         </LinearLayout>
 
     </LinearLayout>
 
     <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
         android:layout_gravity="center_horizontal"
         android:max="100"
-        android:progress="20" />
+        android:progress="20"
+        style="@android:style/Widget.ProgressBar.Large"
+        android:indeterminate="false" />
 
 </LinearLayout>

@@ -8,10 +8,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import org.videolan.vlcbenchmark.service.TestInfo;
+
 import java.util.List;
 
 public class ResultAdapter extends BaseAdapter {
-    List<String> results;
+    List<TestInfo> results;
     private Context mContext;
 
     public ResultAdapter(Context c) {
@@ -25,7 +27,7 @@ public class ResultAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int i) {
-        return results.get(i);
+        return results.get(i / 3);
     }
 
     @Override
@@ -41,7 +43,17 @@ public class ResultAdapter extends BaseAdapter {
         else
             resultView = (TextView) view;
 
-        resultView.setText(results.get(i));
+        switch (i % 3) {
+            case 0:
+                resultView.setText(results.get(i / 3).getName());
+                break;
+            case 1:
+                resultView.setText(String.valueOf(results.get(i / 3).getHardwareScore()));
+                break;
+            default:
+                resultView.setText(String.valueOf(results.get(i / 3).getSoftwareScore()));
+                break;
+        }
         resultView.setBackgroundColor(Color.WHITE);
         resultView.setGravity(Gravity.CENTER);
         return resultView;
@@ -52,7 +64,7 @@ public class ResultAdapter extends BaseAdapter {
         return results.isEmpty();
     }
 
-    public void setResults(List<String> r) {
+    public void setResults(List<TestInfo> r) {
         results = r;
     }
 }
