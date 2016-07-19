@@ -28,7 +28,7 @@ import java.util.List;
 public class TestPage extends AppCompatActivity {
 
     private BenchServiceDispatcher dispatcher;
-    private double progress = 0;
+    private double progress = 30;
     private List<TestInfo> resultsTestOne;
     private List<TestInfo> resultsTestTwo;
     private List<TestInfo> resultsTestThree;
@@ -44,6 +44,7 @@ public class TestPage extends AppCompatActivity {
         resultsTestTwo = new ArrayList<>();
         resultsTestThree = new ArrayList<>();
         final ProgressBar pb = (ProgressBar)findViewById(R.id.progressBar);
+        pb.setProgress(25);
         dispatcher = new BenchServiceDispatcher(new BenchServiceListener() {
             @Override
             public void checkSumFailed(Exception exception) {
@@ -73,8 +74,22 @@ public class TestPage extends AppCompatActivity {
 
             @Override
             public void filePassed(TestInfo info) {
-                synchronized (resultsTestOne) {
-                    resultsTestOne.add(info);
+                switch (info.getLoopNumber()) {
+                    case 0:
+                        synchronized (resultsTestOne) {
+                            resultsTestOne.add(info);
+                        }
+                        break;
+                    case 1:
+                        synchronized (resultsTestTwo) {
+                            resultsTestTwo.add(info);
+                        }
+                        break;
+                    default:
+                        synchronized (resultsTestThree) {
+                            resultsTestThree.add(info);
+                        }
+                        break;
                 }
             }
 
