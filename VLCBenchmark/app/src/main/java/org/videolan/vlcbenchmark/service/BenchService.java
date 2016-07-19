@@ -98,12 +98,6 @@ public class BenchService extends IntentService {
         mainLoop(numberOfLoops);
     }
 
-    private static class BadDownloadException extends GeneralSecurityException {
-        public BadDownloadException(MediaInfo media) {
-            super(new Formatter().format("Media file %s couldn't was not correctly downloaded from %s", media.name, media.url).toString());
-        }
-    }
-
     private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {
         file.createNewFile();
         URL fileUrl = new URL(BASE_URL_MEDIA + fileData.url);
@@ -120,7 +114,7 @@ public class BenchService extends IntentService {
                 return;
             file.delete();
             resumeMedia = fileData;
-            throw new BadDownloadException(fileData);
+            throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
         } finally {
             if (fileStream != null)
                 fileStream.close();
