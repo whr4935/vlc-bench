@@ -7,13 +7,12 @@ import java.io.Serializable;
  */
 public class TestInfo implements Serializable {
     private String name;
-    private double hardwareScore;
-    private double softwareScore;
 
-    public TestInfo(String name, double hardwareScore, double softwareScore) {
+    private Score score = null;
+
+    public TestInfo(String name, Score score) {
         this.name = name;
-        this.hardwareScore = hardwareScore;
-        this.softwareScore = softwareScore;
+        this.score = score;
     }
 
     public String getName() {
@@ -21,10 +20,10 @@ public class TestInfo implements Serializable {
     }
 
     public double getHardwareScore() {
-        return hardwareScore;
+        return score.hardware;
     }
 
     public double getSoftwareScore() {
-        return softwareScore;
+        return score.software;
     }
 }

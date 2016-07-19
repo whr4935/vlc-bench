@@ -175,14 +175,15 @@ public class BenchService extends IntentService {
 
     private static final double NUMBER_OF_TESTS_PER_FILE = 4;
 
-    public double testFile(MediaInfo info, double percent, double pas) {
+    public Score testFile(MediaInfo info, double percent, double pas) {
+        Score score = new Score();
         for (int i = 0; i < NUMBER_OF_TESTS_PER_FILE; i++) {
             //Insert testing here
             percent += pas;
             reportStatus(PERCENT_STATUS, percent);
         }
-        reportStatus(FILE_TESTED_STATUS, new TestInfo(info.name, 0.0, 0.0));
-        return 0.0;
+        reportStatus(FILE_TESTED_STATUS, new TestInfo(info.name, score));
+        return score;
     }
 
     private void mainLoop(int numberOfLoops) {
