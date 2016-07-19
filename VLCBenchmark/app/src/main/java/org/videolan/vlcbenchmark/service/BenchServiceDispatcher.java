@@ -40,11 +40,11 @@ public class BenchServiceDispatcher extends BroadcastReceiver {
         switch (intent.getAction()) {
             case BenchService.CHECKSUM_FAILURE:
                 for (BenchServiceListener listener : listeners)
-                    listener.checkSumFailed((Exception) intent.getParcelableExtra(BenchService.EXTRA_CONTENT));
+                    listener.checkSumFailed((Exception) intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
                 break;
             case BenchService.DOWNLOAD_FAILURE:
                 for (BenchServiceListener listener : listeners)
-                    listener.downloadFailed((Exception) intent.getParcelableExtra(BenchService.EXTRA_CONTENT));
+                    listener.downloadFailed((Exception) intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
                 break;
             case BenchService.DONE_STATUS:
                 for (BenchServiceListener listener : listeners)
