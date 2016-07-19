@@ -6,7 +6,7 @@ package org.videolan.vlcbenchmark.service;
 public interface BenchServiceListener {
     void checkSumFailed(Exception exception);
     void downloadFailed(Exception exception);
-    void doneReceived(double score);
+    void doneReceived(Score score);
     void testPassed(String testName);
     void filePassed(TestInfo fileName);
     void updatePercent(double purcent);

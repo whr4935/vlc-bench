@@ -14,7 +14,7 @@ public class BenchServiceAdapter implements BenchServiceListener {
     }
 
     @Override
-    public void doneReceived(double score) {
+    public void doneReceived(Score score) {
     }
 
     @Override

@@ -187,16 +187,16 @@ public class BenchService extends IntentService {
     }
 
     private void mainLoop(int numberOfLoops) {
-        double score = 100.0;
+        Score score = new Score();
         double percent = DOWNLOAD_FINISHED_PERCENT;
         double pas = (DONE_PERCENT - DOWNLOAD_FINISHED_PERCENT) / (Double.valueOf(numberOfLoops) * filesInfo.size());
 
         for (int index = 0; index < numberOfLoops; index++) {
             for (MediaInfo fileData : filesInfo) {
-                testFile(fileData, percent, pas / NUMBER_OF_TESTS_PER_FILE);
+                score.add(testFile(fileData, percent, pas / NUMBER_OF_TESTS_PER_FILE));
                 percent += pas;
             }
         }
-        reportStatus(DONE_STATUS, score);
+        reportStatus(DONE_STATUS, score.avrage(numberOfLoops * filesInfo.size()));
     }
 }

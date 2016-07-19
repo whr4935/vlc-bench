@@ -30,7 +30,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             }
 
             @Override
-            public void doneReceived(double score) {
+            public void doneReceived(Score score) {
                 stop = true;
             }
 

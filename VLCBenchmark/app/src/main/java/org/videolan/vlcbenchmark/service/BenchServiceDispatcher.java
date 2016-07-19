@@ -48,7 +48,7 @@ public class BenchServiceDispatcher extends BroadcastReceiver {
                 break;
             case BenchService.DONE_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.doneReceived(intent.getDoubleExtra(BenchService.EXTRA_CONTENT, 0.0));
+                    listener.doneReceived((Score)intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
                 listeners.clear();
                 break;
             case BenchService.TEST_PASSED_STATUS:
