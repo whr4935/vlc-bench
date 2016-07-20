@@ -60,7 +60,7 @@ public class BenchService extends IntentService {
             sendMessage(CHECKSUM_FAILURE, e);
             return;
         }
-        mainLoop(numberOfLoops);
+        mainLoop();
     }
 
     @Override
@@ -185,7 +185,7 @@ public class BenchService extends IntentService {
         return score;
     }
 
-    private void mainLoop(int numberOfLoops) {
+    private void mainLoop() {
         Score score = new Score();
         double percent = DOWNLOAD_FINISHED_PERCENT;
         double pas = (DONE_PERCENT - DOWNLOAD_FINISHED_PERCENT) / (Double.valueOf(numberOfLoops) * filesInfo.size());
