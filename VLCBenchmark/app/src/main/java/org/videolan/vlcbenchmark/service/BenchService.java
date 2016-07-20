@@ -26,7 +26,7 @@ public class BenchService extends IntentService {
     private static final String DOMAIN_STR = "org.videolan.vlcbenchmark.service";
 
     //Actions
-    private static final String ACTION_LAUNCH_SERVICE = DOMAIN_STR + "LAUNCH_SERVICE";
+    protected static final String ACTION_LAUNCH_SERVICE = DOMAIN_STR + "LAUNCH_SERVICE";
     public static final String DOWNLOAD_FAILURE = DOMAIN_STR + "DOWNLOAD_FAILURE";
     public static final String CHECKSUM_FAILURE = DOMAIN_STR + "CHECKSUM_FAILURE";
     public static final String FILE_TESTED_STATUS = DOMAIN_STR + "FILE_TESTED";
@@ -35,7 +35,7 @@ public class BenchService extends IntentService {
     public static final String PERCENT_STATUS = DOMAIN_STR + "PERCENT";
 
     //Arguments
-    private static final String NUMBER_OF_TESTS = DOMAIN_STR + "NUMBER_OF_TESTS";
+    protected static final String NUMBER_OF_TESTS = DOMAIN_STR + "NUMBER_OF_TESTS";
     public static final String EXTRA_CONTENT = DOMAIN_STR + "EXTRA_CONTENT";
 
     //Percent tools
@@ -47,21 +47,6 @@ public class BenchService extends IntentService {
 
     private List<MediaInfo> filesInfo = null;
     private static MediaInfo resumeMedia = null;
-
-    public static void startService(Context context, BenchServiceDispatcher dispatcher, int numberOfTests) {
-        if (numberOfTests <= 0)
-            throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
-        Intent intent = new Intent(context, BenchService.class);
-        intent.setAction(ACTION_LAUNCH_SERVICE);
-        intent.putExtra(NUMBER_OF_TESTS, numberOfTests);
-        LocalBroadcastManager.getInstance(context).registerReceiver(dispatcher, new IntentFilter(DOWNLOAD_FAILURE));
-        LocalBroadcastManager.getInstance(context).registerReceiver(dispatcher, new IntentFilter(CHECKSUM_FAILURE));
-        LocalBroadcastManager.getInstance(context).registerReceiver(dispatcher, new IntentFilter(FILE_TESTED_STATUS));
-        LocalBroadcastManager.getInstance(context).registerReceiver(dispatcher, new IntentFilter(TEST_PASSED_STATUS));
-        LocalBroadcastManager.getInstance(context).registerReceiver(dispatcher, new IntentFilter(DONE_STATUS));
-        LocalBroadcastManager.getInstance(context).registerReceiver(dispatcher, new IntentFilter(PERCENT_STATUS));
-        context.startService(intent);
-    }
 
     public BenchService() {
         super("BenchService");

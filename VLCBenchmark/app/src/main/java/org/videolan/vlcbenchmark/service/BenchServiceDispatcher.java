@@ -3,6 +3,8 @@ package org.videolan.vlcbenchmark.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,18 @@ public class BenchServiceDispatcher extends BroadcastReceiver {
     }
 
     public void startService(Context context, int numberOfTests) {
-        BenchService.startService(context, this, numberOfTests);
+        if (numberOfTests <= 0)
+            throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
+        Intent intent = new Intent(context, BenchService.class);
+        intent.setAction(BenchService.ACTION_LAUNCH_SERVICE);
+        intent.putExtra(BenchService.NUMBER_OF_TESTS, numberOfTests);
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.DOWNLOAD_FAILURE));
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.CHECKSUM_FAILURE));
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.FILE_TESTED_STATUS));
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.TEST_PASSED_STATUS));
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.DONE_STATUS));
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.PERCENT_STATUS));
+        context.startService(intent);
     }
 
     @Override
