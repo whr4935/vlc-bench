@@ -1,10 +1,13 @@
 package org.videolan.vlcbenchmark.service;
 
-import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
+import android.content.ServiceConnection;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +15,17 @@ import java.util.List;
 /**
  * Created by penava_b on 18/07/16.
  */
-public class BenchServiceDispatcher extends BroadcastReceiver {
+public class BenchServiceDispatcher extends Handler {
 
     private List<BenchServiceListener> listeners = new ArrayList<BenchServiceListener>(1);
 
     public BenchServiceDispatcher(BenchServiceListener listener) {
-        super();
+        super(Looper.getMainLooper());
         listeners.add(listener);
     }
 
     public BenchServiceDispatcher() {
-        super();
+        super(Looper.getMainLooper());
     }
 
     public void add(BenchServiceListener listener) {
@@ -33,55 +36,60 @@ public class BenchServiceDispatcher extends BroadcastReceiver {
         listeners.remove(listener);
     }
 
-    public void startService(Context context, int numberOfTests) {
+    private ServiceConnection serviceConnection;
+
+    public void startService(Context context, final int numberOfTests) {
         if (numberOfTests <= 0)
             throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
         Intent intent = new Intent(context, BenchService.class);
-        intent.setAction(BenchService.ACTION_LAUNCH_SERVICE);
-        intent.putExtra(BenchService.NUMBER_OF_TESTS, numberOfTests);
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.DOWNLOAD_FAILURE));
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.CHECKSUM_FAILURE));
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.FILE_TESTED_STATUS));
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.TEST_PASSED_STATUS));
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.DONE_STATUS));
-        LocalBroadcastManager.getInstance(context).registerReceiver(this, new IntentFilter(BenchService.PERCENT_STATUS));
         context.startService(intent);
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder binder) {
+                if (binder == null)
+                    return;
+                ((BenchService.Binder) binder).sendData(numberOfTests, BenchServiceDispatcher.this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        };
+        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void stopService(Context context)
-    {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
-        Intent intent = new Intent(context, BenchService.class);
-        context.stopService(intent);
+    public void stopService(Context context) {
+        context.unbindService(serviceConnection);
+        context.stopService(new Intent(context, BenchService.class));
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        switch (intent.getAction()) {
-            case BenchService.CHECKSUM_FAILURE:
-                for (BenchServiceListener listener : listeners)
-                    listener.checkSumFailed((Exception) intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
-                break;
+    public void handleMessage(Message msg) {
+        switch (msg.what) {
             case BenchService.DOWNLOAD_FAILURE:
                 for (BenchServiceListener listener : listeners)
-                    listener.downloadFailed((Exception) intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
+                    listener.downloadFailed((Exception) msg.obj);
+                break;
+            case BenchService.CHECKSUM_FAILURE:
+                for (BenchServiceListener listener : listeners)
+                    listener.checkSumFailed((Exception) msg.obj);
                 break;
             case BenchService.DONE_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.doneReceived((Score)intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
+                    listener.doneReceived((Score) msg.obj);
                 listeners.clear();
                 break;
             case BenchService.TEST_PASSED_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.testPassed(intent.getStringExtra(BenchService.EXTRA_CONTENT));
+                    listener.testPassed((String) msg.obj);
                 break;
             case BenchService.FILE_TESTED_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.filePassed((TestInfo) intent.getSerializableExtra(BenchService.EXTRA_CONTENT));
+                    listener.filePassed((TestInfo) msg.obj);
                 break;
             case BenchService.PERCENT_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.updatePercent(intent.getDoubleExtra(BenchService.EXTRA_CONTENT, 0.0));
+                    listener.updatePercent((double) msg.obj);
                 break;
             default:
                 return;

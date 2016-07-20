@@ -2,16 +2,14 @@ package org.videolan.vlcbenchmark.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
+import android.os.Handler;
+import android.os.IBinder;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.GeneralSecurityException;
@@ -23,20 +21,13 @@ import java.util.List;
 
 public class BenchService extends IntentService {
 
-    private static final String DOMAIN_STR = "org.videolan.vlcbenchmark.service";
-
-    //Actions
-    protected static final String ACTION_LAUNCH_SERVICE = DOMAIN_STR + "LAUNCH_SERVICE";
-    public static final String DOWNLOAD_FAILURE = DOMAIN_STR + "DOWNLOAD_FAILURE";
-    public static final String CHECKSUM_FAILURE = DOMAIN_STR + "CHECKSUM_FAILURE";
-    public static final String FILE_TESTED_STATUS = DOMAIN_STR + "FILE_TESTED";
-    public static final String TEST_PASSED_STATUS = DOMAIN_STR + "TEST_PASSED";
-    public static final String DONE_STATUS = DOMAIN_STR + "DONE";
-    public static final String PERCENT_STATUS = DOMAIN_STR + "PERCENT";
-
-    //Arguments
-    protected static final String NUMBER_OF_TESTS = DOMAIN_STR + "NUMBER_OF_TESTS";
-    public static final String EXTRA_CONTENT = DOMAIN_STR + "EXTRA_CONTENT";
+    //Message's what
+    public static final int DOWNLOAD_FAILURE = 0;
+    public static final int CHECKSUM_FAILURE = 1;
+    public static final int FILE_TESTED_STATUS = 2;
+    public static final int TEST_PASSED_STATUS = 3;
+    public static final int DONE_STATUS = 4;
+    public static final int PERCENT_STATUS = 5;
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 8;
@@ -46,6 +37,8 @@ public class BenchService extends IntentService {
     private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/DaemonSnake/FileDump/master/";
 
     private List<MediaInfo> filesInfo = null;
+    private Handler dispatcher = null;
+    private int numberOfLoops;
     private static MediaInfo resumeMedia = null;
 
     public BenchService() {
@@ -58,25 +51,43 @@ public class BenchService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent == null || !ACTION_LAUNCH_SERVICE.equals(intent.getAction()))
-            return;
-        int numberOfLoops = intent.getIntExtra(NUMBER_OF_TESTS, 0);
-        if (numberOfLoops <= 0)
-            return ;
         try {
             downloadFiles();
         } catch (IOException e) {
-            reportStatus(DOWNLOAD_FAILURE, e);
+            sendMessage(DOWNLOAD_FAILURE, e);
             return;
         } catch (GeneralSecurityException e) {
-            reportStatus(CHECKSUM_FAILURE, e);
+            sendMessage(CHECKSUM_FAILURE, e);
             return;
         }
         mainLoop(numberOfLoops);
     }
 
-    private void reportStatus(String action, Serializable data) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(action).putExtra(EXTRA_CONTENT, data));
+    @Override
+    public IBinder onBind(Intent intent) {
+        return new Binder();
+    }
+
+    protected class Binder extends android.os.Binder {
+        void sendData(int numberOfLoops, Handler dispatcher) {
+            BenchService.this.numberOfLoops = numberOfLoops;
+            BenchService.this.dispatcher = dispatcher;
+            synchronized (this) {
+                notifyAll();
+            }
+        }
+    }
+
+    private void sendMessage(int what, Object obj) {
+        if (dispatcher == null)
+            synchronized (this) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        dispatcher.sendMessage(dispatcher.obtainMessage(what, obj));
     }
 
     private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {
@@ -109,7 +120,7 @@ public class BenchService extends IntentService {
             return;
         filesInfo = JSonParser.getMediaInfos();
 
-        reportStatus(PERCENT_STATUS, JSON_FINISHED_PERCENT);
+        sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
         File mediaFolder = new File(getFilesDir().getPath() + "/media_dir");
         if (!mediaFolder.exists())
             mediaFolder.mkdir();
@@ -124,13 +135,13 @@ public class BenchService extends IntentService {
                 if (localFile.isFile() && checkFileSum(localFile, fileData.checksum)) {
                     fileData.localUrl = localFile.getAbsolutePath();
                     unusedFiles.remove(localFile);
-                    reportStatus(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
+                    sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
                     continue;
                 } else
                     localFile.delete();
             downloadFile(localFile, fileData);
             fileData.localUrl = localFile.getAbsolutePath();
-            reportStatus(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
+            sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
         }
         resumeMedia = null;
         for (File toRemove : unusedFiles)
@@ -168,9 +179,9 @@ public class BenchService extends IntentService {
         for (int i = 0; i < NUMBER_OF_TESTS_PER_FILE; i++) {
             //Insert testing here
             percent += pas;
-            reportStatus(PERCENT_STATUS, percent);
+            sendMessage(PERCENT_STATUS, percent);
         }
-        reportStatus(FILE_TESTED_STATUS, new TestInfo(info.name, score, loopIndex));
+        sendMessage(FILE_TESTED_STATUS, new TestInfo(info.name, score, loopIndex));
         return score;
     }
 
@@ -185,6 +196,6 @@ public class BenchService extends IntentService {
                 percent += pas;
             }
         }
-        reportStatus(DONE_STATUS, score.avrage(numberOfLoops * filesInfo.size()));
+        sendMessage(DONE_STATUS, score.avrage(numberOfLoops * filesInfo.size()));
     }
 }
