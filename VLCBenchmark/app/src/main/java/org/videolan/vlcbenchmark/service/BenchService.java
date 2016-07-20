@@ -174,7 +174,7 @@ public class BenchService extends IntentService {
 
     private static final double NUMBER_OF_TESTS_PER_FILE = 4;
 
-    public Score testFile(int loopIndex, MediaInfo info, double percent, double pas) {
+    private Score testFile(int loopIndex, MediaInfo info, double percent, double pas) {
         Score score = new Score();
         for (int i = 0; i < NUMBER_OF_TESTS_PER_FILE; i++) {
             //Insert testing here
