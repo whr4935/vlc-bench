@@ -53,6 +53,10 @@ public class BenchService extends IntentService {
     }
 
     @Override
+    public void onDestroy() {
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
         if (intent == null || !ACTION_LAUNCH_SERVICE.equals(intent.getAction()))
             return;

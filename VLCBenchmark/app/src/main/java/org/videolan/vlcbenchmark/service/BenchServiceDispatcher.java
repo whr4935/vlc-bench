@@ -48,6 +48,13 @@ public class BenchServiceDispatcher extends BroadcastReceiver {
         context.startService(intent);
     }
 
+    public void stopService(Context context)
+    {
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+        Intent intent = new Intent(context, BenchService.class);
+        context.stopService(intent);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         switch (intent.getAction()) {
