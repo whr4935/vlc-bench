@@ -5,16 +5,16 @@ import java.io.Serializable;
 /**
  * Created by penava_b on 19/07/16.
  */
-public final class TestInfo implements Serializable {
-    protected String name;
-    protected Score score = new Score();
-    protected int loopNumber;
-    protected int frameDropped = 0;
-    protected double percentOfBadScreenshots = 0;
-    protected double percentOfBadSeek = 0;
-    protected int numberOfWarnings = 0;
+public class TestInfo implements Serializable {
+    String name;
+    Score score = new Score();
+    int loopNumber;
+    int frameDropped = 0;
+    double percentOfBadScreenshots = 0;
+    double percentOfBadSeek = 0;
+    int numberOfWarnings = 0;
 
-    protected TestInfo(String name, int loopNumber) {
+    TestInfo(String name, int loopNumber) {
         this.name = name;
     }
 
