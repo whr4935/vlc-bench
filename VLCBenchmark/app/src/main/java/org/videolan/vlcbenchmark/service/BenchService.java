@@ -2,6 +2,9 @@ package org.videolan.vlcbenchmark.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -94,6 +97,10 @@ public class BenchService extends IntentService {
     }
 
     private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {
+        if( WifiInfo.getDetailedStateOf(((WifiManager) getSystemService(WIFI_SERVICE)).getConnectionInfo().getSupplicantState()) != NetworkInfo.DetailedState.CONNECTED ) {
+            resumeMedia = fileData;
+            throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
+        }
         file.createNewFile();
         URL fileUrl = new URL(BASE_URL_MEDIA + fileData.url);
         FileOutputStream fileStream = null;
