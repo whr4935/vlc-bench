@@ -63,6 +63,8 @@ public class BenchServiceDispatcher extends Handler {
     }
 
     public void stopService() {
+        if (serviceConnection == null || initContext == null)
+            return ;
         initContext.unbindService(serviceConnection);
         serviceConnection = null;
         initContext.stopService(new Intent(initContext, BenchService.class));
