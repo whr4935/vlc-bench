@@ -18,6 +18,7 @@ import java.util.List;
 public class BenchServiceDispatcher extends Handler {
 
     private List<BenchServiceListener> listeners = new ArrayList<BenchServiceListener>(1);
+    private Context initContext = null;
 
     public BenchServiceDispatcher(BenchServiceListener listener) {
         super(Looper.getMainLooper());
@@ -41,6 +42,7 @@ public class BenchServiceDispatcher extends Handler {
     public void startService(Context context, final int numberOfTests) {
         if (numberOfTests <= 0)
             throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
+        initContext = context;
         Intent intent = new Intent(context, BenchService.class);
         context.startService(intent);
         serviceConnection = new ServiceConnection() {
@@ -58,9 +60,9 @@ public class BenchServiceDispatcher extends Handler {
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void stopService(Context context) {
-        context.unbindService(serviceConnection);
-        context.stopService(new Intent(context, BenchService.class));
+    public void stopService() {
+        initContext.unbindService(serviceConnection);
+        initContext.stopService(new Intent(initContext, BenchService.class));
     }
 
     @Override
