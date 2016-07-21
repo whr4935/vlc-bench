@@ -136,6 +136,10 @@ public class BenchService extends IntentService {
             mediaFolder.mkdir();
         HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
         int offset = (resumeMedia == null ? 0 : filesInfo.indexOf(resumeMedia));
+        if (offset == -1) {
+            resumeMedia = null;
+            offset = 0;
+        }
         List<MediaInfo> subList = filesInfo.subList(offset, filesInfo.size());
         double percent = 1.0 / filesInfo.size() * offset;
         for (MediaInfo fileData : subList) {
