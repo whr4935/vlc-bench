@@ -16,6 +16,7 @@ public class TestInfo implements Serializable {
 
     TestInfo(String name, int loopNumber) {
         this.name = name;
+        this.loopNumber = loopNumber;
     }
 
     public String getName() {
