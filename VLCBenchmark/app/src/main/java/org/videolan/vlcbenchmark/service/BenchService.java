@@ -47,6 +47,7 @@ public class BenchService extends IntentService {
 
     @Override
     public void onDestroy() {
+        dispatcher = null;
     }
 
     @Override
@@ -88,6 +89,8 @@ public class BenchService extends IntentService {
                 }
             }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, obj));
+        if (what == DONE_STATUS)
+            dispatcher = null;
     }
 
     private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {

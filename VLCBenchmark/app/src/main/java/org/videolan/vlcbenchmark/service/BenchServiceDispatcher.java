@@ -42,6 +42,8 @@ public class BenchServiceDispatcher extends Handler {
     public void startService(Context context, final int numberOfTests) {
         if (numberOfTests <= 0)
             throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
+        if (initContext != null || serviceConnection != null)
+            throw new RuntimeException("Can't create two BenchService from the same BenchServiceDispatcher, stop the previous one first");
         initContext = context;
         Intent intent = new Intent(context, BenchService.class);
         context.startService(intent);
@@ -62,7 +64,9 @@ public class BenchServiceDispatcher extends Handler {
 
     public void stopService() {
         initContext.unbindService(serviceConnection);
+        serviceConnection = null;
         initContext.stopService(new Intent(initContext, BenchService.class));
+        initContext = null;
     }
 
     @Override
@@ -77,6 +81,7 @@ public class BenchServiceDispatcher extends Handler {
                     listener.checkSumFailed((Exception) msg.obj);
                 break;
             case BenchService.DONE_STATUS:
+                stopService();
                 for (BenchServiceListener listener : listeners)
                     listener.doneReceived((Score) msg.obj);
                 listeners.clear();
