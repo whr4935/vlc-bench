@@ -71,23 +71,23 @@ public class BenchService extends IntentService {
 
     protected class Binder extends android.os.Binder {
         void sendData(int numberOfLoops, Handler dispatcher) {
-            BenchService.this.numberOfLoops = numberOfLoops;
-            BenchService.this.dispatcher = dispatcher;
             synchronized (this) {
+                BenchService.this.numberOfLoops = numberOfLoops;
+                BenchService.this.dispatcher = dispatcher;
                 notifyAll();
             }
         }
     }
 
     private void sendMessage(int what, Object obj) {
-        if (dispatcher == null)
-            synchronized (this) {
+        synchronized (this) {
+            if (dispatcher == null)
                 try {
-                    this.wait();
+                    wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }
+        }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, obj));
         if (what == DONE_STATUS)
             dispatcher = null;
