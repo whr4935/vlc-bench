@@ -1,6 +1,8 @@
 package org.videolan.vlcbenchmark;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
@@ -36,8 +38,8 @@ public class ResultAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        TextView resultView;
+    public View getView(final int i, View view, ViewGroup viewGroup) {
+        final TextView resultView;
         if (view == null)
             resultView = new TextView(mContext);
         else
@@ -56,6 +58,27 @@ public class ResultAdapter extends BaseAdapter {
         }
         resultView.setBackgroundColor(Color.WHITE);
         resultView.setGravity(Gravity.CENTER);
+
+        resultView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle("Test details")
+                        .setMessage("Test name : " + results.get(i / 3).getName()
+                                + "\nFrames dropped : " + results.get(i / 3).getFrameDropped()
+                                + "\nBad screenshots : " + results.get(i / 3).getPercentOfBadScreenshots() + "%"
+                                + "\nBad seeks : " + results.get(i / 3).getPercentOfBadSeek() + "%"
+                                + "\nWarnings : " + results.get(i / 3).getNumberOfWarnings()
+                        )
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+
         return resultView;
     }
 

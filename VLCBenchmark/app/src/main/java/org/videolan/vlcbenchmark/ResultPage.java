@@ -1,20 +1,18 @@
 package org.videolan.vlcbenchmark;
 
-import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.GridView;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
 import android.widget.TabHost;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.service.TestInfo;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class ResultPage extends AppCompatActivity {
+import values.GridFragment;
+
+public class ResultPage extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,33 +25,35 @@ public class ResultPage extends AppCompatActivity {
         double soft = getIntent().getDoubleExtra("soft", 0);
         double hard = getIntent().getDoubleExtra("hard", 0);
 
-        GridView gv = (GridView)findViewById(R.id.resultList1);
-        ResultAdapter resultAdapter = new ResultAdapter(this);
-        resultAdapter.setResults(r1);
-        gv.setAdapter(resultAdapter);
-        gv.setFocusable(false);
+        final FragmentTabHost mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
+        mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
 
+        Bundle args = new Bundle();
+        args.putSerializable("results", r1);
+        mTabHost.addTab(mTabHost.newTabSpec("tab1").setIndicator("Test 1"), GridFragment.class, args);
         if (r2.size() > 0) {
-            GridView gv2 = (GridView)findViewById(R.id.resultList2);
-            ResultAdapter resultAdapter2 = new ResultAdapter(this);
-            resultAdapter2.setResults(r2);
-            gv2.setAdapter(resultAdapter2);
-            gv2.setFocusable(false);
+            args = new Bundle();
+            args.putSerializable("results", r2);
+            mTabHost.addTab(mTabHost.newTabSpec("tab2").setIndicator("Test 2"), GridFragment.class, args);
+        }
+        if (r3.size() > 0) {
+            args = new Bundle();
+            args.putSerializable("results", r3);
+            mTabHost.addTab(mTabHost.newTabSpec("tab3").setIndicator("Test 3"), GridFragment.class, args);
         }
 
-        if (r3.size() > 0) {
-            GridView gv3 = (GridView)findViewById(R.id.resultList3);
-            ResultAdapter resultAdapter3 = new ResultAdapter(this);
-            resultAdapter3.setResults(r3);
-            gv3.setAdapter(resultAdapter3);
-            gv3.setFocusable(false);
-        }
+        mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener(){
+            @Override
+            public void onTabChanged(String tabId) {
+            }});
 
         TextView softView = (TextView)findViewById(R.id.softAvg);
-        softView.setText("Software score : " + soft);
+        String softText = "Software score : " + soft;
+        softView.setText(softText);
 
         TextView hardView = (TextView)findViewById(R.id.hardAvg);
-        hardView.setText("Hardware score : " + hard);
+        String hardText = "Hardware score : " + hard;
+        hardView.setText(hardText);
 
     }
 
