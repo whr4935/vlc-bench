@@ -86,7 +86,6 @@ public class BenchServiceDispatcher extends Handler {
                 stopService();
                 for (BenchServiceListener listener : listeners)
                     listener.doneReceived((Score) msg.obj);
-                listeners.clear();
                 break;
             case BenchService.TEST_PASSED_STATUS:
                 for (BenchServiceListener listener : listeners)
