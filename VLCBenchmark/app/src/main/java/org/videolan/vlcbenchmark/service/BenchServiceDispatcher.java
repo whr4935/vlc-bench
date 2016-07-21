@@ -75,10 +75,12 @@ public class BenchServiceDispatcher extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BenchService.DOWNLOAD_FAILURE:
+                stopService();
                 for (BenchServiceListener listener : listeners)
                     listener.downloadFailed((Exception) msg.obj);
                 break;
             case BenchService.CHECKSUM_FAILURE:
+                stopService();
                 for (BenchServiceListener listener : listeners)
                     listener.checkSumFailed((Exception) msg.obj);
                 break;
