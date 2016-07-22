@@ -1,5 +1,6 @@
 package org.videolan.vlcbenchmark;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -23,9 +24,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 
-public class ScreenshotActivity extends AppCompatActivity {
-
+public class ScreenshotActivity extends Activity {
     /* Constants */
+
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
             | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     private static final int REQUEST_SCREENSHOT = 666; //tmp
