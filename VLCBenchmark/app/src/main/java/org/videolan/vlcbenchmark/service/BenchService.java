@@ -1,12 +1,17 @@
 package org.videolan.vlcbenchmark.service;
 
 import android.app.IntentService;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
+
+import org.videolan.vlcbenchmark.ScreenshotActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,8 +26,10 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-public class BenchService extends IntentService {
+public class BenchService extends IntentService implements Runnable {
 
     //Message's what
     public static final int DOWNLOAD_FAILURE = 0;
@@ -72,6 +79,8 @@ public class BenchService extends IntentService {
         return new Binder();
     }
 
+    private CountDownLatch screenshotSynchronize = null;
+
     protected class Binder extends android.os.Binder {
         void sendData(int numberOfLoops, Handler dispatcher) {
             synchronized (BenchService.this) {
@@ -80,6 +89,16 @@ public class BenchService extends IntentService {
                 notifyAll();
             }
         }
+
+        Runnable getScreenshotIsDone() {
+            return BenchService.this;
+        }
+    }
+
+    @Override
+    public void run() {
+        if (screenshotSynchronize != null)
+            screenshotSynchronize.countDown();
     }
 
     private void sendMessage(int what, Object obj) {
@@ -187,6 +206,20 @@ public class BenchService extends IntentService {
     }
 
     private static final double NUMBER_OF_TESTS_PER_FILE = 4;
+
+    public static void getFinishedCallback(Context context, final IServiceConnected serviceConnected) {
+        context.bindService(new Intent(context, BenchService.class), new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                serviceConnected.onConnect(this, ((Binder)iBinder).getScreenshotIsDone());
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        }, Context.BIND_AUTO_CREATE);
+
+    }
 
     private Score testFile(int loopIndex, MediaInfo info, double percent, double pas) {
         TestInfo testStats = new TestInfo(info.name, loopIndex);
