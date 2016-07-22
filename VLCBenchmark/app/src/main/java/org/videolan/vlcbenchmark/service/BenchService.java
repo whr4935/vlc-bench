@@ -74,7 +74,7 @@ public class BenchService extends IntentService {
 
     protected class Binder extends android.os.Binder {
         void sendData(int numberOfLoops, Handler dispatcher) {
-            synchronized (this) {
+            synchronized (BenchService.this) {
                 BenchService.this.numberOfLoops = numberOfLoops;
                 BenchService.this.dispatcher = dispatcher;
                 notifyAll();
