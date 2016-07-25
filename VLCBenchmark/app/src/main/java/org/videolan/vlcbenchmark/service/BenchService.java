@@ -5,9 +5,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -117,8 +117,21 @@ public class BenchService extends IntentService implements Runnable {
         sendMessage(what, FAILURE_STATES.SUCCESS, obj);
     }
 
-    private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {
-        if( WifiInfo.getDetailedStateOf(((WifiManager) getSystemService(WIFI_SERVICE)).getConnectionInfo().getSupplicantState()) != NetworkInfo.DetailedState.CONNECTED ) {
+    private static boolean hasWifiAndLan(Context context) {
+        boolean networkEnabled = false;
+        ConnectivityManager connectivity = (ConnectivityManager) (context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        if (connectivity != null) {
+            NetworkInfo networkInfo = connectivity.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected() &&
+                    (networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
+                networkEnabled = true;
+            }
+        }
+        return networkEnabled;
+    }
+
+    private void downloadFile(File file, MediaInfo fileData, double percent, double pas) throws IOException, GeneralSecurityException {
+        if (hasWifiAndLan(this)) {
             resumeMedia = fileData;
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
