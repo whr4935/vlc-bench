@@ -84,13 +84,10 @@ public class ScreenshotActivity extends Activity {
      * Takes the screenshot
      */
     public void onNewIntent(Intent intent) {
-        boolean state;
-        state = intent.getBooleanExtra(Boolean.class.getName(), false);
-        if (state){
-            if (mProjectionManager != null) {
-                mScreenshotIntent = mProjectionManager.createScreenCaptureIntent();
-                startActivityForResult(mScreenshotIntent, REQUEST_SCREENSHOT);
-            }
+
+        if (mProjectionManager != null) {
+            mScreenshotIntent = mProjectionManager.createScreenCaptureIntent();
+            startActivityForResult(mScreenshotIntent, REQUEST_SCREENSHOT);
         }
     }
 
