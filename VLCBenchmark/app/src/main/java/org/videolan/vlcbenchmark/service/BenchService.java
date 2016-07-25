@@ -146,7 +146,7 @@ public class BenchService extends IntentService implements Runnable {
     }
 
     private void downloadFile(File file, MediaInfo fileData, double percent, double pas) throws IOException, GeneralSecurityException {
-        if (hasWifiAndLan(this)) {
+        if (!hasWifiAndLan(this)) {
             resumeMedia = fileData;
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
