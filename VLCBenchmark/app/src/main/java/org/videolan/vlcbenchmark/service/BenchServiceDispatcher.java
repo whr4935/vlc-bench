@@ -1,5 +1,6 @@
 package org.videolan.vlcbenchmark.service;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +19,7 @@ import java.util.List;
 public class BenchServiceDispatcher extends Handler {
 
     private List<BenchServiceListener> listeners = new ArrayList<BenchServiceListener>(1);
-    private Context initContext = null;
+    private Activity initContext = null;
 
     public BenchServiceDispatcher(BenchServiceListener listener) {
         super(Looper.getMainLooper());
@@ -39,7 +40,7 @@ public class BenchServiceDispatcher extends Handler {
 
     private ServiceConnection serviceConnection;
 
-    public void startService(Context context, final int numberOfTests) {
+    public void startService(Activity context, final int numberOfTests) {
         if (numberOfTests <= 0)
             throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
         if (initContext != null || serviceConnection != null)
@@ -71,6 +72,12 @@ public class BenchServiceDispatcher extends Handler {
         initContext = null;
     }
 
+    private VlcPlaybackData lastVlcPlaybackData = null;
+
+    public void vlcPlaybackFinished(int result) {
+        lastVlcPlaybackData.finished(result);
+    }
+
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
@@ -95,6 +102,11 @@ public class BenchServiceDispatcher extends Handler {
             case BenchService.PERCENT_STATUS:
                 for (BenchServiceListener listener : listeners)
                     listener.updatePercent((double) msg.obj);
+                break;
+            case BenchService.VLC_PLAYBACK:
+                VlcPlaybackData data = (VlcPlaybackData) msg.obj;
+                lastVlcPlaybackData = data;
+                ((Activity)initContext).startActivityForResult(data.getLauncher(), data.getCode());
                 break;
             default:
                 return;
