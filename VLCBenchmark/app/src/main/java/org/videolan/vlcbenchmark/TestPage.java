@@ -2,6 +2,8 @@ package org.videolan.vlcbenchmark;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -114,4 +116,75 @@ public class TestPage extends Activity {
         }
     }
 
+    private boolean checkSignature() {
+        String benchPackageName = this.getPackageName();
+        String vlcPackageName;
+        Signature[] sigs_vlc = null;
+        Signature[] sigs = null;
+        int vlcSignature;
+        int benchSignature;
+
+        /* Getting application signature*/
+        try {
+            sigs = this.getPackageManager().getPackageInfo(benchPackageName, PackageManager.GET_SIGNATURES).signatures;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("VLCBenchmark", "Failed to get signatures");
+        }
+
+        /* Checking to see if there is any signature */
+        if (sigs != null) {
+            if (sigs.length > 0) {
+                benchSignature = sigs[0].hashCode();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        /* Getting vlc normal or debug package name, *
+         * according to our application's state */
+        if (benchPackageName.contains("debug")) {
+            vlcPackageName = "org.videolan.vlc.debug";
+        } else {
+            vlcPackageName = "org.videolan.vlc";
+        }
+
+        /* Debug */
+        Log.i("VLCBenchmark", "benchPackage = " + benchPackageName);
+        Log.i("VLCBenchmark", "vlcPackage = " + vlcPackageName);
+
+        /* Getting vlc's signature */
+        try {
+            sigs_vlc = this.getPackageManager().getPackageInfo(vlcPackageName, PackageManager.GET_SIGNATURES).signatures;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("VLCBenchmark", "Failed to get second signature");
+        }
+
+        /* checking to see if there is are any signatures */
+        if (sigs_vlc != null) {
+            if (sigs_vlc.length > 0) {
+                vlcSignature = sigs_vlc[0].hashCode();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        /* Debug */
+        Log.i("VLCBenchmark", "benchSignature = " + benchSignature);
+        Log.i("VLCBenchmark", "vlcSignature = " + vlcSignature);
+
+        /* Checking to see if the signatures correspond */
+        if (benchSignature != vlcSignature) {
+            return false;
+        }
+
+        /* Debug */
+        Log.i("VLCBenchmark", "Both signatures are the same");
+
+        return true;
+    }
 }
+
