@@ -222,13 +222,16 @@ public class BenchService extends IntentService implements Runnable {
 
         try {
             stream = new FileInputStream(file);
-            digest = new DigestInputStream(stream, (algorithm = MessageDigest.getInstance("SHA512")));
-            while (digest.read() != -1)
-                ;
-            byte[] bArray = algorithm.digest();
+            algorithm = MessageDigest.getInstance("SHA512");
+            byte[] buff = new byte[2048];
+            int read = 0;
+            while ((read = stream.read(buff, 0, 2048)) != -1)
+                algorithm.update(buff, 0, read);
+            long time1 = System.currentTimeMillis();
+            buff = algorithm.digest();
             StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < bArray.length; i++) {
-                sb.append(Integer.toString((bArray[i] & 0xff) + 0x100, 16).substring(1));
+            for (int i = 0; i < buff.length; i++) {
+                sb.append(Integer.toString((buff[i] & 0xff) + 0x100, 16).substring(1));
             }
             return sb.toString().equals(checksum);
         } finally {
