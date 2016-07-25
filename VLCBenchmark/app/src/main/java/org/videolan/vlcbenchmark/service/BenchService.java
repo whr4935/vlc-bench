@@ -31,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 public class BenchService extends IntentService implements Runnable {
 
     //Message's what
-    public static final int FAILURE_STATE = 0;
+    public static final int FAILURE = 0;
     public static final int FILE_TESTED_STATUS = 1;
     public static final int TEST_PASSED_STATUS = 2;
     public static final int DONE_STATUS = 3;
@@ -63,10 +63,10 @@ public class BenchService extends IntentService implements Runnable {
         try {
             downloadFiles();
         } catch (IOException e) {
-            sendMessage(FAILURE_STATE, FAILURE_STATES.CHECKSUM_FAILED, e);
+            sendMessage(FAILURE, FAILURE_STATES.CHECKSUM_FAILED, e);
             return;
         } catch (GeneralSecurityException e) {
-            sendMessage(FAILURE_STATE, FAILURE_STATES.DOWNLOAD_FAILED, e);
+            sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
             return;
         }
         mainLoop();
@@ -109,7 +109,7 @@ public class BenchService extends IntentService implements Runnable {
                 }
         }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
-        if (what == DONE_STATUS || what == FAILURE_STATE)
+        if (what == DONE_STATUS || what == FAILURE)
             dispatcher = null;
     }
 
