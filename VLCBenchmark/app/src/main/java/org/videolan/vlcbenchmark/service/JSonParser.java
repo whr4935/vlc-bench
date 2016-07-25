@@ -53,7 +53,7 @@ public class JSonParser {
 
     static MediaInfo readMediaInfo(JsonReader reader) throws IOException {
         String url = null, name = null, checksum = null;
-        List<Double> snapshot = null;
+        List<Long> snapshot = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -69,7 +69,7 @@ public class JSonParser {
                     checksum = reader.nextString();
                     break;
                 case "snapshot":
-                    snapshot = readDoublesArray(reader);
+                    snapshot = readLongArray(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -80,12 +80,12 @@ public class JSonParser {
         return new MediaInfo(url, name, checksum, snapshot);
     }
 
-    static List<Double> readDoublesArray(JsonReader reader) throws IOException {
-        List<Double> doubles = new ArrayList<Double>();
+    static List<Long> readLongArray(JsonReader reader) throws IOException {
+        List<Long> doubles = new ArrayList<Long>();
 
         reader.beginArray();
         while (reader.hasNext())
-            doubles.add(reader.nextDouble());
+            doubles.add(reader.nextLong());
         reader.endArray();
         return doubles;
     }
