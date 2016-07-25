@@ -58,6 +58,15 @@ public class BenchService extends IntentService implements Runnable {
         dispatcher = null;
     }
 
+    private static class InTestException extends Exception {
+        FAILURE_STATES what;
+
+        public InTestException(FAILURE_STATES what, String msg) {
+            super(msg);
+            this.what = what;
+        }
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
@@ -69,7 +78,13 @@ public class BenchService extends IntentService implements Runnable {
             sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
             return;
         }
-        mainLoop();
+        try {
+            mainLoop();
+        } catch (InTestException e) {
+            sendMessage(FAILURE, e.what, e);
+        } catch (InterruptedException e) {
+            sendMessage(FAILURE, FAILURE_STATES.SERVICE_INTERRUPTION, e);
+        }
     }
 
     @Override
@@ -240,7 +255,7 @@ public class BenchService extends IntentService implements Runnable {
 
     }
 
-    private Score testFile(int loopIndex, MediaInfo info, double percent, double pas) {
+    private Score testFile(int loopIndex, MediaInfo info, double percent, double pas) throws InTestException, InterruptedException {
         TestInfo testStats = new TestInfo(info.name, loopIndex);
         for (int i = 0; i < NUMBER_OF_TESTS_PER_FILE; i++) {
             //Insert testing here
@@ -251,7 +266,7 @@ public class BenchService extends IntentService implements Runnable {
         return testStats.score;
     }
 
-    private void mainLoop() {
+    private void mainLoop() throws InterruptedException, InTestException {
         Score score = new Score();
         double percent = DOWNLOAD_FINISHED_PERCENT;
         double pas = (DONE_PERCENT - DOWNLOAD_FINISHED_PERCENT) / (Double.valueOf(numberOfLoops) * filesInfo.size());
