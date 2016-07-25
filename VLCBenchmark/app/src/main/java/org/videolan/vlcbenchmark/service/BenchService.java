@@ -239,8 +239,6 @@ public class BenchService extends IntentService implements Runnable {
         }
     }
 
-    private static final double NUMBER_OF_TESTS_PER_FILE = 4;
-
     public static void getFinishedCallback(Context context, final IServiceConnected serviceConnected) {
         context.bindService(new Intent(context, BenchService.class), new ServiceConnection() {
             @Override
@@ -252,12 +250,16 @@ public class BenchService extends IntentService implements Runnable {
             public void onServiceDisconnected(ComponentName componentName) {
             }
         }, Context.BIND_AUTO_CREATE);
+    }
 
+    private enum TESTS {
+        SCREENSHOT,
+        PLAYBACK
     }
 
     private Score testFile(int loopIndex, MediaInfo info, double percent, double pas) throws InTestException, InterruptedException {
         TestInfo testStats = new TestInfo(info.name, loopIndex);
-        for (int i = 0; i < NUMBER_OF_TESTS_PER_FILE; i++) {
+        for (int i = 0; i < TESTS.values().length; i++) {
             //Insert testing here
             percent += pas;
             sendMessage(PERCENT_STATUS, percent);
@@ -273,7 +275,7 @@ public class BenchService extends IntentService implements Runnable {
 
         for (int loopIndex = 0; loopIndex < numberOfLoops; loopIndex++) {
             for (MediaInfo fileData : filesInfo) {
-                score.add(testFile(loopIndex, fileData, percent, pas / NUMBER_OF_TESTS_PER_FILE));
+                score.add(testFile(loopIndex, fileData, percent, pas / TESTS.values().length));
                 percent += pas;
             }
         }
