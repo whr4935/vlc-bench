@@ -17,15 +17,11 @@
         </activity>
         <activity android:name=".ResultPage">
         </activity>
-<<<<<<< HEAD
         <service android:name=".service.BenchService" android:launchMode="singleTask">
-=======
-        <activity android:name=".ScreenshotActivity"
-            android:theme="@android:style/Theme.Translucent">
-        </activity>
-        <service android:name=".service.BenchService">
->>>>>>> e602094... add Transparency to ScreenshotActivity
         </service>
+        <activity android:name=".ScreenshotActivity"
+                  android:theme="@android:style/Theme.Translucent">
+        </activity>
 
     </application>
     <uses-permission android:name="android.permission.INTERNET">
