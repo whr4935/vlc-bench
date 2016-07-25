@@ -3,6 +3,7 @@ package org.videolan.vlcbenchmark;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -14,6 +15,7 @@ import org.videolan.vlcbenchmark.service.TestInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by noeldu_b on 7/11/16.
@@ -41,7 +43,7 @@ public class TestPage extends Activity {
 
             @Override
             public void failure(FAILURE_STATES reason, Exception exception) {
-                
+                Log.e("testPage", exception.toString());
             }
 
             @Override
@@ -95,11 +97,21 @@ public class TestPage extends Activity {
     }
 
     public void testOne(View v) {
-        dispatcher.startService(this, 1);
+        try {
+            dispatcher.startService(this, 1);
+        }
+        catch (Exception e) {
+            Log.e("testPage", "The service couldn't be started");
+        }
     }
 
     public void testThree(View v) {
-        dispatcher.startService(this, 3);
+        try {
+            dispatcher.startService(this, 3);
+        }
+        catch (Exception e) {
+            Log.e("testPage", "The service couldn't be started");
+        }
     }
 
 }
