@@ -84,7 +84,7 @@ public class BenchService extends IntentService implements Runnable {
             synchronized (BenchService.this) {
                 BenchService.this.numberOfLoops = numberOfLoops;
                 BenchService.this.dispatcher = dispatcher;
-                notifyAll();
+                BenchService.this.notifyAll();
             }
         }
 
