@@ -141,11 +141,16 @@ public class BenchService extends IntentService implements Runnable {
         InputStream urlStream = null;
         try {
             fileStream = new FileOutputStream(file);
+            percent -= pas;
+            pas /= fileUrl.openConnection().getContentLength();
             urlStream = fileUrl.openStream();
             byte[] buffer = new byte[2048];
             int read = 0;
-            while ((read = urlStream.read(buffer, 0, 2048)) != -1)
+            while ((read = urlStream.read(buffer, 0, 2048)) != -1) {
                 fileStream.write(buffer, 0, read);
+                percent += pas * read;
+                sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
+            }
             if (checkFileSum(file, fileData.checksum))
                 return;
             file.delete();
@@ -187,9 +192,8 @@ public class BenchService extends IntentService implements Runnable {
                     continue;
                 } else
                     localFile.delete();
-            downloadFile(localFile, fileData);
+            downloadFile(localFile, fileData, percent, 1.0 / filesInfo.size());
             fileData.localUrl = localFile.getAbsolutePath();
-            sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
         }
         resumeMedia = null;
         for (File toRemove : unusedFiles)
