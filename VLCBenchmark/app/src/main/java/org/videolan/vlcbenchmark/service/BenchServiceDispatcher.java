@@ -74,15 +74,10 @@ public class BenchServiceDispatcher extends Handler {
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
-            case BenchService.DOWNLOAD_FAILURE:
+            case BenchService.FAILURE_STATE:
                 stopService();
                 for (BenchServiceListener listener : listeners)
-                    listener.downloadFailed((Exception) msg.obj);
-                break;
-            case BenchService.CHECKSUM_FAILURE:
-                stopService();
-                for (BenchServiceListener listener : listeners)
-                    listener.checkSumFailed((Exception) msg.obj);
+                    listener.failure(FAILURE_STATES.values()[msg.arg1], (Exception) msg.obj);
                 break;
             case BenchService.DONE_STATUS:
                 stopService();

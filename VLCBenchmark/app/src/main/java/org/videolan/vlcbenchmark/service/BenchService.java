@@ -27,17 +27,15 @@ import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class BenchService extends IntentService implements Runnable {
 
     //Message's what
-    public static final int DOWNLOAD_FAILURE = 0;
-    public static final int CHECKSUM_FAILURE = 1;
-    public static final int FILE_TESTED_STATUS = 2;
-    public static final int TEST_PASSED_STATUS = 3;
-    public static final int DONE_STATUS = 4;
-    public static final int PERCENT_STATUS = 5;
+    public static final int FAILURE_STATE = 0;
+    public static final int FILE_TESTED_STATUS = 1;
+    public static final int TEST_PASSED_STATUS = 2;
+    public static final int DONE_STATUS = 3;
+    public static final int PERCENT_STATUS = 4;
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 8;
@@ -65,10 +63,10 @@ public class BenchService extends IntentService implements Runnable {
         try {
             downloadFiles();
         } catch (IOException e) {
-            sendMessage(DOWNLOAD_FAILURE, e);
+            sendMessage(FAILURE_STATE, FAILURE_STATES.CHECKSUM_FAILED, e);
             return;
         } catch (GeneralSecurityException e) {
-            sendMessage(CHECKSUM_FAILURE, e);
+            sendMessage(FAILURE_STATE, FAILURE_STATES.DOWNLOAD_FAILED, e);
             return;
         }
         mainLoop();
@@ -101,7 +99,7 @@ public class BenchService extends IntentService implements Runnable {
             screenshotSynchronize.countDown();
     }
 
-    private void sendMessage(int what, Object obj) {
+    private void sendMessage(int what, FAILURE_STATES failure, Object obj) {
         synchronized (this) {
             if (dispatcher == null)
                 try {
@@ -110,9 +108,13 @@ public class BenchService extends IntentService implements Runnable {
                     Thread.currentThread().interrupt();
                 }
         }
-        dispatcher.sendMessage(dispatcher.obtainMessage(what, obj));
-        if (what == DONE_STATUS || what == DOWNLOAD_FAILURE || what == CHECKSUM_FAILURE)
+        dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
+        if (what == DONE_STATUS || what == FAILURE_STATE)
             dispatcher = null;
+    }
+
+    private void sendMessage(int what, Object obj) {
+        sendMessage(what, FAILURE_STATES.SUCCESS, obj);
     }
 
     private void downloadFile(File file, MediaInfo fileData) throws IOException, GeneralSecurityException {

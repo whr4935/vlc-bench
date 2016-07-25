@@ -8,6 +8,7 @@ import android.widget.ProgressBar;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
+import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.Score;
 import org.videolan.vlcbenchmark.service.TestInfo;
 
@@ -37,14 +38,10 @@ public class TestPage extends Activity {
         final ProgressBar pb = (ProgressBar)findViewById(R.id.progressBar);
         pb.setProgress(25);
         dispatcher = new BenchServiceDispatcher(new BenchServiceListener() {
-            @Override
-            public void checkSumFailed(Exception exception) {
-
-            }
 
             @Override
-            public void downloadFailed(Exception exception) {
-
+            public void failure(FAILURE_STATES reason, Exception exception) {
+                
             }
 
             @Override

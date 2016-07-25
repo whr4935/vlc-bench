@@ -6,11 +6,8 @@ package org.videolan.vlcbenchmark.service;
 public class BenchServiceAdapter implements BenchServiceListener {
 
     @Override
-    public void checkSumFailed(Exception exception) {
-    }
+    public void failure(FAILURE_STATES reason, Exception exception) {
 
-    @Override
-    public void downloadFailed(Exception exception) {
     }
 
     @Override
