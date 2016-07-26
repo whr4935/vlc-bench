@@ -1,14 +1,19 @@
 package org.videolan.vlcbenchmark;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.util.Log;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.videolan.vlcbenchmark.service.TestInfo;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 import values.GridFragment;
 
@@ -57,4 +62,44 @@ public class ResultPage extends FragmentActivity {
 
     }
 
+    /**
+     * Returns device information in a JSONObject.
+     * @return null in case of failure.
+     */
+    private JSONObject getDeviceInformation() {
+        JSONObject properties = new JSONObject();
+
+        try {
+            properties.put("board", Build.BOARD);
+            properties.put("bootloader", Build.BOOTLOADER);
+            properties.put("brand", Build.BRAND);
+            properties.put("device", Build.DEVICE);
+            properties.put("display", Build.DISPLAY);
+            properties.put("fingerprint", Build.FINGERPRINT);
+            properties.put("host", Build.HOST);
+            properties.put("id", Build.ID);
+            properties.put("manufacturer", Build.MANUFACTURER);
+            properties.put("model", Build.MODEL);
+            properties.put("product", Build.PRODUCT);
+            properties.put("serial", Build.SERIAL);
+
+        /* Min version API 21 */
+//        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
+//        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
+//        properties.put("supported_abi", Build.SUPPORTED_ABIS);
+
+            properties.put("tags", Build.TAGS);
+            properties.put("time", Build.TIME);
+            properties.put("type", Build.TYPE);
+            properties.put("user", Build.USER);
+
+            Properties sysProperties = System.getProperties();
+            for (Properties.Entry entry : sysProperties.entrySet()) {
+                properties.put((String)entry.getKey(), entry.getValue());
+            }
+        } catch (JSONException e) {
+            return null;
+        }
+        return properties;
+    }
 }
