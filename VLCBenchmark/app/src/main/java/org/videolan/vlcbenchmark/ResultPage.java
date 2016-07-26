@@ -4,10 +4,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.Log;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.videolan.vlcbenchmark.service.TestInfo;
@@ -27,6 +29,7 @@ public class ResultPage extends FragmentActivity {
         ArrayList<TestInfo> r1 = (ArrayList<TestInfo>)getIntent().getSerializableExtra("resultsTestOne");
         ArrayList<TestInfo> r2 = (ArrayList<TestInfo>)getIntent().getSerializableExtra("resultsTestTwo");
         ArrayList<TestInfo> r3 = (ArrayList<TestInfo>)getIntent().getSerializableExtra("resultsTestThree");
+
         double soft = getIntent().getDoubleExtra("soft", 0);
         double hard = getIntent().getDoubleExtra("hard", 0);
 
@@ -60,6 +63,55 @@ public class ResultPage extends FragmentActivity {
         String hardText = "Hardware score : " + hard;
         hardView.setText(hardText);
 
+    }
+
+    /**
+     * Returns the JSON array to send to the server.
+     * @param testInfoList list of all test results.
+     * @return null in case of failure.
+     */
+    public JSONArray dumpResults(ArrayList<TestInfo> testInfoList) {
+        JSONArray results = new JSONArray();
+        JSONObject deviceInformation;
+        JSONArray testInformation;
+
+        deviceInformation = getDeviceInformation();
+        testInformation = getTestInformation(testInfoList);
+
+        if (deviceInformation == null || testInformation == null) {
+            return null;
+        }
+
+        results.put(deviceInformation);
+        results.put(testInformation);
+        return results;
+    }
+
+    /**
+     * Returns test information in a JSONArray.
+     * @param testInfoList list of all test results.
+     * @return null in case of failure.
+     */
+    private JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) {
+        JSONArray testInfoArray = new JSONArray();
+
+        for (TestInfo element : testInfoList) {
+            JSONObject testInfo = new JSONObject();
+            try {
+                testInfo.put("name", element.getName());
+                testInfo.put("hardware_score", element.getHardwareScore());
+                testInfo.put("software_score", element.getSoftwareScore());
+                testInfo.put("loop_number", element.getLoopNumber());
+                testInfo.put("frame_dropped", element.getFrameDropped());
+                testInfo.put("percent_of_bad_screenshot", element.getPercentOfBadScreenshots());
+                testInfo.put("percent_of_bad_seek", element.getPercentOfBadSeek());
+                testInfo.put("number_of_warning", element.getNumberOfWarnings());
+                testInfoArray.put(testInfo);
+            } catch (JSONException e) {
+                return null;
+            }
+        }
+        return testInfoArray;
     }
 
     /**
