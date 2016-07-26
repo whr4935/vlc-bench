@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import org.videolan.vlcbenchmark.R;
 import org.videolan.vlcbenchmark.ResultAdapter;
@@ -34,7 +35,7 @@ public class GridFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_grid, container, false);
-        GridView gv = (GridView)v.findViewById(R.id.resultList);
+        ListView gv = (ListView)v.findViewById(R.id.resultList);
         ResultAdapter resultAdapter = new ResultAdapter(getActivity());
         resultAdapter.setResults(results);
         gv.setAdapter(resultAdapter);

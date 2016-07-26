@@ -4,14 +4,13 @@
     android:layout_height="match_parent"
     tools:context="values.GridFragment">
 
-    <GridView
-        android:layout_width="wrap_content"
+    <ListView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/resultList"
-        android:numColumns="3"
-        android:background="@color/abc_input_method_navigation_guard"
         android:horizontalSpacing="1dp"
         android:verticalSpacing="1dp"
-        android:focusable="false"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:dividerHeight="2dp"
+        android:divider="#000000" />
 </FrameLayout>

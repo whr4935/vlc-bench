@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -15,60 +16,52 @@ import org.videolan.vlcbenchmark.service.TestInfo;
 import java.util.List;
 
 public class ResultAdapter extends BaseAdapter {
-    List<TestInfo> results;
+    private List<TestInfo> results;
     private Context mContext;
+    private LayoutInflater mInflater;
 
     public ResultAdapter(Context c) {
         mContext = c;
+        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount() {
-        return results.size() * 3;
+        return results.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return results.get(i / 3);
+        return results.get(i);
     }
 
     @Override
     public long getItemId(int i) {
-        return i / 3;
+        return i;
     }
 
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
-        final TextView resultView;
         if (view == null)
-            resultView = new TextView(mContext);
-        else
-            resultView = (TextView) view;
+            view = mInflater.inflate(R.layout.result_row, null);
+        TextView tv1 = (TextView) view.findViewById(R.id.fileName);
+        TextView tv2 = (TextView) view.findViewById(R.id.softScore);
+        TextView tv3 = (TextView) view.findViewById(R.id.hardScore);
 
-        switch (i % 3) {
-            case 0:
-                resultView.setText(results.get(i / 3).getName());
-                break;
-            case 1:
-                resultView.setText(String.valueOf(results.get(i / 3).getHardwareScore()));
-                break;
-            default:
-                resultView.setText(String.valueOf(results.get(i / 3).getSoftwareScore()));
-                break;
-        }
-        resultView.setBackgroundColor(Color.WHITE);
-        resultView.setGravity(Gravity.CENTER);
+        tv1.setText(results.get(i).getName());
+        tv2.setText(String.valueOf(results.get(i).getSoftwareScore()));
+        tv3.setText(String.valueOf(results.get(i).getHardwareScore()));
 
-        resultView.setOnClickListener(new View.OnClickListener() {
+        view.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 new AlertDialog.Builder(v.getContext())
                         .setTitle("Test details")
-                        .setMessage("Test name : " + results.get(i / 3).getName()
-                                + "\nFrames dropped : " + results.get(i / 3).getFrameDropped()
-                                + "\nBad screenshots : " + results.get(i / 3).getPercentOfBadScreenshots() + "%"
-                                + "\nBad seeks : " + results.get(i / 3).getPercentOfBadSeek() + "%"
-                                + "\nWarnings : " + results.get(i / 3).getNumberOfWarnings()
+                        .setMessage("Test name : " + results.get(i).getName()
+                                + "\nFrames dropped : " + results.get(i).getFrameDropped()
+                                + "\nBad screenshots : " + results.get(i).getPercentOfBadScreenshots() + "%"
+                                + "\nBad seeks : " + results.get(i).getPercentOfBadSeek() + "%"
+                                + "\nWarnings : " + results.get(i).getNumberOfWarnings()
                         )
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -79,7 +72,7 @@ public class ResultAdapter extends BaseAdapter {
             }
         });
 
-        return resultView;
+        return view;
     }
 
     @Override
