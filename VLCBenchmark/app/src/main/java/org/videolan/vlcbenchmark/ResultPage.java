@@ -152,10 +152,9 @@ public class ResultPage extends FragmentActivity {
             properties.put("type", Build.TYPE);
             properties.put("user", Build.USER);
 
-            Properties sysProperties = System.getProperties();
-            for (Properties.Entry entry : sysProperties.entrySet()) {
-                properties.put((String)entry.getKey(), entry.getValue());
-            }
+            properties.put("os_arch", System.getProperty("os.arch"));
+
+
         } catch (JSONException e) {
             Log.e("VLC - Benchmark", "Failed to build device information json object");
             return null;
