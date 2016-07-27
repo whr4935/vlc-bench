@@ -70,8 +70,8 @@ public class ResultPage extends FragmentActivity {
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    public JSONArray dumpResults(ArrayList<TestInfo> testInfoList) {
-        JSONArray results = new JSONArray();
+    public JSONObject dumpResults(ArrayList<TestInfo> testInfoList) {
+        JSONObject results = new JSONObject();
         JSONObject deviceInformation;
         JSONArray testInformation;
 
@@ -82,8 +82,13 @@ public class ResultPage extends FragmentActivity {
             return null;
         }
 
-        results.put(deviceInformation);
-        results.put(testInformation);
+        try {
+            results.put("device_information", deviceInformation);
+            results.put("test_information", testInformation);
+        } catch (JSONException e) {
+            return null;
+        }
+
         return results;
     }
 
