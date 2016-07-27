@@ -129,6 +129,7 @@ public class TestPage extends Activity {
             sigs = this.getPackageManager().getPackageInfo(benchPackageName, PackageManager.GET_SIGNATURES).signatures;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e("VLCBenchmark", "Failed to get signatures");
+            return false;
         }
 
         /* Checking to see if there is any signature */
@@ -136,9 +137,11 @@ public class TestPage extends Activity {
             if (sigs.length > 0) {
                 benchSignature = sigs[0].hashCode();
             } else {
+                Log.e("VLC - Benchmark", "No signatures");
                 return false;
             }
         } else {
+            Log.e("VLC - Benchmark", "No signatures");
             return false;
         }
 
@@ -159,6 +162,7 @@ public class TestPage extends Activity {
             sigs_vlc = this.getPackageManager().getPackageInfo(vlcPackageName, PackageManager.GET_SIGNATURES).signatures;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e("VLCBenchmark", "Failed to get second signature");
+            return false;
         }
 
         /* checking to see if there is are any signatures */
@@ -166,9 +170,11 @@ public class TestPage extends Activity {
             if (sigs_vlc.length > 0) {
                 vlcSignature = sigs_vlc[0].hashCode();
             } else {
+                Log.e("VLC - Benchmark", "No second signature");
                 return false;
             }
         } else {
+            Log.e("VLC - Benchmark", "No second signature");
             return false;
         }
 
@@ -178,6 +184,7 @@ public class TestPage extends Activity {
 
         /* Checking to see if the signatures correspond */
         if (benchSignature != vlcSignature) {
+            Log.e("VLC - Benchmark", "Aborting, the VLC and Benchmark application don't share signatures");
             return false;
         }
 
