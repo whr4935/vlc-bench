@@ -190,6 +190,15 @@ public class TestPage extends Activity {
 
         /* Debug */
         Log.i("VLCBenchmark", "Both signatures are the same");
+        try {
+            if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName != "2.0.5") {
+                Log.e("VLC - Benchmark", "Wrong VLC version number");
+                return false;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("VLC - Benchmark", "Failed to get version name");
+            return false;
+        }
 
         return true;
     }
