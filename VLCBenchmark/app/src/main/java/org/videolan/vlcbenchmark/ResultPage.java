@@ -86,6 +86,7 @@ public class ResultPage extends FragmentActivity {
             results.put("device_information", deviceInformation);
             results.put("test_information", testInformation);
         } catch (JSONException e) {
+            Log.e("VLC - Benchmark", "Failed to build final result json");
             return null;
         }
 
@@ -113,6 +114,7 @@ public class ResultPage extends FragmentActivity {
                 testInfo.put("number_of_warning", element.getNumberOfWarnings());
                 testInfoArray.put(testInfo);
             } catch (JSONException e) {
+                Log.e("VLC - Benchmark", "Failed to build test information json object");
                 return null;
             }
         }
@@ -155,6 +157,7 @@ public class ResultPage extends FragmentActivity {
                 properties.put((String)entry.getKey(), entry.getValue());
             }
         } catch (JSONException e) {
+            Log.e("VLC - Benchmark", "Failed to build device information json object");
             return null;
         }
         return properties;
