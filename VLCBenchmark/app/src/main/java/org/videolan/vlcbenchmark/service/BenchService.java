@@ -11,8 +11,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 
-import org.videolan.vlcbenchmark.ScreenshotActivity;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
