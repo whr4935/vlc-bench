@@ -28,6 +28,7 @@ public class TestPage extends Activity {
     private List<TestInfo> resultsTestThree;
     private double softScore = 0;
     private double hardScore = 0;
+    private ProgressBar progressBar = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +38,8 @@ public class TestPage extends Activity {
         resultsTestOne = new ArrayList<>();
         resultsTestTwo = new ArrayList<>();
         resultsTestThree = new ArrayList<>();
-        final ProgressBar pb = (ProgressBar)findViewById(R.id.progressBar);
-        pb.setProgress(25);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setProgress(25);
         dispatcher = new BenchServiceDispatcher(new BenchServiceListener() {
 
             @Override
@@ -59,7 +60,7 @@ public class TestPage extends Activity {
 
             @Override
             public void updatePercent(double percent) {
-                pb.setProgress((int)Math.round(percent));
+                progressBar.setProgress((int) Math.round(percent));
             }
         });
     }
