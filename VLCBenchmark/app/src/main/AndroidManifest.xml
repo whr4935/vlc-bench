@@ -19,9 +19,6 @@
         </activity>
         <service android:name=".service.BenchService" android:launchMode="singleTask">
         </service>
-        <activity android:name=".ScreenshotActivity"
-                  android:theme="@android:style/Theme.Translucent">
-        </activity>
 
     </application>
     <uses-permission android:name="android.permission.INTERNET">
