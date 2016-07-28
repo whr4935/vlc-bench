@@ -7,9 +7,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+
+import org.videolan.vlcbenchmark.TestInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class BenchService extends IntentService implements Runnable {
+public class BenchService extends IntentService {
 
     //Message's what
     public static final int FAILURE = 0;
@@ -34,18 +35,15 @@ public class BenchService extends IntentService implements Runnable {
     public static final int TEST_PASSED_STATUS = 2;
     public static final int DONE_STATUS = 3;
     public static final int PERCENT_STATUS = 4;
-    public static final int VLC_PLAYBACK = 5;
 
     //Percent tools
-    private static final double JSON_FINISHED_PERCENT = 100.0 / 8;
-    private static final double DOWNLOAD_FINISHED_PERCENT = 100.0 / 4;
-    private static final double DONE_PERCENT = 100.0;
+    private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
+    private static final double DOWNLOAD_FINISHED_PERCENT = 100.0;
 
     private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/DaemonSnake/FileDump/master/";
 
     private List<MediaInfo> filesInfo = null;
     private Handler dispatcher = null;
-    private int numberOfLoops;
     private static MediaInfo resumeMedia = null;
 
     public BenchService() {
@@ -77,13 +75,7 @@ public class BenchService extends IntentService implements Runnable {
             sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
             return;
         }
-        try {
-            mainLoop();
-        } catch (InTestException e) {
-            sendMessage(FAILURE, e.what, e);
-        } catch (InterruptedException e) {
-            sendMessage(FAILURE, FAILURE_STATES.SERVICE_INTERRUPTION, e);
-        }
+        sendMessage(DONE_STATUS, filesInfo);
     }
 
     @Override
@@ -94,23 +86,12 @@ public class BenchService extends IntentService implements Runnable {
     private CountDownLatch screenshotSynchronize = null;
 
     protected class Binder extends android.os.Binder {
-        void sendData(int numberOfLoops, Handler dispatcher) {
+        void sendData(Handler dispatcher) {
             synchronized (BenchService.this) {
-                BenchService.this.numberOfLoops = numberOfLoops;
                 BenchService.this.dispatcher = dispatcher;
                 BenchService.this.notifyAll();
             }
         }
-
-        Runnable getScreenshotIsDone() {
-            return BenchService.this;
-        }
-    }
-
-    @Override
-    public void run() {
-        if (screenshotSynchronize != null)
-            screenshotSynchronize.countDown();
     }
 
     private void sendMessage(int what, FAILURE_STATES failure, Object obj) {
@@ -239,48 +220,5 @@ public class BenchService extends IntentService implements Runnable {
             if (digest != null)
                 digest.close();
         }
-    }
-
-    public static void getFinishedCallback(Context context, final IServiceConnected serviceConnected) {
-        context.bindService(new Intent(context, BenchService.class), new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                serviceConnected.onConnect(this, ((Binder)iBinder).getScreenshotIsDone());
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName componentName) {
-            }
-        }, Context.BIND_AUTO_CREATE);
-    }
-
-    private enum TESTS {
-        SCREENSHOT,
-        PLAYBACK
-    }
-
-    private Score testFile(int loopIndex, MediaInfo info, double percent, double pas) throws InTestException, InterruptedException {
-        TestInfo testStats = new TestInfo(info.name, loopIndex);
-        for (int i = 0; i < TESTS.values().length; i++) {
-            //Insert testing here
-            percent += pas;
-            sendMessage(PERCENT_STATUS, percent);
-        }
-        sendMessage(FILE_TESTED_STATUS, testStats);
-        return testStats.score;
-    }
-
-    private void mainLoop() throws InterruptedException, InTestException {
-        Score score = new Score();
-        double percent = DOWNLOAD_FINISHED_PERCENT;
-        double pas = (DONE_PERCENT - DOWNLOAD_FINISHED_PERCENT) / (Double.valueOf(numberOfLoops) * filesInfo.size());
-
-        for (int loopIndex = 0; loopIndex < numberOfLoops; loopIndex++) {
-            for (MediaInfo fileData : filesInfo) {
-                score.add(testFile(loopIndex, fileData, percent, pas / TESTS.values().length));
-                percent += pas;
-            }
-        }
-        sendMessage(DONE_STATUS, score.avrage(numberOfLoops * filesInfo.size()));
     }
 }

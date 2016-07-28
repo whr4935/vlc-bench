@@ -6,8 +6,5 @@ package org.videolan.vlcbenchmark.service;
 public enum FAILURE_STATES {
     CHECKSUM_FAILED,
     DOWNLOAD_FAILED,
-    SCREENSHOT_FAILED,
-    SERVICE_INTERRUPTION,
-    PLAYBACK_FAILED,
     SUCCESS;
 }

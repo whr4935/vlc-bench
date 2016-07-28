@@ -1,5 +1,9 @@
 package org.videolan.vlcbenchmark.service;
 
+import org.videolan.vlcbenchmark.TestInfo;
+
+import java.util.List;
+
 /**
  * Created by penava_b on 18/07/16.
  */
@@ -11,18 +15,10 @@ public class BenchServiceAdapter implements BenchServiceListener {
     }
 
     @Override
-    public void doneReceived(Score score) {
+    public void doneReceived(List<MediaInfo> files) {
     }
 
     @Override
-    public void testPassed(String testName) {
-    }
-
-    @Override
-    public void filePassed(TestInfo fileName) {
-    }
-
-    @Override
-    public void updatePercent(double purcent) {
+    public void updatePercent(double percent) {
     }
 }

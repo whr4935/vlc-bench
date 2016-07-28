@@ -4,7 +4,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
-import android.support.v4.content.res.TypedArrayUtils;
 import android.util.Log;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -12,10 +11,8 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.videolan.vlcbenchmark.service.TestInfo;
 
 import java.util.ArrayList;
-import java.util.Properties;
 
 import values.GridFragment;
 
@@ -104,14 +101,14 @@ public class ResultPage extends FragmentActivity {
         for (TestInfo element : testInfoList) {
             JSONObject testInfo = new JSONObject();
             try {
-                testInfo.put("name", element.getName());
-                testInfo.put("hardware_score", element.getHardwareScore());
-                testInfo.put("software_score", element.getSoftwareScore());
-                testInfo.put("loop_number", element.getLoopNumber());
-                testInfo.put("frame_dropped", element.getFrameDropped());
-                testInfo.put("percent_of_bad_screenshot", element.getPercentOfBadScreenshots());
-                testInfo.put("percent_of_bad_seek", element.getPercentOfBadSeek());
-                testInfo.put("number_of_warning", element.getNumberOfWarnings());
+                testInfo.put("name", element.name);
+                testInfo.put("hardware_score", element.hardware);
+                testInfo.put("software_score", element.software);
+                testInfo.put("loop_number", element.loopNumber);
+                testInfo.put("frame_dropped", element.frameDropped);
+                testInfo.put("percent_of_bad_screenshot", element.percentOfBadScreenshots);
+                testInfo.put("percent_of_bad_seek", element.percentOfBadSeek);
+                testInfo.put("number_of_warning", element.numberOfWarnings);
                 testInfoArray.put(testInfo);
             } catch (JSONException e) {
                 Log.e("VLC - Benchmark", "Failed to build test information json object");

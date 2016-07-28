@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 
+import org.videolan.vlcbenchmark.TestInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +42,7 @@ public class BenchServiceDispatcher extends Handler {
 
     private ServiceConnection serviceConnection;
 
-    public void startService(Activity context, final int numberOfTests) {
-        if (numberOfTests <= 0)
-            throw new IllegalArgumentException("BenchService cannot be started using a loop-number inferior of 1");
+    public void startService(Activity context) {
         if (initContext != null || serviceConnection != null)
             throw new RuntimeException("Can't create two BenchService from the same BenchServiceDispatcher, stop the previous one first");
         initContext = context;
@@ -53,7 +53,7 @@ public class BenchServiceDispatcher extends Handler {
             public void onServiceConnected(ComponentName componentName, IBinder binder) {
                 if (binder == null)
                     return;
-                ((BenchService.Binder) binder).sendData(numberOfTests, BenchServiceDispatcher.this);
+                ((BenchService.Binder) binder).sendData(BenchServiceDispatcher.this);
             }
 
             @Override
@@ -72,12 +72,6 @@ public class BenchServiceDispatcher extends Handler {
         initContext = null;
     }
 
-    private VlcPlaybackData lastVlcPlaybackData = null;
-
-    public void vlcPlaybackFinished(int result) {
-        lastVlcPlaybackData.finished(result);
-    }
-
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
@@ -89,24 +83,11 @@ public class BenchServiceDispatcher extends Handler {
             case BenchService.DONE_STATUS:
                 stopService();
                 for (BenchServiceListener listener : listeners)
-                    listener.doneReceived((Score) msg.obj);
-                break;
-            case BenchService.TEST_PASSED_STATUS:
-                for (BenchServiceListener listener : listeners)
-                    listener.testPassed((String) msg.obj);
-                break;
-            case BenchService.FILE_TESTED_STATUS:
-                for (BenchServiceListener listener : listeners)
-                    listener.filePassed((TestInfo) msg.obj);
+                    listener.doneReceived((List<MediaInfo>) msg.obj);
                 break;
             case BenchService.PERCENT_STATUS:
                 for (BenchServiceListener listener : listeners)
                     listener.updatePercent((double) msg.obj);
-                break;
-            case BenchService.VLC_PLAYBACK:
-                VlcPlaybackData data = (VlcPlaybackData) msg.obj;
-                lastVlcPlaybackData = data;
-                ((Activity)initContext).startActivityForResult(data.getLauncher(), data.getCode());
                 break;
             default:
                 return;

@@ -12,12 +12,10 @@ import android.widget.ProgressBar;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
-import org.videolan.vlcbenchmark.service.Score;
-import org.videolan.vlcbenchmark.service.TestInfo;
+import org.videolan.vlcbenchmark.service.MediaInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by noeldu_b on 7/11/16.
@@ -49,7 +47,7 @@ public class TestPage extends Activity {
             }
 
             @Override
-            public void doneReceived(Score score) {
+            public void doneReceived(List<MediaInfo> files) {
                 Intent intent = new Intent(TestPage.this, ResultPage.class);
                 intent.putExtra("resultsTestOne", (ArrayList<TestInfo>) resultsTestOne);
                 intent.putExtra("resultsTestTwo", (ArrayList<TestInfo>) resultsTestTwo);
@@ -57,32 +55,6 @@ public class TestPage extends Activity {
                 intent.putExtra("soft", softScore);
                 intent.putExtra("hard", hardScore);
                 startActivity(intent);
-            }
-
-            @Override
-            public void testPassed(String testName) {
-
-            }
-
-            @Override
-            public void filePassed(TestInfo info) {
-                switch (info.getLoopNumber()) {
-                    case 0:
-                        synchronized (resultsTestOne) {
-                            resultsTestOne.add(info);
-                        }
-                        break;
-                    case 1:
-                        synchronized (resultsTestTwo) {
-                            resultsTestTwo.add(info);
-                        }
-                        break;
-                    default:
-                        synchronized (resultsTestThree) {
-                            resultsTestThree.add(info);
-                        }
-                        break;
-                }
             }
 
             @Override
@@ -98,22 +70,26 @@ public class TestPage extends Activity {
         dispatcher.stopService();
     }
 
-    public void testOne(View v) {
+    private int numberOfTests;
+
+    private void launchTest()
+    {
         try {
-            dispatcher.startService(this, 1);
+            dispatcher.startService(this);
         }
         catch (Exception e) {
             Log.e("testPage", "The service couldn't be started");
         }
     }
 
+    public void testOne(View v) {
+        numberOfTests = 1;
+        launchTest();
+    }
+
     public void testThree(View v) {
-        try {
-            dispatcher.startService(this, 3);
-        }
-        catch (Exception e) {
-            Log.e("testPage", "The service couldn't be started");
-        }
+        numberOfTests = 3;
+        launchTest();
     }
 
     private boolean checkSignature() {

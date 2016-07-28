@@ -1,18 +1,15 @@
 package values;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.ListView;
 
 import org.videolan.vlcbenchmark.R;
 import org.videolan.vlcbenchmark.ResultAdapter;
-import org.videolan.vlcbenchmark.service.TestInfo;
+import org.videolan.vlcbenchmark.TestInfo;
 
 import java.util.List;
 

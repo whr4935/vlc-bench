@@ -3,15 +3,11 @@ package org.videolan.vlcbenchmark;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
-import org.videolan.vlcbenchmark.service.TestInfo;
 
 import java.util.List;
 
@@ -48,20 +44,20 @@ public class ResultAdapter extends BaseAdapter {
         TextView tv2 = (TextView) view.findViewById(R.id.softScore);
         TextView tv3 = (TextView) view.findViewById(R.id.hardScore);
 
-        tv1.setText(results.get(i).getName());
-        tv2.setText(String.valueOf(results.get(i).getSoftwareScore()));
-        tv3.setText(String.valueOf(results.get(i).getHardwareScore()));
+        tv1.setText(results.get(i).name);
+        tv2.setText(String.valueOf(results.get(i).software));
+        tv3.setText(String.valueOf(results.get(i).hardware));
 
         view.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 new AlertDialog.Builder(v.getContext())
                         .setTitle("Test details")
-                        .setMessage("Test name : " + results.get(i).getName()
-                                + "\nFrames dropped : " + results.get(i).getFrameDropped()
-                                + "\nBad screenshots : " + results.get(i).getPercentOfBadScreenshots() + "%"
-                                + "\nBad seeks : " + results.get(i).getPercentOfBadSeek() + "%"
-                                + "\nWarnings : " + results.get(i).getNumberOfWarnings()
+                        .setMessage("Test name : " + results.get(i).name
+                                + "\nFrames dropped : " + results.get(i).frameDropped
+                                + "\nBad screenshots : " + results.get(i).percentOfBadScreenshots + "%"
+                                + "\nBad seeks : " + results.get(i).percentOfBadSeek + "%"
+                                + "\nWarnings : " + results.get(i).numberOfWarnings
                         )
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
