@@ -92,8 +92,13 @@ public class TestPage extends Activity {
             }
 
             @Override
-            public void updatePercent(double percent) {
-                progressBar.setProgress((int) Math.round(percent));
+            public void updatePercent(final double percent) {
+                progressBar.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setProgress((int) Math.round(percent));
+                    }
+                });
             }
         });
     }
