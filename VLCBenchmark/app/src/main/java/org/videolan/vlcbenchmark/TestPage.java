@@ -59,6 +59,7 @@ public class TestPage extends Activity {
 
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
+    private static final String BENCH_ACTION = "org.videolan.vlc.ACTION_BENCHMARK";
 
     private ProgressBar progressBar = null;
 
@@ -84,7 +85,7 @@ public class TestPage extends Activity {
                 testFiles = files;
                 TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
                 MediaInfo currentFile = files.get(0);
-                Intent intent = new Intent().setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
+                Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") TODO use this line when vlc and vlc-benchmark have the same ID
                         .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
                         .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
@@ -155,7 +156,7 @@ public class TestPage extends Activity {
         //TODO extract information from Intent
         testIndex = testIndex.next();
         MediaInfo currentFile = testFiles.get(fileIndex);
-        Intent intent = new Intent().setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
+        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
 //                .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*"); //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*");
 
