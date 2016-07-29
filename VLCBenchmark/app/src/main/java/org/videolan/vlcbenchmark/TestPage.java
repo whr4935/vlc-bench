@@ -99,7 +99,7 @@ public class TestPage extends Activity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
         savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
         savedInstanceState.putInt("FILE_INDEX", fileIndex);
@@ -113,7 +113,7 @@ public class TestPage extends Activity {
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState){
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
         testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
@@ -124,6 +124,7 @@ public class TestPage extends Activity {
         resultsTestOne = (List<TestInfo>) savedInstanceState.getSerializable("RESULTS_TEST_ONE");
         resultsTestTwo = (List<TestInfo>) savedInstanceState.getSerializable("RESULTS_TEST_TWO");
         resultsTestThree = (List<TestInfo>) savedInstanceState.getSerializable("RESULTS_TEST_THREE");
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
     @Override
