@@ -122,6 +122,8 @@ public class TestPage extends Activity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
+    private TestInfo lastTestInfo = null;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -131,13 +133,18 @@ public class TestPage extends Activity {
             return;
         }
 
-        TestInfo result = new TestInfo();
-        result.frameDropped = data.getIntExtra("dropped_frame", 0);
-        result.percentOfBadScreenshots = data.getIntExtra("number_of_bad_screenshots", 0);
-        result.percentOfBadSeek = data.getDoubleExtra("percent_of_bad_seek", 0.0);
-        resultsTest[loopNumber].add(result);
+        if (testIndex.ordinal() == 0) {
+            lastTestInfo = new TestInfo();
+            lastTestInfo.name = testFiles.get(fileIndex).getName();
+            lastTestInfo.loopNumber = loopNumber;
+        }
+        lastTestInfo.frameDropped += data.getIntExtra("dropped_frame", 0);
+        lastTestInfo.percentOfBadScreenshots += data.getIntExtra("number_of_bad_screenshots", 0);
+        lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
 
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
+            resultsTest[loopNumber].add(lastTestInfo);
+            lastTestInfo = null;
             fileIndex++;
             if (fileIndex >= testFiles.size()) {
                 loopNumber++;
