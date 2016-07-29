@@ -140,16 +140,17 @@ public class TestPage extends Activity {
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             fileIndex++;
             if (fileIndex >= testFiles.size()) {
-                if (loopNumber++ >= numberOfTests) {
-                    Intent intent = new Intent(TestPage.this, ResultPage.class);
-                    intent.putExtra("resultsTest", (Serializable) resultsTest);
-                    intent.putExtra("soft", softScore);
-                    intent.putExtra("hard", hardScore);
-                    cleanState();
-                    startActivity(intent);
-                    return;
-                }
+                loopNumber++;
                 fileIndex = 0;
+            }
+            if (loopNumber >= numberOfTests) {
+                Intent intent = new Intent(TestPage.this, ResultPage.class);
+                intent.putExtra("resultsTest", (Serializable) resultsTest);
+                intent.putExtra("soft", softScore);
+                intent.putExtra("hard", hardScore);
+                startActivity(intent);
+                cleanState();
+                return;
             }
         }
         //TODO extract information from Intent
