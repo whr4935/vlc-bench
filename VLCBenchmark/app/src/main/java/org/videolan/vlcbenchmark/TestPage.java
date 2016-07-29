@@ -209,7 +209,7 @@ public class TestPage extends Activity {
         new AlertDialog.Builder(this).setTitle(title).setMessage(message).setCancelable(false).setNeutralButton("ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.cancel();
+                dialogInterface.dismiss();
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
