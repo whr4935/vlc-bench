@@ -145,6 +145,7 @@ public class TestPage extends Activity {
                     intent.putExtra("resultsTestThree", (ArrayList<TestInfo>) resultsTestThree);
                     intent.putExtra("soft", softScore);
                     intent.putExtra("hard", hardScore);
+                    cleanState();
                     startActivity(intent);
                     return;
                 }
@@ -191,7 +192,8 @@ public class TestPage extends Activity {
         onError("Error: VLC failed", errorMsg);
     }
 
-    private void onError(String title, String message) {
+    private void cleanState()
+    {
         fileIndex = 0;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         progressBar.setProgress(0);
@@ -200,6 +202,10 @@ public class TestPage extends Activity {
         resultsTestThree.clear();
         hardScore = 0;
         softScore = 0;
+    }
+
+    private void onError(String title, String message) {
+        cleanState();
         new AlertDialog.Builder(this).setTitle(title).setMessage(message).setCancelable(false).setNeutralButton("ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
