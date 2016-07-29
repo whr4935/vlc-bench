@@ -28,14 +28,13 @@ import java.util.List;
 public class TestPage extends Activity {
 
     private BenchServiceDispatcher dispatcher;
-    private List<TestInfo> resultsTestOne;
-    private List<TestInfo> resultsTestTwo;
-    private List<TestInfo> resultsTestThree;
+    private List<TestInfo>[] resultsTest;
     private List<MediaInfo> testFiles;
     private double softScore = 0;
     private double hardScore = 0;
     private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
     private int fileIndex = 0;
+    private int loopNumber = 0;
 
 
     enum TEST_TYPES {
@@ -68,9 +67,6 @@ public class TestPage extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_page);
 
-        resultsTestOne = new ArrayList<>();
-        resultsTestTwo = new ArrayList<>();
-        resultsTestThree = new ArrayList<>();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setProgress(25);
         dispatcher = new BenchServiceDispatcher(new BenchServiceListener() {
@@ -105,11 +101,10 @@ public class TestPage extends Activity {
         savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
         savedInstanceState.putInt("FILE_INDEX", fileIndex);
         savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
+        savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
         savedInstanceState.putDouble("SOFT_SCORE", softScore);
         savedInstanceState.putDouble("HARD_SCORE", hardScore);
-        savedInstanceState.putSerializable("RESULTS_TEST_ONE", (Serializable) resultsTestOne);
-        savedInstanceState.putSerializable("RESULTS_TEST_TWO", (Serializable) resultsTestTwo);
-        savedInstanceState.putSerializable("RESULTS_TEST_THREE", (Serializable) resultsTestThree);
+        savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -120,11 +115,10 @@ public class TestPage extends Activity {
         testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
         fileIndex = savedInstanceState.getInt("FILE_INDEX");
         numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
+        loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
         softScore = savedInstanceState.getDouble("SOFT_SCORE");
         hardScore = savedInstanceState.getDouble("HARD_SCORE");
-        resultsTestOne = (List<TestInfo>) savedInstanceState.getSerializable("RESULTS_TEST_ONE");
-        resultsTestTwo = (List<TestInfo>) savedInstanceState.getSerializable("RESULTS_TEST_TWO");
-        resultsTestThree = (List<TestInfo>) savedInstanceState.getSerializable("RESULTS_TEST_THREE");
+        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
@@ -136,14 +130,19 @@ public class TestPage extends Activity {
             errorWhileTesting(resultCode);
             return;
         }
+
+        TestInfo result = new TestInfo();
+        result.frameDropped = data.getIntExtra("dropped_frame", 0);
+        result.percentOfBadScreenshots = data.getIntExtra("number_of_bad_screenshots", 0);
+        result.percentOfBadSeek = data.getDoubleExtra("percent_of_bad_seek", 0.0);
+        resultsTest[loopNumber].add(result);
+
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             fileIndex++;
             if (fileIndex >= testFiles.size()) {
-                if (--numberOfTests <= 0) {
+                if (loopNumber++ >= numberOfTests) {
                     Intent intent = new Intent(TestPage.this, ResultPage.class);
-                    intent.putExtra("resultsTestOne", (ArrayList<TestInfo>) resultsTestOne);
-                    intent.putExtra("resultsTestTwo", (ArrayList<TestInfo>) resultsTestTwo);
-                    intent.putExtra("resultsTestThree", (ArrayList<TestInfo>) resultsTestThree);
+                    intent.putExtra("resultsTest", (Serializable) resultsTest);
                     intent.putExtra("soft", softScore);
                     intent.putExtra("hard", hardScore);
                     cleanState();
@@ -193,14 +192,14 @@ public class TestPage extends Activity {
         onError("Error: VLC failed", errorMsg);
     }
 
-    private void cleanState()
-    {
+    private void cleanState() {
         fileIndex = 0;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        loopNumber = 0;
+        for (int i = 0; i < numberOfTests; i++)
+            resultsTest[i].clear();
+        numberOfTests = 0;
         progressBar.setProgress(0);
-        resultsTestOne.clear();
-        resultsTestTwo.clear();
-        resultsTestThree.clear();
         hardScore = 0;
         softScore = 0;
     }
@@ -233,11 +232,13 @@ public class TestPage extends Activity {
 
     public void testOne(View v) {
         numberOfTests = 1;
+        resultsTest = new ArrayList[] {new ArrayList<MediaInfo>()};
         launchTest();
     }
 
     public void testThree(View v) {
         numberOfTests = 3;
+        resultsTest = new ArrayList[] {new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
         launchTest();
     }
 
