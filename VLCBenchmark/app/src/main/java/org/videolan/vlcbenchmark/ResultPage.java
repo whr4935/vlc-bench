@@ -95,7 +95,7 @@ public class ResultPage extends FragmentActivity {
                 testInfo.put("hardware_score", element.hardware);
                 testInfo.put("software_score", element.software);
                 testInfo.put("loop_number", element.loopNumber);
-                testInfo.put("frame_dropped", element.frameDropped);
+                testInfo.put("frame_dropped", element.percentOfFrameDrop);
                 testInfo.put("percent_of_bad_screenshot", element.percentOfBadScreenshots);
                 testInfo.put("percent_of_bad_seek", element.percentOfBadSeek);
                 testInfo.put("number_of_warning", element.numberOfWarnings);

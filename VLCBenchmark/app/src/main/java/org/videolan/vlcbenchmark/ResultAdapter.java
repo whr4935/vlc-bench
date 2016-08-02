@@ -54,9 +54,9 @@ public class ResultAdapter extends BaseAdapter {
                 new AlertDialog.Builder(v.getContext())
                         .setTitle("Test details")
                         .setMessage("Test name : " + results.get(i).name
-                                + "\nFrames dropped : " + results.get(i).frameDropped
-                                + "\nBad screenshots : " + results.get(i).percentOfBadScreenshots + "%"
-                                + "\nBad seeks : " + results.get(i).percentOfBadSeek + "%"
+                                + "\nFrames dropped : " + doubleToPercentString(results.get(i).percentOfFrameDrop)
+                                + "\nBad screenshots : " + doubleToPercentString(results.get(i).percentOfBadScreenshots)
+                                + "\nBad seeks : " + doubleToPercentString(results.get(i).percentOfBadSeek)
                                 + "\nWarnings : " + results.get(i).numberOfWarnings
                         )
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -69,6 +69,10 @@ public class ResultAdapter extends BaseAdapter {
         });
 
         return view;
+    }
+
+    private static String doubleToPercentString(double value) {
+        return String.format("%.2f%%", value);
     }
 
     @Override

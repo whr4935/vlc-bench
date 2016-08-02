@@ -138,11 +138,16 @@ public class TestPage extends Activity {
             lastTestInfo.name = testFiles.get(fileIndex).getName();
             lastTestInfo.loopNumber = loopNumber;
         }
-        lastTestInfo.frameDropped += data.getIntExtra("dropped_frame", 0);
-        lastTestInfo.percentOfBadScreenshots += data.getIntExtra("number_of_bad_screenshots", 0);
-        lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
+
+        if (testIndex.isScreenshot()) {
+            lastTestInfo.percentOfBadScreenshots += data.getIntExtra("number_of_bad_screenshots", 0);
+            lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
+        }
+        else
+            lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0);
 
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
+            lastTestInfo.percentOfFrameDrop /= 2.0;
             resultsTest[loopNumber].add(lastTestInfo);
             lastTestInfo = null;
             fileIndex++;
@@ -160,7 +165,6 @@ public class TestPage extends Activity {
                 return;
             }
         }
-        //TODO extract information from Intent
         testIndex = testIndex.next();
         MediaInfo currentFile = testFiles.get(fileIndex);
         Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
@@ -337,4 +341,3 @@ public class TestPage extends Activity {
         return true;
     }
 }
-

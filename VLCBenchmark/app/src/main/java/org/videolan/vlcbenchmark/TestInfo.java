@@ -10,7 +10,7 @@ public class TestInfo implements Serializable {
     double software;
     double hardware;
     int loopNumber;
-    int frameDropped;
+    double percentOfFrameDrop;
     double percentOfBadScreenshots;
     double percentOfBadSeek;
     int numberOfWarnings;
