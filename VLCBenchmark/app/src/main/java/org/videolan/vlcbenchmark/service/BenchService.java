@@ -160,8 +160,6 @@ public class BenchService extends IntentService {
     }
 
     private void downloadFiles() throws IOException, GeneralSecurityException {
-        if (filesInfo != null)
-            return;
         filesInfo = JSonParser.getMediaInfos();
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
