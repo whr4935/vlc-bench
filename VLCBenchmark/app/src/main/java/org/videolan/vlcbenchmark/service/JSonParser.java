@@ -5,6 +5,7 @@ import android.util.JsonReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class JSonParser {
 
     static MediaInfo readMediaInfo(JsonReader reader) throws IOException {
         String url = null, name = null, checksum = null;
-        List<Long[]> snapshot = null;
+        List<Long>[] snapshot = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -80,19 +81,21 @@ public class JSonParser {
         return new MediaInfo(url, name, checksum, snapshot);
     }
 
-    static List<Long[]> readLongArray(JsonReader reader) throws IOException {
-        List<Long[]> array = new ArrayList<Long[]>();
+    static List<Long>[] readLongArray(JsonReader reader) throws IOException {
+        List[] array = new List[]{ new ArrayList<Long>(), new ArrayList<Long>() };
 
-        reader.beginArray();
-        while (reader.hasNext()) {
+        try {
             reader.beginArray();
-            Long[] snapshots = new Long[2];
-            snapshots[0] = (reader.hasNext() ? reader.nextLong() : 0L);
-            snapshots[1] = (reader.hasNext() ? reader.nextLong() : 0L);
+            while (reader.hasNext()) {
+                reader.beginArray();
+                array[0].add(reader.hasNext() ? reader.nextLong() : 0L);
+                array[1].add(reader.hasNext() ? reader.nextLong() : 0L);
+                reader.endArray();
+            }
             reader.endArray();
-            array.add(snapshots);
+        } catch (IllegalStateException e) {
+            throw new IOException("VLCBenchmark is using a too old version. Update the application to fix");
         }
-        reader.endArray();
         return array;
     }
 }
