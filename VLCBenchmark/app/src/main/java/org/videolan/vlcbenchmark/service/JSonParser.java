@@ -53,7 +53,7 @@ public class JSonParser {
 
     static MediaInfo readMediaInfo(JsonReader reader) throws IOException {
         String url = null, name = null, checksum = null;
-        List<Long> snapshot = null;
+        List<Long[]> snapshot = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -80,13 +80,19 @@ public class JSonParser {
         return new MediaInfo(url, name, checksum, snapshot);
     }
 
-    static List<Long> readLongArray(JsonReader reader) throws IOException {
-        List<Long> doubles = new ArrayList<Long>();
+    static List<Long[]> readLongArray(JsonReader reader) throws IOException {
+        List<Long[]> array = new ArrayList<Long[]>();
 
         reader.beginArray();
-        while (reader.hasNext())
-            doubles.add(reader.nextLong());
+        while (reader.hasNext()) {
+            reader.beginArray();
+            Long[] snapshots = new Long[2];
+            snapshots[0] = (reader.hasNext() ? reader.nextLong() : 0L);
+            snapshots[1] = (reader.hasNext() ? reader.nextLong() : 0L);
+            reader.endArray();
+            array.add(snapshots);
+        }
         reader.endArray();
-        return doubles;
+        return array;
     }
 }

@@ -10,15 +10,15 @@ public class MediaInfo implements Serializable {
 
     String url;
         String name;
-        List<Long> snapshot;
+        List<Long[]> snapshots;
         String checksum;
         String localUrl;
 
-    public MediaInfo(String url, String name, String checksum, List<Long> snapshot) {
+    public MediaInfo(String url, String name, String checksum, List<Long[]> snapshot) {
         this.url = url;
         this.name = name;
         this.checksum = checksum;
-        this.snapshot = snapshot;
+        this.snapshots = snapshot;
         this.localUrl = null;
     }
 
@@ -30,8 +30,8 @@ public class MediaInfo implements Serializable {
         return name;
     }
 
-    public List<Long> getSnapshot() {
-        return snapshot;
+    public List<Long[]> getSnapshot() {
+        return snapshots;
     }
 
     public String getChecksum() {
