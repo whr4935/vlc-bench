@@ -43,11 +43,13 @@ public class BenchServiceDispatcher extends Handler {
     private ServiceConnection serviceConnection;
 
     public void startService(Activity context) {
-        if (initContext != null || serviceConnection != null)
+        if (initContext != null)
             throw new RuntimeException("Can't create two BenchService from the same BenchServiceDispatcher, stop the previous one first");
         initContext = context;
         Intent intent = new Intent(context, BenchService.class);
         context.startService(intent);
+        if (serviceConnection != null)
+            return ;
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder binder) {
@@ -76,6 +78,7 @@ public class BenchServiceDispatcher extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BenchService.FAILURE:
+                initContext = null;
                 for (BenchServiceListener listener : listeners)
                     listener.failure(FAILURE_STATES.values()[msg.arg1], (Exception) msg.obj);
                 break;

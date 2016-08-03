@@ -104,7 +104,7 @@ public class BenchService extends IntentService {
                 }
         }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
-        if (what == DONE_STATUS || what == FAILURE)
+        if (what == DONE_STATUS)
             dispatcher = null;
     }
 
