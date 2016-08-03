@@ -1,6 +1,7 @@
 package org.videolan.vlcbenchmark.service;
 
 import android.util.JsonReader;
+import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +55,7 @@ public class JSonParser {
 
     static MediaInfo readMediaInfo(JsonReader reader) throws IOException {
         String url = null, name = null, checksum = null;
-        List<Long>[] snapshot = null;
+        Pair<ArrayList<Long>, ArrayList<Integer>> snapshot = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -78,24 +79,24 @@ public class JSonParser {
             }
         }
         reader.endObject();
-        return new MediaInfo(url, name, checksum, snapshot);
+        return new MediaInfo(url, name, checksum, snapshot.first, snapshot.second);
     }
 
-    static List<Long>[] readLongArray(JsonReader reader) throws IOException {
-        List[] array = new List[]{ new ArrayList<Long>(), new ArrayList<Long>() };
+    static Pair<ArrayList<Long>, ArrayList<Integer>> readLongArray(JsonReader reader) throws IOException {
+        Pair<ArrayList<Long>, ArrayList<Integer>> result = new Pair<>(new ArrayList<Long>(), new ArrayList<Integer>());
 
         try {
             reader.beginArray();
             while (reader.hasNext()) {
                 reader.beginArray();
-                array[0].add(reader.hasNext() ? reader.nextLong() : 0L);
-                array[1].add(reader.hasNext() ? reader.nextLong() : 0L);
+                result.first.add(reader.hasNext() ? reader.nextLong() : 0L);
+                result.second.add(reader.hasNext() ? reader.nextInt() : 0);
                 reader.endArray();
             }
             reader.endArray();
         } catch (IllegalStateException e) {
             throw new IOException("VLCBenchmark is using a too old version. Update the application to fix");
         }
-        return array;
+        return result;
     }
 }

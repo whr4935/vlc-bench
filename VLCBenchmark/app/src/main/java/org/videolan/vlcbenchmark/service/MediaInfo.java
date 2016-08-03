@@ -9,17 +9,19 @@ import java.util.List;
 public class MediaInfo implements Serializable {
 
     String url;
-        String name;
-        List<Long>[] snapshots;
-        String checksum;
-        String localUrl;
+    String name;
+    List<Long> timestamps;
+    List<Integer> colors;
+    String checksum;
+    String localUrl;
 
-    public MediaInfo(String url, String name, String checksum, List<Long>[] snapshot) {
+    public MediaInfo(String url, String name, String checksum, List<Long> timestamps, List<Integer> colors) {
         this.url = url;
         this.name = name;
         this.checksum = checksum;
-        this.snapshots = snapshot;
         this.localUrl = null;
+        this.timestamps = timestamps;
+        this.colors = colors;
     }
 
     public String getUrl() {
@@ -30,12 +32,10 @@ public class MediaInfo implements Serializable {
         return name;
     }
 
-    public List<Long> getSnapshot() {
-        return snapshots[0];
-    }
+    public List<Long> getSnapshot() { return timestamps; }
 
-    public List<Long> getColors() {
-        return snapshots[1];
+    public List<Integer> getColors() {
+        return colors;
     }
 
     public String getChecksum() {
@@ -47,8 +47,7 @@ public class MediaInfo implements Serializable {
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "MediaInfo: " + name + " " + url;
     }
 }
