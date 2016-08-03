@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Created by noeldu_b on 7/11/16.
  */
-public class TestPage extends Activity {
+public class TestPage extends Activity implements BenchServiceListener {
 
     private BenchServiceDispatcher dispatcher;
     private List<TestInfo>[] resultsTest;
@@ -63,36 +63,34 @@ public class TestPage extends Activity {
     private ProgressBar progressBar = null;
 
     @Override
+    public void failure(FAILURE_STATES reason, Exception exception) {
+        Log.e("testPage", exception.toString());
+    }
+
+    @Override
+    public void doneReceived(List<MediaInfo> files) {
+        testFiles = files;
+        TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        MediaInfo currentFile = files.get(0);
+        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
+//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") TODO use this line when vlc and vlc-benchmark have the same ID
+                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
+                .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
+        TestPage.this.startActivityForResult(intent, 42);
+    }
+
+    @Override
+    public void updatePercent(final double percent) {
+        progressBar.setProgress((int) Math.round(percent));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_page);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setProgress(25);
-        dispatcher = new BenchServiceDispatcher(new BenchServiceListener() {
-
-            @Override
-            public void failure(FAILURE_STATES reason, Exception exception) {
-                Log.e("testPage", exception.toString());
-            }
-
-            @Override
-            public void doneReceived(List<MediaInfo> files) {
-                testFiles = files;
-                TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-                MediaInfo currentFile = files.get(0);
-                Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
-//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") TODO use this line when vlc and vlc-benchmark have the same ID
-                        .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
-                        .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
-                TestPage.this.startActivityForResult(intent, 42);
-            }
-
-            @Override
-            public void updatePercent(final double percent) {
-                progressBar.setProgress((int) Math.round(percent));
-            }
-        });
+        dispatcher = new BenchServiceDispatcher(this);
     }
 
     @Override
