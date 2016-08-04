@@ -20,6 +20,7 @@ import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,6 +138,8 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     private TestInfo lastTestInfo = null;
+    private static final String SCREENSHOT_NAMING = "Screenshot_";
+    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 5.0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -154,12 +157,32 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
 
         if (testIndex.isScreenshot()) {
-            lastTestInfo.percentOfBadScreenshots += data.getIntExtra("number_of_bad_screenshots", 0);
+            final String screenshotFolder = data.getStringExtra("screenshot_folder");
             lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
-        }
-        else
-            lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0);
+            final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
+            final List<Integer> colors = testFiles.get(fileIndex).getColors();
 
+            new Thread() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < numberOfScreenshot; i++) {
+                        String file = screenshotFolder + File.separator + SCREENSHOT_NAMING + i + ".jpg";
+                        if (!new File(file).exists() ||
+                                ScreenshotValidator.getValidityPercent(file, colors.get(i)) >= MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT) {
+                            lastTestInfo.percentOfBadScreenshots++;
+                        }
+                    }
+                    launchNextTest();
+                }
+            }.start();
+            return ;
+        }
+        lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0);
+        //data.getIntExtra("number_of_dropped_frames", 0);
+        launchNextTest();
+    }
+
+    private void launchNextTest() {
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             lastTestInfo.percentOfFrameDrop /= 2.0;
             resultsTest[loopNumber].add(lastTestInfo);
