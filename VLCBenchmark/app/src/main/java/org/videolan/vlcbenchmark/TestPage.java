@@ -293,9 +293,9 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void finish() {
         dispatcher.stopService();
+        super.finish();
     }
 
     private int numberOfTests;
