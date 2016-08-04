@@ -1,5 +1,7 @@
 package org.videolan.vlcbenchmark;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -78,6 +80,17 @@ public class ResultPage extends FragmentActivity {
         }
 
         return results;
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this).setTitle("Are you sure?").setMessage("Are you sure you want to go back?\nYou'll have no way to come back here.")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ResultPage.super.onBackPressed();
+                    }
+                }).setNegativeButton(android.R.string.no, null).show();
     }
 
     /**

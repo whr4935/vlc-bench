@@ -207,6 +207,10 @@ public class TestPage extends Activity implements BenchServiceListener {
         launchNextTest();
     }
 
+    @Override
+    public void onBackPressed() {
+    }
+
     private void launchNextTest() {
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             lastTestInfo.percentOfFrameDrop /= 2.0;
