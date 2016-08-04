@@ -59,11 +59,7 @@ public class ResultAdapter extends BaseAdapter {
                                 + "\nBad seeks : " + doubleToPercentString(results.get(i).percentOfBadSeek)
                                 + "\nWarnings : " + results.get(i).numberOfWarnings
                         )
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, null)
                         .show();
             }
         });
