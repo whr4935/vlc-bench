@@ -67,6 +67,7 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
+        new AlertDialog.Builder(this).setTitle("Error during download").setMessage("An exception occurred while downloading:\n" + exception.toString()).setNeutralButton("ok", null).show();
         Log.e("testPage", exception.toString());
     }
 
