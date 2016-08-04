@@ -1,7 +1,5 @@
 package org.videolan.vlcbenchmark.service;
 
-import org.videolan.vlcbenchmark.TestInfo;
-
 import java.util.List;
 
 /**

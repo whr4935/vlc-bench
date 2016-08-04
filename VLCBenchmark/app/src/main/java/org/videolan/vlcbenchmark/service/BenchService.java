@@ -1,16 +1,12 @@
 package org.videolan.vlcbenchmark.service;
 
 import android.app.IntentService;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.IBinder;
-
-import org.videolan.vlcbenchmark.TestInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +21,6 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 public class BenchService extends IntentService {
 
@@ -82,8 +77,6 @@ public class BenchService extends IntentService {
     public IBinder onBind(Intent intent) {
         return new Binder();
     }
-
-    private CountDownLatch screenshotSynchronize = null;
 
     protected class Binder extends android.os.Binder {
         void sendData(Handler dispatcher) {

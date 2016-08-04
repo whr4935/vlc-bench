@@ -281,13 +281,13 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     public void testOne(View v) {
         numberOfTests = 1;
-        resultsTest = new ArrayList[] {new ArrayList<MediaInfo>()};
+        resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
         launchTest();
     }
 
     public void testThree(View v) {
         numberOfTests = 3;
-        resultsTest = new ArrayList[] {new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
+        resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
         launchTest();
     }
 

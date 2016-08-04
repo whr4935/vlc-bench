@@ -10,8 +10,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 
-import org.videolan.vlcbenchmark.TestInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 
