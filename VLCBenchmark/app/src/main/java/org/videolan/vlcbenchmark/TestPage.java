@@ -160,19 +160,27 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
+            progressBar.setProgress(0);
+            progressBar.setMax(TEST_TYPES.values().length * testFiles.size());
+        }
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != -1) {
             errorWhileTesting(resultCode);
             return;
         }
-
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.incrementProgressBy(1);
+            }
+        });
         if (testIndex.ordinal() == 0) {
             lastTestInfo = new TestInfo();
             lastTestInfo.name = testFiles.get(fileIndex).getName();
             lastTestInfo.loopNumber = loopNumber;
         }
-
         if (testIndex.isScreenshot()) {
             final String screenshotFolder = data.getStringExtra("screenshot_folder");
             lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
@@ -192,7 +200,7 @@ public class TestPage extends Activity implements BenchServiceListener {
                     launchNextTest();
                 }
             }.start();
-            return ;
+            return;
         }
         lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0);
         //data.getIntExtra("number_of_dropped_frames", 0);
@@ -267,6 +275,7 @@ public class TestPage extends Activity implements BenchServiceListener {
             resultsTest[i].clear();
         numberOfTests = 0;
         progressBar.setProgress(0);
+        progressBar.setMax(100);
         hardScore = 0;
         softScore = 0;
         findViewById(R.id.benchOne).setVisibility(View.VISIBLE);
