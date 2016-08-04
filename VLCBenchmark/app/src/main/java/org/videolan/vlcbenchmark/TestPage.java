@@ -117,6 +117,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         savedInstanceState.putDouble("SOFT_SCORE", softScore);
         savedInstanceState.putDouble("HARD_SCORE", hardScore);
         savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
+        savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -130,6 +131,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
         softScore = savedInstanceState.getDouble("SOFT_SCORE");
         hardScore = savedInstanceState.getDouble("HARD_SCORE");
+        lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
         resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
