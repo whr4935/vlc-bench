@@ -178,7 +178,7 @@ public class TestPage extends Activity implements BenchServiceListener {
                         String file = screenshotFolder + File.separator + SCREENSHOT_NAMING + i + ".jpg";
                         if (!new File(file).exists() ||
                                 ScreenshotValidator.getValidityPercent(file, colors.get(i)) >= MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT) {
-                            lastTestInfo.percentOfBadScreenshots++;
+                            lastTestInfo.percentOfBadScreenshots += 100.0 / numberOfScreenshot;
                         }
                     }
                     launchNextTest();
@@ -194,6 +194,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     private void launchNextTest() {
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             lastTestInfo.percentOfFrameDrop /= 2.0;
+            lastTestInfo.percentOfBadScreenshots /= 2.0;
             resultsTest[loopNumber].add(lastTestInfo);
             lastTestInfo = null;
             fileIndex++;
