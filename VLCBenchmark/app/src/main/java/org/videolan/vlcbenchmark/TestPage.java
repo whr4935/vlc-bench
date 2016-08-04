@@ -85,7 +85,12 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     @Override
     public void updatePercent(final double percent) {
-        progressBar.setProgress((int) Math.round(percent));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setProgress((int) Math.round(percent));
+            }
+        });
     }
 
     @Override
