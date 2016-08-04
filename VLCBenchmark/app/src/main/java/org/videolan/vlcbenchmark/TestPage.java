@@ -77,10 +77,12 @@ public class TestPage extends Activity implements BenchServiceListener {
         TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = files.get(0);
         Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
-//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") TODO use this line when vlc and vlc-benchmark have the same ID
+//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
                 .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         TestPage.this.startActivityForResult(intent, 42);
+        findViewById(R.id.benchOne).setVisibility(View.INVISIBLE);
+        findViewById(R.id.benchThree).setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -267,6 +269,8 @@ public class TestPage extends Activity implements BenchServiceListener {
         progressBar.setProgress(0);
         hardScore = 0;
         softScore = 0;
+        findViewById(R.id.benchOne).setVisibility(View.VISIBLE);
+        findViewById(R.id.benchThree).setVisibility(View.VISIBLE);
     }
 
     private void onError(String title, String message) {
