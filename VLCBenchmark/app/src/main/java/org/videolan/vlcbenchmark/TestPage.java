@@ -1,5 +1,6 @@
 package org.videolan.vlcbenchmark;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -9,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -91,6 +93,18 @@ public class TestPage extends Activity implements BenchServiceListener {
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         dispatcher = new BenchServiceDispatcher(this);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        new AlertDialog.Builder(this).setTitle("Error").setMessage("Cannot proceed without asked permission, exiting...").show();
+        if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
+            finish();
     }
 
     @Override
