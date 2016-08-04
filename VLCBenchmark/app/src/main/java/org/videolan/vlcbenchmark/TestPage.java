@@ -103,9 +103,18 @@ public class TestPage extends Activity implements BenchServiceListener {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        new AlertDialog.Builder(this).setTitle("Error").setMessage("Cannot proceed without asked permission, exiting...").show();
-        if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
-            finish();
+        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    finish();
+                }
+            }).create();
+            dialog.setCancelable(false);
+            dialog.setTitle("Bad permission");
+            dialog.setMessage("Cannot proceed without asked permission.\n\nExiting...");
+            dialog.show();
+        }
     }
 
     @Override
