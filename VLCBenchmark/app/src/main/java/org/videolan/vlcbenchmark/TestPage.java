@@ -162,7 +162,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
             progressBar.setProgress(0);
-            progressBar.setMax(TEST_TYPES.values().length * testFiles.size());
+            progressBar.setMax(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
         }
         super.onActivityResult(requestCode, resultCode, data);
 
