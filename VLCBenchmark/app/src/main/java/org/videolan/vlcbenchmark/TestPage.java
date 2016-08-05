@@ -156,7 +156,7 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     private TestInfo lastTestInfo = null;
     private static final String SCREENSHOT_NAMING = "Screenshot_";
-    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 5.0;
+    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 1.0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
