@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
-import android.util.Log;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -68,7 +67,6 @@ public class ResultPage extends FragmentActivity {
             results.put("device_information", deviceInformation);
             results.put("test_information", testInformation);
         } catch (JSONException e) {
-            Log.e("VLC - Benchmark", "Failed to build final result json");
             return null;
         }
 
@@ -107,7 +105,6 @@ public class ResultPage extends FragmentActivity {
                 testInfo.put("number_of_warning", element.numberOfWarnings);
                 testInfoArray.put(testInfo);
             } catch (JSONException e) {
-                Log.e("VLC - Benchmark", "Failed to build test information json object");
                 return null;
             }
         }
@@ -149,7 +146,6 @@ public class ResultPage extends FragmentActivity {
 
 
         } catch (JSONException e) {
-            Log.e("VLC - Benchmark", "Failed to build device information json object");
             return null;
         }
         return properties;

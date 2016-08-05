@@ -11,7 +11,6 @@ import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -68,7 +67,6 @@ public class TestPage extends Activity implements BenchServiceListener {
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
         new AlertDialog.Builder(this).setTitle("Error during download").setMessage("An exception occurred while downloading:\n" + exception.toString()).setNeutralButton("ok", null).show();
-        Log.e("testPage", exception.toString());
     }
 
     @Override
@@ -311,8 +309,8 @@ public class TestPage extends Activity implements BenchServiceListener {
     private void launchTest() {
         try {
             dispatcher.startService(this);
-        } catch (Exception e) {
-            Log.e("testPage", "The service couldn't be started");
+        } catch (RuntimeException e) {
+            new AlertDialog.Builder(this).setTitle("Please wait").setMessage("VLC will start shortly").setNeutralButton(android.R.string.ok, null).show();
         }
     }
 
@@ -340,7 +338,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         try {
             sigs = this.getPackageManager().getPackageInfo(benchPackageName, PackageManager.GET_SIGNATURES).signatures;
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e("VLCBenchmark", "Failed to get signatures");
             return false;
         }
 
@@ -349,11 +346,9 @@ public class TestPage extends Activity implements BenchServiceListener {
             if (sigs.length > 0) {
                 benchSignature = sigs[0].hashCode();
             } else {
-                Log.e("VLC - Benchmark", "No signatures");
                 return false;
             }
         } else {
-            Log.e("VLC - Benchmark", "No signatures");
             return false;
         }
 
@@ -365,15 +360,10 @@ public class TestPage extends Activity implements BenchServiceListener {
             vlcPackageName = "org.videolan.vlc";
         }
 
-        /* Debug */
-        Log.i("VLCBenchmark", "benchPackage = " + benchPackageName);
-        Log.i("VLCBenchmark", "vlcPackage = " + vlcPackageName);
-
         /* Getting vlc's signature */
         try {
             sigs_vlc = this.getPackageManager().getPackageInfo(vlcPackageName, PackageManager.GET_SIGNATURES).signatures;
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e("VLCBenchmark", "Failed to get second signature");
             return false;
         }
 
@@ -382,33 +372,23 @@ public class TestPage extends Activity implements BenchServiceListener {
             if (sigs_vlc.length > 0) {
                 vlcSignature = sigs_vlc[0].hashCode();
             } else {
-                Log.e("VLC - Benchmark", "No second signature");
                 return false;
             }
         } else {
-            Log.e("VLC - Benchmark", "No second signature");
             return false;
         }
 
-        /* Debug */
-        Log.i("VLCBenchmark", "benchSignature = " + benchSignature);
-        Log.i("VLCBenchmark", "vlcSignature = " + vlcSignature);
 
         /* Checking to see if the signatures correspond */
         if (benchSignature != vlcSignature) {
-            Log.e("VLC - Benchmark", "Aborting, the VLC and Benchmark application don't share signatures");
             return false;
         }
 
-        /* Debug */
-        Log.i("VLCBenchmark", "Both signatures are the same");
         try {
             if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName != "2.0.5") {
-                Log.e("VLC - Benchmark", "Wrong VLC version number");
                 return false;
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e("VLC - Benchmark", "Failed to get version name");
             return false;
         }
 
