@@ -51,9 +51,7 @@ public class GridFragment extends Fragment {
         fillHeader(rowView, R.id.hardScore, "Hardware");
         rowView.setMinimumHeight(0);
         gv.addHeaderView(rowView);
-        ResultAdapter resultAdapter = new ResultAdapter(getActivity());
-        resultAdapter.setResults(results);
-        gv.setAdapter(resultAdapter);
+        gv.setAdapter(new ResultAdapter(rowInflater, results));
         gv.setFocusable(false);
         return v;
     }

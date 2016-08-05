@@ -15,8 +15,9 @@ public class ResultAdapter extends BaseAdapter {
     private List<TestInfo> results;
     private LayoutInflater mInflater;
 
-    public ResultAdapter(Context context) {
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public ResultAdapter(LayoutInflater inflater, List<TestInfo> results) {
+        mInflater = inflater;
+        this.results = results;
     }
 
     @Override
@@ -72,9 +73,5 @@ public class ResultAdapter extends BaseAdapter {
     @Override
     public boolean isEmpty() {
         return results.isEmpty();
-    }
-
-    public void setResults(List<TestInfo> r) {
-        results = r;
     }
 }
