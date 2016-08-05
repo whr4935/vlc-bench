@@ -25,22 +25,22 @@ public class ResultPage extends FragmentActivity {
         double soft = getIntent().getDoubleExtra("soft", 0f);
         double hard = getIntent().getDoubleExtra("hard", 0f);
 
-        final FragmentTabHost mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
+        final FragmentTabHost mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
         int index = 0;
-        for (ArrayList<TestInfo> resultList: results) {
+        for (ArrayList<TestInfo> resultList : results) {
             Bundle args = new Bundle();
             args.putSerializable("results", resultList);
             mTabHost.addTab(mTabHost.newTabSpec("tab" + index).setIndicator("Test number " + (index + 1)), GridFragment.class, args);
             index++;
         }
 
-        TextView softView = (TextView)findViewById(R.id.softAvg);
+        TextView softView = (TextView) findViewById(R.id.softAvg);
         String softText = "Software score : " + soft;
         softView.setText(softText);
 
-        TextView hardView = (TextView)findViewById(R.id.hardAvg);
+        TextView hardView = (TextView) findViewById(R.id.hardAvg);
         String hardText = "Hardware score : " + hard;
         hardView.setText(hardText);
 
@@ -60,9 +60,8 @@ public class ResultPage extends FragmentActivity {
         deviceInformation = getDeviceInformation();
         testInformation = getTestInformation(testInfoList);
 
-        if (deviceInformation == null || testInformation == null) {
+        if (deviceInformation == null || testInformation == null)
             return null;
-        }
 
         results.put("device_information", deviceInformation);
         results.put("test_information", testInformation);

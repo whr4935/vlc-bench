@@ -342,15 +342,10 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
 
         /* Checking to see if there is any signature */
-        if (sigs != null) {
-            if (sigs.length > 0) {
-                benchSignature = sigs[0].hashCode();
-            } else {
-                return false;
-            }
-        } else {
+        if (sigs != null && sigs.length > 0)
+            benchSignature = sigs[0].hashCode();
+        else
             return false;
-        }
 
         /* Getting vlc normal or debug package name, *
          * according to our application's state */
@@ -368,26 +363,18 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
 
         /* checking to see if there is are any signatures */
-        if (sigs_vlc != null) {
-            if (sigs_vlc.length > 0) {
-                vlcSignature = sigs_vlc[0].hashCode();
-            } else {
-                return false;
-            }
-        } else {
+        if (sigs_vlc != null && sigs_vlc.length > 0)
+            vlcSignature = sigs_vlc[0].hashCode();
+        else
             return false;
-        }
-
 
         /* Checking to see if the signatures correspond */
-        if (benchSignature != vlcSignature) {
+        if (benchSignature != vlcSignature)
             return false;
-        }
 
         try {
-            if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName != "2.0.5") {
+            if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName != "2.0.5")
                 return false;
-            }
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
