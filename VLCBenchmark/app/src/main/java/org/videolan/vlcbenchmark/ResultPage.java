@@ -16,8 +16,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import values.GridFragment;
-
 public class ResultPage extends FragmentActivity {
 
     @Override
