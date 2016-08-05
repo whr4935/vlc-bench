@@ -13,12 +13,10 @@ import java.util.List;
 
 public class ResultAdapter extends BaseAdapter {
     private List<TestInfo> results;
-    private Context mContext;
     private LayoutInflater mInflater;
 
-    public ResultAdapter(Context c) {
-        mContext = c;
-        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public ResultAdapter(Context context) {
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
