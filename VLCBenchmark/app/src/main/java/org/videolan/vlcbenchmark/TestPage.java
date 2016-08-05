@@ -193,8 +193,8 @@ public class TestPage extends Activity implements BenchServiceListener {
                     for (int i = 0; i < numberOfScreenshot; i++) {
                         String filePath = screenshotFolder + File.separator + SCREENSHOT_NAMING + i + ".jpg";
                         File file = new File(filePath);
-                        boolean exists = false;
-                        if (exists = file.exists() ||
+                        boolean exists;
+                        if (!(exists = file.exists()) ||
                                 ScreenshotValidator.getValidityPercent(filePath, colors.get(i)) >= MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT) {
                             lastTestInfo.percentOfBadScreenshots += 100.0 / numberOfScreenshot;
                         }
