@@ -48,10 +48,11 @@ public class ResultPage extends FragmentActivity {
 
     /**
      * Returns the JSON array to send to the server.
+     *
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    public JSONObject dumpResults(ArrayList<TestInfo> testInfoList) {
+    public JSONObject dumpResults(ArrayList<TestInfo> testInfoList) throws JSONException {
         JSONObject results = new JSONObject();
         JSONObject deviceInformation;
         JSONArray testInformation;
@@ -63,13 +64,8 @@ public class ResultPage extends FragmentActivity {
             return null;
         }
 
-        try {
-            results.put("device_information", deviceInformation);
-            results.put("test_information", testInformation);
-        } catch (JSONException e) {
-            return null;
-        }
-
+        results.put("device_information", deviceInformation);
+        results.put("test_information", testInformation);
         return results;
     }
 
@@ -86,68 +82,59 @@ public class ResultPage extends FragmentActivity {
 
     /**
      * Returns test information in a JSONArray.
+     *
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    private JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) {
+    private JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) throws JSONException {
         JSONArray testInfoArray = new JSONArray();
 
         for (TestInfo element : testInfoList) {
             JSONObject testInfo = new JSONObject();
-            try {
-                testInfo.put("name", element.name);
-                testInfo.put("hardware_score", element.hardware);
-                testInfo.put("software_score", element.software);
-                testInfo.put("loop_number", element.loopNumber);
-                testInfo.put("frame_dropped", element.percentOfFrameDrop);
-                testInfo.put("percent_of_bad_screenshot", element.percentOfBadScreenshots);
-                testInfo.put("percent_of_bad_seek", element.percentOfBadSeek);
-                testInfo.put("number_of_warning", element.numberOfWarnings);
-                testInfoArray.put(testInfo);
-            } catch (JSONException e) {
-                return null;
-            }
+            testInfo.put("name", element.name);
+            testInfo.put("hardware_score", element.hardware);
+            testInfo.put("software_score", element.software);
+            testInfo.put("loop_number", element.loopNumber);
+            testInfo.put("frame_dropped", element.percentOfFrameDrop);
+            testInfo.put("percent_of_bad_screenshot", element.percentOfBadScreenshots);
+            testInfo.put("percent_of_bad_seek", element.percentOfBadSeek);
+            testInfo.put("number_of_warning", element.numberOfWarnings);
+            testInfoArray.put(testInfo);
         }
         return testInfoArray;
     }
 
     /**
      * Returns device information in a JSONObject.
+     *
      * @return null in case of failure.
      */
-    private JSONObject getDeviceInformation() {
+    private JSONObject getDeviceInformation() throws JSONException {
         JSONObject properties = new JSONObject();
-
-        try {
-            properties.put("board", Build.BOARD);
-            properties.put("bootloader", Build.BOOTLOADER);
-            properties.put("brand", Build.BRAND);
-            properties.put("device", Build.DEVICE);
-            properties.put("display", Build.DISPLAY);
-            properties.put("fingerprint", Build.FINGERPRINT);
-            properties.put("host", Build.HOST);
-            properties.put("id", Build.ID);
-            properties.put("manufacturer", Build.MANUFACTURER);
-            properties.put("model", Build.MODEL);
-            properties.put("product", Build.PRODUCT);
-            properties.put("serial", Build.SERIAL);
+        properties.put("board", Build.BOARD);
+        properties.put("bootloader", Build.BOOTLOADER);
+        properties.put("brand", Build.BRAND);
+        properties.put("device", Build.DEVICE);
+        properties.put("display", Build.DISPLAY);
+        properties.put("fingerprint", Build.FINGERPRINT);
+        properties.put("host", Build.HOST);
+        properties.put("id", Build.ID);
+        properties.put("manufacturer", Build.MANUFACTURER);
+        properties.put("model", Build.MODEL);
+        properties.put("product", Build.PRODUCT);
+        properties.put("serial", Build.SERIAL);
 
         /* Min version API 21 */
 //        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
 //        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
 //        properties.put("supported_abi", Build.SUPPORTED_ABIS);
 
-            properties.put("tags", Build.TAGS);
-            properties.put("time", Build.TIME);
-            properties.put("type", Build.TYPE);
-            properties.put("user", Build.USER);
+        properties.put("tags", Build.TAGS);
+        properties.put("time", Build.TIME);
+        properties.put("type", Build.TYPE);
+        properties.put("user", Build.USER);
 
-            properties.put("os_arch", System.getProperty("os.arch"));
-
-
-        } catch (JSONException e) {
-            return null;
-        }
+        properties.put("os_arch", System.getProperty("os.arch"));
         return properties;
     }
 }
