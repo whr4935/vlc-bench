@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
-import android.widget.TabHost;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -24,23 +23,19 @@ public class ResultPage extends FragmentActivity {
         setContentView(R.layout.activity_result_page);
 
         ArrayList<TestInfo>[] results = (ArrayList<TestInfo>[]) getIntent().getSerializableExtra("resultsTest");
-        double soft = getIntent().getDoubleExtra("soft", 0);
-        double hard = getIntent().getDoubleExtra("hard", 0);
+        double soft = getIntent().getDoubleExtra("soft", 0f);
+        double hard = getIntent().getDoubleExtra("hard", 0f);
 
         final FragmentTabHost mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
-        mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+        mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
         int index = 0;
         for (ArrayList<TestInfo> resultList: results) {
             Bundle args = new Bundle();
             args.putSerializable("results", resultList);
-            mTabHost.addTab(mTabHost.newTabSpec("tab" + index).setIndicator("Test " + index), GridFragment.class, args);
+            mTabHost.addTab(mTabHost.newTabSpec("tab" + index).setIndicator("Test number " + (index + 1)), GridFragment.class, args);
             index++;
         }
-        mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener(){
-            @Override
-            public void onTabChanged(String tabId) {
-            }});
 
         TextView softView = (TextView)findViewById(R.id.softAvg);
         String softText = "Software score : " + soft;
