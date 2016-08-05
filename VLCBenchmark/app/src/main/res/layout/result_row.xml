@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
+    android:minHeight="40dp"
     android:layout_height="match_parent">
 
     <TextView
@@ -11,6 +12,8 @@
         android:layout_width="0px"
         android:textAlignment="center"
         android:gravity="center" />
+
+    <!--black line 1-->
     <View
         android:layout_height="match_parent"
         android:layout_width="2dp"
@@ -22,6 +25,8 @@
         android:id="@+id/softScore"
         android:textAlignment="center"
         android:gravity="center" />
+
+    <!--black line 2-->
     <View
         android:layout_height="match_parent"
         android:layout_width="2dp"
