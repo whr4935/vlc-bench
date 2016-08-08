@@ -44,6 +44,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     private TextView textLog = null;
     private Button oneTest = null,
             threeTests = null;
+    private StringBuilder logBuilder = new StringBuilder();
 
     enum TEST_TYPES {
         SOFTWARE_SCREENSHOT,
@@ -62,11 +63,17 @@ public class TestPage extends Activity implements BenchServiceListener {
         public boolean isScreenshot() {
             return ordinal() % 2 == 0;
         }
+
+        @Override
+        public String toString() {
+            return super.toString().replace("_", " ").toLowerCase();
+        }
     }
 
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String BENCH_ACTION = "org.videolan.vlc.ACTION_BENCHMARK";
+    private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
 
     private ProgressBar progressBar = null;
 
@@ -141,6 +148,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         savedInstanceState.putDouble("HARD_SCORE", hardScore);
         savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
         savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
+        savedInstanceState.putSerializable("LOG_TEXT", logBuilder);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -154,6 +162,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
         softScore = savedInstanceState.getDouble("SOFT_SCORE");
         hardScore = savedInstanceState.getDouble("HARD_SCORE");
+        logBuilder = (StringBuilder) savedInstanceState.getSerializable("LOG_TEXT");
         lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
         resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -181,6 +190,11 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
 
         progressBar.incrementProgressBy(1);
+        percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
+        if (testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT)
+            logBuilder.append("Starting new file: " + testFiles.get(fileIndex).getName() + '\n');
+        logBuilder.append(String.format("        %s tests finished\n", testIndex.toString()));
+
         if (testIndex.ordinal() == 0) {
             lastTestInfo = new TestInfo();
             lastTestInfo.name = testFiles.get(fileIndex).getName();
@@ -206,7 +220,12 @@ public class TestPage extends Activity implements BenchServiceListener {
                         if (exists)
                             file.delete();
                     }
-                    launchNextTest();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            launchNextTest();
+                        }
+                    });
                 }
             }.start();
             return;
@@ -221,6 +240,8 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     private void launchNextTest() {
+        textLog.setText(logBuilder.toString());
+
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             lastTestInfo.percentOfFrameDrop /= 2.0;
             lastTestInfo.percentOfBadScreenshots /= 2.0;
@@ -318,6 +339,8 @@ public class TestPage extends Activity implements BenchServiceListener {
         hardScore = 0;
         softScore = 0;
         percentText.setText(R.string.default_percent_value);
+        logBuilder = new StringBuilder();
+        textLog.setText(logBuilder.toString());
 
         try {
             dispatcher.startService(this);
