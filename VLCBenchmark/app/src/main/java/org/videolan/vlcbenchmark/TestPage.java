@@ -12,7 +12,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
@@ -37,7 +39,10 @@ public class TestPage extends Activity implements BenchServiceListener {
     private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
     private int fileIndex = 0;
     private int loopNumber = 0;
-
+    private TextView percentText = null;
+    private TextView textLog = null;
+    private Button oneTest = null,
+            threeTests = null;
 
     enum TEST_TYPES {
         SOFTWARE_SCREENSHOT,
@@ -79,8 +84,8 @@ public class TestPage extends Activity implements BenchServiceListener {
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
                 .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         TestPage.this.startActivityForResult(intent, 42);
-        findViewById(R.id.benchOne).setVisibility(View.INVISIBLE);
-        findViewById(R.id.benchThree).setVisibility(View.INVISIBLE);
+        oneTest.setVisibility(View.INVISIBLE);
+        threeTests.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -99,6 +104,11 @@ public class TestPage extends Activity implements BenchServiceListener {
         setContentView(R.layout.activity_test_page);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        percentText = (TextView) findViewById(R.id.percentText);
+        oneTest = (Button) findViewById(R.id.benchOne);
+        threeTests = (Button) findViewById(R.id.benchThree);
+        textLog = (TextView) findViewById(R.id.extractEditText);
+
         dispatcher = new BenchServiceDispatcher(this);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -150,6 +160,10 @@ public class TestPage extends Activity implements BenchServiceListener {
         lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
         resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        percentText = (TextView) findViewById(R.id.percentText);
+        oneTest = (Button) findViewById(R.id.benchOne);
+        threeTests = (Button) findViewById(R.id.benchThree);
+        textLog = (TextView) findViewById(R.id.extractEditText);
     }
 
     private TestInfo lastTestInfo = null;
@@ -168,12 +182,8 @@ public class TestPage extends Activity implements BenchServiceListener {
             errorWhileTesting(resultCode);
             return;
         }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.incrementProgressBy(1);
-            }
-        });
+
+        progressBar.incrementProgressBy(1);
         if (testIndex.ordinal() == 0) {
             lastTestInfo = new TestInfo();
             lastTestInfo.name = testFiles.get(fileIndex).getName();
@@ -284,8 +294,8 @@ public class TestPage extends Activity implements BenchServiceListener {
         progressBar.setMax(100);
         hardScore = 0;
         softScore = 0;
-        findViewById(R.id.benchOne).setVisibility(View.VISIBLE);
-        findViewById(R.id.benchThree).setVisibility(View.VISIBLE);
+        oneTest.setVisibility(View.VISIBLE);
+        threeTests.setVisibility(View.VISIBLE);
     }
 
     private void onError(String title, String message) {
