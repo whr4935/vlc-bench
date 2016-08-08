@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
@@ -316,24 +317,23 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     private int numberOfTests;
 
-    private void launchTest() {
+    @UiThread
+    public void launchTests(View v) {
+        int id = v.getId();
+
+        if (id == R.id.benchOne) {
+            numberOfTests = 1;
+            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
+        } else if (id == R.id.benchThree) {
+            numberOfTests = 3;
+            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
+        } else
+            return;
         try {
             dispatcher.startService(this);
         } catch (RuntimeException e) {
             new AlertDialog.Builder(this).setTitle("Please wait").setMessage("VLC will start shortly").setNeutralButton(android.R.string.ok, null).show();
         }
-    }
-
-    public void testOne(View v) {
-        numberOfTests = 1;
-        resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
-        launchTest();
-    }
-
-    public void testThree(View v) {
-        numberOfTests = 3;
-        resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
-        launchTest();
     }
 
     private boolean checkSignature() {
