@@ -11,10 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.videolan.vlcbenchmark.R;
-import org.videolan.vlcbenchmark.ResultAdapter;
-import org.videolan.vlcbenchmark.TestInfo;
-
 import java.util.List;
 
 public class GridFragment extends Fragment {
@@ -29,7 +25,6 @@ public class GridFragment extends Fragment {
         if (getArguments() != null) {
             results = (List<TestInfo>)getArguments().getSerializable("results");
         }
-
     }
 
     private void fillHeader(View view, int id, String text) {
@@ -55,5 +50,4 @@ public class GridFragment extends Fragment {
         gv.setFocusable(false);
         return v;
     }
-
 }
