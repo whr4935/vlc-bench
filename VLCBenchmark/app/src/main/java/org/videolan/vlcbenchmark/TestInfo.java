@@ -7,8 +7,8 @@ import java.io.Serializable;
  */
 public class TestInfo implements Serializable {
     String name;
-    double software;
-    double hardware;
+    double software = 20d;
+    double hardware = 30d;
     int loopNumber;
     double percentOfFrameDrop;
     double percentOfBadScreenshots;
