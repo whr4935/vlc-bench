@@ -84,19 +84,14 @@ public class TestPage extends Activity implements BenchServiceListener {
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
                 .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
-        TestPage.this.startActivityForResult(intent, 42);
         oneTest.setVisibility(View.INVISIBLE);
         threeTests.setVisibility(View.INVISIBLE);
+        startActivityForResult(intent, 42);
     }
 
     @Override
     public void updatePercent(final double percent) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setProgress((int) Math.round(percent));
-            }
-        });
+        progressBar.setProgress((int) Math.round(percent));
     }
 
     @Override
@@ -121,7 +116,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+            AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     finish();
@@ -252,12 +247,10 @@ public class TestPage extends Activity implements BenchServiceListener {
 //                .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*"); //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*");
 
-        if (testIndex.isSoftware()) {
+        if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);
-        }
-        if (testIndex.isScreenshot()) {
+        if (testIndex.isScreenshot())
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
-        }
         startActivityForResult(intent, 42);
     }
 
@@ -296,7 +289,8 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     @Override
     public void finish() {
-        dispatcher.stopService();
+        if (dispatcher != null)
+            dispatcher.stopService();
         super.finish();
     }
 
