@@ -6,8 +6,70 @@
     android:baselineAligned="false"
     android:orientation="vertical">
 
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:id="@+id/scrollView"
+        android:layout_weight="1"
+        android:background="@android:drawable/spinner_dropdown_background"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:id="@+id/extractEditText"
+            android:enabled="true"
+            android:clickable="true"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp" />
+    </ScrollView>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="5dp">
+
+            <Button
+                android:id="@+id/benchThree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bench_x3"
+                android:onClick="testThree"
+                android:layout_alignParentEnd="true" />
+
+            <Button
+                android:id="@+id/benchOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bench_x1"
+                android:onClick="testOne"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:id="@+id/percentText"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:text="@string/default_percent_value" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
     <ProgressBar
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
         android:layout_gravity="center_horizontal"
@@ -15,49 +77,6 @@
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:minWidth="200dp"
         android:visibility="visible"
-        android:layout_marginTop="30dp" />
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:layout_marginBottom="100dp">
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_gravity="center"
-            >
-
-            <Button
-                android:id="@+id/benchOne"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bench_x1"
-                android:onClick="testOne" />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_gravity="center"
-            >
-            <Button
-                android:id="@+id/benchThree"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bench_x3"
-                android:onClick="testThree" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+        android:layout_margin="5dp" />
 
 </LinearLayout>

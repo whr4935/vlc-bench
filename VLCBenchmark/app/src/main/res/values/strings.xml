@@ -3,4 +3,5 @@
     <string name="bench_x1">Test x1</string>
     <string name="bench_x3">Test x3</string>
     <string name="send_results">Send results</string>
+    <string name="default_percent_value">0 %</string>
 </resources>
