@@ -240,8 +240,9 @@ public class TestPage extends Activity implements BenchServiceListener {
                 intent.putExtra("resultsTest", (Serializable) resultsTest);
                 intent.putExtra("soft", softScore);
                 intent.putExtra("hard", hardScore);
+                oneTest.setVisibility(View.VISIBLE);
+                threeTests.setVisibility(View.VISIBLE);
                 startActivity(intent);
-                cleanState();
                 return;
             }
         }
@@ -284,23 +285,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         onError("Error: VLC failed", errorMsg);
     }
 
-    private void cleanState() {
-        fileIndex = 0;
-        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        loopNumber = 0;
-        for (int i = 0; i < numberOfTests; i++)
-            resultsTest[i].clear();
-        numberOfTests = 0;
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        hardScore = 0;
-        softScore = 0;
-        oneTest.setVisibility(View.VISIBLE);
-        threeTests.setVisibility(View.VISIBLE);
-    }
-
     private void onError(String title, String message) {
-        cleanState();
         new AlertDialog.Builder(this).setTitle(title).setMessage(message).setCancelable(false).setNeutralButton("ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -329,6 +314,16 @@ public class TestPage extends Activity implements BenchServiceListener {
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
         } else
             return;
+
+        fileIndex = 0;
+        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        loopNumber = 0;
+        progressBar.setProgress(0);
+        progressBar.setMax(100);
+        hardScore = 0;
+        softScore = 0;
+        percentText.setText(R.string.default_percent_value);
+
         try {
             dispatcher.startService(this);
         } catch (RuntimeException e) {
