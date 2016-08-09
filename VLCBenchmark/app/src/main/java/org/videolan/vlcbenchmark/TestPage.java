@@ -370,6 +370,8 @@ public class TestPage extends Activity implements BenchServiceListener {
         savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
         savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
         savedInstanceState.putSerializable("LOG_TEXT", logBuilder);
+        savedInstanceState.putInt("PROGRESS_VALUE", progressBar.getProgress());
+        savedInstanceState.putInt("PROGRESS_MAX", progressBar.getMax());
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -387,6 +389,8 @@ public class TestPage extends Activity implements BenchServiceListener {
         lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
         resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setProgress(savedInstanceState.getInt("PROGRESS_VALUE", 0));
+        progressBar.setMax(savedInstanceState.getInt("PROGRESS_MAX", 100));
         percentText = (TextView) findViewById(R.id.percentText);
         oneTest = (Button) findViewById(R.id.benchOne);
         threeTests = (Button) findViewById(R.id.benchThree);
