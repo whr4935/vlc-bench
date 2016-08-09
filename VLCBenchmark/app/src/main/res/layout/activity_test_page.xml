@@ -20,6 +20,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            android:freezesText="true"
             android:textColor="@android:color/black"
             android:id="@+id/extractEditText"
             android:enabled="true"
@@ -61,6 +62,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 android:id="@+id/percentText"
+                android:freezesText="true"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
                 android:text="@string/default_percent_value" />
