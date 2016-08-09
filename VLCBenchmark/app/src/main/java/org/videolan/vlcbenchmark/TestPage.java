@@ -40,11 +40,15 @@ public class TestPage extends Activity implements BenchServiceListener {
     private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
     private int fileIndex = 0;
     private int loopNumber = 0;
+    private StringBuilder logBuilder = new StringBuilder();
+    private TestInfo lastTestInfo = null;
+    private int numberOfTests;
+
     private TextView percentText = null;
     private TextView textLog = null;
     private Button oneTest = null,
             threeTests = null;
-    private StringBuilder logBuilder = new StringBuilder();
+    private ProgressBar progressBar = null;
 
     enum TEST_TYPES {
         SOFTWARE_SCREENSHOT,
@@ -74,33 +78,8 @@ public class TestPage extends Activity implements BenchServiceListener {
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String BENCH_ACTION = "org.videolan.vlc.ACTION_BENCHMARK";
     private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
-
-    private ProgressBar progressBar = null;
-
-    @Override
-    public void failure(FAILURE_STATES reason, Exception exception) {
-        new AlertDialog.Builder(this).setTitle("Error during download").setMessage("An exception occurred while downloading:\n" + exception.toString()).setNeutralButton("ok", null).show();
-    }
-
-    @Override
-    public void doneReceived(List<MediaInfo> files) {
-        testFiles = files;
-        TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        MediaInfo currentFile = files.get(0);
-        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
-//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
-                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
-                .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
-        oneTest.setVisibility(View.INVISIBLE);
-        threeTests.setVisibility(View.INVISIBLE);
-        startActivityForResult(intent, 42);
-    }
-
-    @Override
-    public void updatePercent(final double percent) {
-        progressBar.setProgress((int) Math.round(percent));
-        percentText.setText(String.format("%.2f %%", percent));
-    }
+    private static final String SCREENSHOT_NAMING = "Screenshot_";
+    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,44 +116,61 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
-        savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
-        savedInstanceState.putInt("FILE_INDEX", fileIndex);
-        savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
-        savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
-        savedInstanceState.putDouble("SOFT_SCORE", softScore);
-        savedInstanceState.putDouble("HARD_SCORE", hardScore);
-        savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
-        savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
-        savedInstanceState.putSerializable("LOG_TEXT", logBuilder);
-        super.onSaveInstanceState(savedInstanceState);
+    @UiThread
+    public void launchTests(View v) {
+        int id = v.getId();
+
+        if (id == R.id.benchOne) {
+            numberOfTests = 1;
+            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
+        } else if (id == R.id.benchThree) {
+            numberOfTests = 3;
+            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
+        } else
+            return;
+
+        fileIndex = 0;
+        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        loopNumber = 0;
+        progressBar.setProgress(0);
+        progressBar.setMax(100);
+        hardScore = 0;
+        softScore = 0;
+        percentText.setText(R.string.default_percent_value);
+        logBuilder = new StringBuilder();
+        textLog.setText(logBuilder.toString());
+
+        try {
+            dispatcher.startService(this);
+        } catch (RuntimeException e) {
+            new AlertDialog.Builder(this).setTitle("Please wait").setMessage("VLC will start shortly").setNeutralButton(android.R.string.ok, null).show();
+        }
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
-        testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
-        fileIndex = savedInstanceState.getInt("FILE_INDEX");
-        numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
-        loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
-        softScore = savedInstanceState.getDouble("SOFT_SCORE");
-        hardScore = savedInstanceState.getDouble("HARD_SCORE");
-        logBuilder = (StringBuilder) savedInstanceState.getSerializable("LOG_TEXT");
-        lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
-        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        percentText = (TextView) findViewById(R.id.percentText);
-        oneTest = (Button) findViewById(R.id.benchOne);
-        threeTests = (Button) findViewById(R.id.benchThree);
-        textLog = (TextView) findViewById(R.id.extractEditText);
+    public void updatePercent(final double percent) {
+        progressBar.setProgress((int) Math.round(percent));
+        percentText.setText(String.format("%.2f %%", percent));
     }
 
-    private TestInfo lastTestInfo = null;
-    private static final String SCREENSHOT_NAMING = "Screenshot_";
-    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
+    @Override
+    public void failure(FAILURE_STATES reason, Exception exception) {
+        new AlertDialog.Builder(this).setTitle("Error during download").setMessage("An exception occurred while downloading:\n" + exception.toString()).setNeutralButton("ok", null).show();
+    }
+
+    @Override
+    public void doneReceived(List<MediaInfo> files) {
+        testFiles = files;
+        TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        MediaInfo currentFile = files.get(0);
+        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
+//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
+                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
+                .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
+        oneTest.setVisibility(View.INVISIBLE);
+        threeTests.setVisibility(View.INVISIBLE);
+        startActivityForResult(intent, 42);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -234,10 +230,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         int numberOfDroppedFrames = data.getIntExtra("number_of_dropped_frames", 0);
         lastTestInfo.hardware -= numberOfDroppedFrames * 5.0;
         launchNextTest();
-    }
-
-    @Override
-    public void onBackPressed() {
     }
 
     private void launchNextTest() {
@@ -310,46 +302,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
 
-    @Override
-    public void finish() {
-        if (dispatcher != null)
-            dispatcher.stopService();
-        super.finish();
-    }
-
-    private int numberOfTests;
-
-    @UiThread
-    public void launchTests(View v) {
-        int id = v.getId();
-
-        if (id == R.id.benchOne) {
-            numberOfTests = 1;
-            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
-        } else if (id == R.id.benchThree) {
-            numberOfTests = 3;
-            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
-        } else
-            return;
-
-        fileIndex = 0;
-        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        loopNumber = 0;
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        hardScore = 0;
-        softScore = 0;
-        percentText.setText(R.string.default_percent_value);
-        logBuilder = new StringBuilder();
-        textLog.setText(logBuilder.toString());
-
-        try {
-            dispatcher.startService(this);
-        } catch (RuntimeException e) {
-            new AlertDialog.Builder(this).setTitle("Please wait").setMessage("VLC will start shortly").setNeutralButton(android.R.string.ok, null).show();
-        }
-    }
-
     private boolean checkSignature() {
         String benchPackageName = this.getPackageName();
         String vlcPackageName;
@@ -404,5 +356,51 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
 
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
+        savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
+        savedInstanceState.putInt("FILE_INDEX", fileIndex);
+        savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
+        savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
+        savedInstanceState.putDouble("SOFT_SCORE", softScore);
+        savedInstanceState.putDouble("HARD_SCORE", hardScore);
+        savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
+        savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
+        savedInstanceState.putSerializable("LOG_TEXT", logBuilder);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
+        testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
+        fileIndex = savedInstanceState.getInt("FILE_INDEX");
+        numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
+        loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
+        softScore = savedInstanceState.getDouble("SOFT_SCORE");
+        hardScore = savedInstanceState.getDouble("HARD_SCORE");
+        logBuilder = (StringBuilder) savedInstanceState.getSerializable("LOG_TEXT");
+        lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
+        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        percentText = (TextView) findViewById(R.id.percentText);
+        oneTest = (Button) findViewById(R.id.benchOne);
+        threeTests = (Button) findViewById(R.id.benchThree);
+        textLog = (TextView) findViewById(R.id.extractEditText);
+    }
+
+    @Override
+    public void onBackPressed() {
+    }
+
+    @Override
+    public void finish() {
+        if (dispatcher != null)
+            dispatcher.stopService();
+        super.finish();
     }
 }
