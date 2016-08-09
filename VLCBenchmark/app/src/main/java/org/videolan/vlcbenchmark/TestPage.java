@@ -188,7 +188,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         progressBar.incrementProgressBy(1);
         percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
         if (testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT)
-            logBuilder.append("Starting new file: " + testFiles.get(fileIndex).getName() + '\n');
+            logBuilder.append(testFiles.get(fileIndex).getName() + '\n');
         logBuilder.append(String.format("        %s tests finished\n", testIndex.toString()));
 
         if (testIndex.ordinal() == 0) {
