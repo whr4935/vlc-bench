@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
@@ -99,13 +100,12 @@ public class TestPage extends Activity implements BenchServiceListener {
 
         dispatcher = new BenchServiceDispatcher(this);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -277,7 +277,7 @@ public class TestPage extends Activity implements BenchServiceListener {
             }
             if (loopNumber >= numberOfTests) {
                 Intent intent = new Intent(TestPage.this, ResultPage.class);
-                intent.putExtra("resultsTest", (Serializable) resultsTest);
+                intent.putExtra("resultsTest", resultsTest);
                 intent.putExtra("soft", softScore);
                 intent.putExtra("hard", hardScore);
                 oneTest.setVisibility(View.VISIBLE);
@@ -300,7 +300,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     private void errorWhileTesting(int resultCode) {
-        String errorMsg = null;
+        String errorMsg;
         switch (resultCode) {
             case 0:
                 errorMsg = "No compatible cpu, incorrect VLC abi variant installed";
