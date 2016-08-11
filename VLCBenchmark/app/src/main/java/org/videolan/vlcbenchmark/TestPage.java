@@ -379,7 +379,7 @@ public class TestPage extends Activity implements BenchServiceListener {
             return false;
 
         try {
-            if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName != "2.0.5")
+            if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName.equals("2.0.5"))
                 return false;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
