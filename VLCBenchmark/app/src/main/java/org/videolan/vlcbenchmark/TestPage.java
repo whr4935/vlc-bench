@@ -255,11 +255,7 @@ public class TestPage extends Activity implements BenchServiceListener {
                 //TODO
             } else {
                 lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0d);
-                int numberOfDroppedFrames = data.getIntExtra("number_of_dropped_frames", 0);
-                if (testIndex.isSoftware())
-                    lastTestInfo.software -= numberOfDroppedFrames * 5.0;
-                else
-                    lastTestInfo.hardware -= numberOfDroppedFrames * 5.0;
+                lastTestInfo.badFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
             }
         }
         launchNextTest();

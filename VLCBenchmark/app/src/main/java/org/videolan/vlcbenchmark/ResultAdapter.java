@@ -41,9 +41,10 @@ public class ResultAdapter extends BaseAdapter {
         TextView tv2 = (TextView) view.findViewById(R.id.softScore);
         TextView tv3 = (TextView) view.findViewById(R.id.hardScore);
 
-        tv1.setText(results.get(i).name);
-        tv2.setText(String.valueOf(results.get(i).software));
-        tv3.setText(String.valueOf(results.get(i).hardware));
+        TestInfo test = results.get(i);
+        tv1.setText(test.name);
+        tv2.setText(String.valueOf(test.software[0] + test.software[1]));
+        tv3.setText(String.valueOf(test.hardware[0] + test.hardware[1]));
 
         view.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
