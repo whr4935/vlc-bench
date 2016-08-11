@@ -324,12 +324,14 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     private void onError(String title, String message) {
-        new AlertDialog.Builder(this).setTitle(title).setMessage(message).setCancelable(false).setNeutralButton("ok", new DialogInterface.OnClickListener() {
+        AlertDialog tmp = new AlertDialog.Builder(this).setTitle(title).setMessage(message).setCancelable(false).setNeutralButton("ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
             }
-        }).setIcon(android.R.drawable.ic_dialog_alert).show();
+        }).setIcon(android.R.drawable.ic_dialog_alert).create();
+        tmp.setCancelable(false);
+        tmp.show();
     }
 
     private boolean checkSignature() {
