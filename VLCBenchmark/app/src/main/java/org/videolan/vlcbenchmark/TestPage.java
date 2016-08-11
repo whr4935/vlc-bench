@@ -76,6 +76,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
     }
 
+    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc.debug";
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String BENCH_ACTION = "org.videolan.vlc.ACTION_BENCHMARK";
@@ -167,7 +168,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         testFiles = files;
         TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = files.get(0);
-        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
+        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*")
                 .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
@@ -287,7 +288,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
         testIndex = testIndex.next();
         MediaInfo currentFile = testFiles.get(fileIndex);
-        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName("org.videolan.vlc.debug", BENCH_ACTIVITY))
+        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
 //                .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*"); //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*");
 
@@ -355,7 +356,7 @@ public class TestPage extends Activity implements BenchServiceListener {
         /* Getting vlc normal or debug package name, *
          * according to our application's state */
         if (benchPackageName.contains("debug")) {
-            vlcPackageName = "org.videolan.vlc.debug";
+            vlcPackageName = VLC_PACKAGE_NAME;
         } else {
             vlcPackageName = "org.videolan.vlc";
         }
