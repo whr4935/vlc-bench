@@ -4,8 +4,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
@@ -80,6 +82,8 @@ public class TestPage extends Activity implements BenchServiceListener {
     private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
+    private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
+    private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,30 +177,51 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
             progressBar.setProgress(0);
             progressBar.setMax(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
         }
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode != -1) {
+        if (data == null) {
+            try {
+                Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
+                SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
+                new AlertDialog.Builder(this).setMessage(preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null)).setTitle("VLC crashed on test").setNeutralButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                fillCreateTestInfo(data);
+                            }
+                        }).show();
+                return ;
+            } catch (PackageManager.NameNotFoundException e) {
+                //TODO
+            }
+        } else if (resultCode != -1) {
+            oneTest.setVisibility(View.VISIBLE);
+            threeTests.setVisibility(View.VISIBLE);
+            percentText.setText(R.string.default_percent_value);
             errorWhileTesting(resultCode);
             return;
         }
+        fillCreateTestInfo(data);
+    }
 
+    private void fillCreateTestInfo(Intent data) {
         progressBar.incrementProgressBy(1);
         percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
         if (testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT)
-            logBuilder.append(testFiles.get(fileIndex).getName() + '\n');
-        logBuilder.append(String.format("        %s tests finished\n", testIndex.toString()));
+            logBuilder.append(testFiles.get(fileIndex).getName()).append('\n');
+        logBuilder.append(String.format("        %s tests %s\n", testIndex.toString(), (data != null ? "finished" : "failed")));
 
         if (testIndex.ordinal() == 0) {
             lastTestInfo = new TestInfo();
             lastTestInfo.name = testFiles.get(fileIndex).getName();
             lastTestInfo.loopNumber = loopNumber;
         }
-        if (testIndex.isScreenshot()) {
+        if (testIndex.isScreenshot() && data != null) {
             final String screenshotFolder = data.getStringExtra("screenshot_folder");
             lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
             final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
@@ -225,10 +250,18 @@ public class TestPage extends Activity implements BenchServiceListener {
                 }
             }.start();
             return;
+        } else {
+            if (data == null) {
+                //TODO
+            } else {
+                lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0d);
+                int numberOfDroppedFrames = data.getIntExtra("number_of_dropped_frames", 0);
+                if (testIndex.isSoftware())
+                    lastTestInfo.software -= numberOfDroppedFrames * 5.0;
+                else
+                    lastTestInfo.hardware -= numberOfDroppedFrames * 5.0;
+            }
         }
-        lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0d);
-        int numberOfDroppedFrames = data.getIntExtra("number_of_dropped_frames", 0);
-        lastTestInfo.hardware -= numberOfDroppedFrames * 5.0;
         launchNextTest();
     }
 
