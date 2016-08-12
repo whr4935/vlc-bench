@@ -38,8 +38,6 @@ public class TestPage extends Activity implements BenchServiceListener {
     private BenchServiceDispatcher dispatcher;
     private List<TestInfo>[] resultsTest;
     private List<MediaInfo> testFiles;
-    private double softScore = 0;
-    private double hardScore = 0;
     private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
     private int fileIndex = 0;
     private int loopNumber = 0;
@@ -139,8 +137,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         loopNumber = 0;
         progressBar.setProgress(0);
         progressBar.setMax(100);
-        hardScore = 0;
-        softScore = 0;
         percentText.setText(R.string.default_percent_value);
         logBuilder = new StringBuilder();
         textLog.setText(logBuilder.toString());
@@ -301,6 +297,15 @@ public class TestPage extends Activity implements BenchServiceListener {
             if (loopNumber >= numberOfTests) {
                 Intent intent = new Intent(TestPage.this, ResultPage.class);
                 intent.putExtra("resultsTest", resultsTest);
+                double softScore = 0, hardScore = 0;
+                for (int i = 0; i < numberOfTests; i++)
+                    for (TestInfo test : resultsTest[i]) {
+                        softScore += test.software[TestInfo.PLAYBACK] + test.software[TestInfo.PERFORMANCE];
+                        hardScore += test.hardware[TestInfo.PLAYBACK] + test.hardware[TestInfo.PERFORMANCE];
+                    }
+                int totalNumberOfElement = testFiles.size() * numberOfTests;
+                softScore /= totalNumberOfElement;
+                hardScore /= totalNumberOfElement;
                 intent.putExtra("soft", softScore);
                 intent.putExtra("hard", hardScore);
                 oneTest.setVisibility(View.VISIBLE);
@@ -385,8 +390,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         savedInstanceState.putInt("FILE_INDEX", fileIndex);
         savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
         savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
-        savedInstanceState.putDouble("SOFT_SCORE", softScore);
-        savedInstanceState.putDouble("HARD_SCORE", hardScore);
         savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
         savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
         savedInstanceState.putSerializable("LOG_TEXT", logBuilder.toString());
@@ -403,8 +406,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         fileIndex = savedInstanceState.getInt("FILE_INDEX");
         numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
         loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
-        softScore = savedInstanceState.getDouble("SOFT_SCORE");
-        hardScore = savedInstanceState.getDouble("HARD_SCORE");
         logBuilder = new StringBuilder((String) savedInstanceState.getSerializable("LOG_TEXT"));
         lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
         resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
