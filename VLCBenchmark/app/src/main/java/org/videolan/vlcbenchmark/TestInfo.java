@@ -14,16 +14,12 @@ public class TestInfo implements Serializable {
     double[] software = {30d, 20d}; //performance, playback
     double[] hardware = {30d, 20d};
     int loopNumber;
-    double percentOfFrameDrop;
+    int framesDropped;
     double percentOfBadScreenshots;
-    double percentOfBadSeek;
     int numberOfWarnings;
 
     public void badScreenshot(boolean isSoftware) {
 //        (isSoftware ? software : hardware)[PLAYBACK];
-    }
-
-    public void badSeek(boolean isSoftware) {
     }
 
     public void badFrames(int number_of_dropped_frames, boolean isSoftware) {
