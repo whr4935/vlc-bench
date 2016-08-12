@@ -4,4 +4,11 @@
     <string name="bench_x3">Test x3</string>
     <string name="send_results">Send results</string>
     <string name="default_percent_value">0 %</string>
+    <string name="vlc_crashes">VLC crashes:</string>
+    <string name="zero_times">zero times</string>
+    <string name="frames_dropped">frames dropped</string>
+    <string name="bad_screenshots">bad screenshots</string>
+    <string name="warnings">warnings</string>
+    <string name="software">software</string>
+    <string name="hardware">hardware</string>
 </resources>
