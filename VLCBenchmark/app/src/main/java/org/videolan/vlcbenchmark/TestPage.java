@@ -80,6 +80,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String BENCH_ACTION = "org.videolan.vlc.ACTION_BENCHMARK";
     private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
+    private static final String PROGRESS_TEXT_FORMAT_LOOPS = PROGRESS_TEXT_FORMAT + " | loop %d/%d";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
@@ -189,7 +190,11 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
 
         progressBar.incrementProgressBy(1);
-        percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
+        if (numberOfTests != 1)
+            percentText.setText(String.format(PROGRESS_TEXT_FORMAT_LOOPS, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1,
+                    loopNumber + 1, numberOfTests));
+        else
+            percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
         logBuilder.append(String.format("        %s tests %s\n", testIndex.toString(), (resultCode == RESULT_OK ? "finished" : "failed")));
         textLog.setText(logBuilder.toString());
 
