@@ -39,7 +39,6 @@ public class BenchService extends IntentService {
 
     private List<MediaInfo> filesInfo = null;
     private Handler dispatcher = null;
-    private static MediaInfo resumeMedia = null;
 
     public BenchService() {
         super("BenchService");
@@ -97,7 +96,7 @@ public class BenchService extends IntentService {
                 }
         }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
-        if (what == DONE_STATUS)
+        if (what != PERCENT_STATUS)
             dispatcher = null;
     }
 
@@ -120,7 +119,6 @@ public class BenchService extends IntentService {
 
     private void downloadFile(File file, MediaInfo fileData, double percent, double pas) throws IOException, GeneralSecurityException {
         if (!hasWifiAndLan(this)) {
-            resumeMedia = fileData;
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         file.createNewFile();
@@ -142,7 +140,6 @@ public class BenchService extends IntentService {
             if (checkFileSum(file, fileData.checksum))
                 return;
             file.delete();
-            resumeMedia = fileData;
             throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
         } finally {
             if (fileStream != null)
@@ -160,14 +157,8 @@ public class BenchService extends IntentService {
         if (!mediaFolder.exists())
             mediaFolder.mkdir();
         HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
-        int offset = (resumeMedia == null ? 0 : filesInfo.indexOf(resumeMedia));
-        if (offset == -1) {
-            resumeMedia = null;
-            offset = 0;
-        }
-        List<MediaInfo> subList = filesInfo.subList(offset, filesInfo.size());
-        double percent = 1.0 / filesInfo.size() * offset;
-        for (MediaInfo fileData : subList) {
+        double percent = 0d;
+        for (MediaInfo fileData : filesInfo) {
             percent += 1.0 / filesInfo.size();
             File localFile = new File(mediaFolder.getPath() + '/' + fileData.name);
             if (localFile.exists())
@@ -181,7 +172,6 @@ public class BenchService extends IntentService {
             downloadFile(localFile, fileData, percent, 1.0 / filesInfo.size());
             fileData.localUrl = localFile.getAbsolutePath();
         }
-        resumeMedia = null;
         for (File toRemove : unusedFiles)
             toRemove.delete();
     }
