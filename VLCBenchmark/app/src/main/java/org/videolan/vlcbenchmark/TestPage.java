@@ -231,10 +231,12 @@ public class TestPage extends Activity implements BenchServiceListener {
 
     private void fillCurrentTestInfo(Intent data) {
         if (data == null) {
+            lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot());
         } else if (testIndex.isScreenshot()) {
             testScreenshot(data);
             return;
         } else {
+            lastTestInfo.badFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
         }
         launchNextTest();
     }
@@ -259,6 +261,7 @@ public class TestPage extends Activity implements BenchServiceListener {
                     if (exists)
                         file.delete();
                 }
+                lastTestInfo.badScreenshot(100.0 * badScreenshots / numberOfScreenshot, testIndex.isSoftware());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

@@ -55,16 +55,24 @@ public class ResultAdapter extends BaseAdapter {
                 TextView tmp;
 
                 tmp = (TextView) dialog.findViewById(R.id.frames_dropped_software);
+                tmp.setText("" + test.framesDropped[TestInfo.SOFT]);
                 tmp = (TextView) dialog.findViewById(R.id.frames_dropped_hardware);
+                tmp.setText("" + test.framesDropped[TestInfo.HARD]);
 
                 tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_software);
+                tmp.setText(doubleToPercentString(test.percentOfBadScreenshots[TestInfo.SOFT]));
                 tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_hardware);
+                tmp.setText(doubleToPercentString(test.percentOfBadScreenshots[TestInfo.HARD]));
 
                 tmp = (TextView) dialog.findViewById(R.id.warnings_software);
+                tmp.setText("" + test.numberOfWarnings[TestInfo.SOFT]);
                 tmp = (TextView) dialog.findViewById(R.id.warnings_hardware);
+                tmp.setText("" + test.numberOfWarnings[TestInfo.HARD]);
 
                 tmp = (TextView) dialog.findViewById(R.id.crashes_software);
+                tmp.setText("" + test.getCrashes(TestInfo.SOFT));
                 tmp = (TextView) dialog.findViewById(R.id.crashes_hardware);
+                tmp.setText("" + test.getCrashes(TestInfo.HARD));
 
                 ((Button) dialog.findViewById(R.id.detail_dismiss)).setOnClickListener(new View.OnClickListener() {
                     @Override
