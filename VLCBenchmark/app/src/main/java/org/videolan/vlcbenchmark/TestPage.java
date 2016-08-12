@@ -185,89 +185,92 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (data == null) {
-            try {
-                Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
-                SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
-                new AlertDialog.Builder(this).setMessage(preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null)).setTitle("VLC crashed on test").setNeutralButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                fillCreateTestInfo(data);
-                            }
-                        }).show();
-                return ;
-            } catch (PackageManager.NameNotFoundException e) {
-                //TODO
-            }
-        } else if (resultCode != -1) {
+        if (data != null && resultCode != -1) {
             oneTest.setVisibility(View.VISIBLE);
             threeTests.setVisibility(View.VISIBLE);
             percentText.setText(R.string.default_percent_value);
             errorWhileTesting(resultCode);
             return;
         }
-        fillCreateTestInfo(data);
-    }
-
-    private void fillCreateTestInfo(Intent data) {
-        progressBar.incrementProgressBy(1);
-        percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
-        if (testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT)
-            logBuilder.append(testFiles.get(fileIndex).getName()).append('\n');
-        logBuilder.append(String.format("        %s tests %s\n", testIndex.toString(), (data != null ? "finished" : "failed")));
 
         if (testIndex.ordinal() == 0) {
             lastTestInfo = new TestInfo();
             lastTestInfo.name = testFiles.get(fileIndex).getName();
             lastTestInfo.loopNumber = loopNumber;
+            logBuilder.append(lastTestInfo.name).append('\n');
         }
-        if (testIndex.isScreenshot() && data != null) {
-            final String screenshotFolder = data.getStringExtra("screenshot_folder");
-            lastTestInfo.percentOfBadSeek += data.getDoubleExtra("percent_of_bad_seek", 0.0);
-            final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
-            final List<Integer> colors = testFiles.get(fileIndex).getColors();
 
-            new Thread() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < numberOfScreenshot; i++) {
-                        String filePath = screenshotFolder + File.separator + SCREENSHOT_NAMING + i + ".jpg";
-                        File file = new File(filePath);
-                        boolean exists;
-                        if (!(exists = file.exists()) ||
-                                ScreenshotValidator.getValidityPercent(filePath, colors.get(i)) >= MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT) {
-                            lastTestInfo.percentOfBadScreenshots += 100.0 / numberOfScreenshot;
-                        }
-                        if (exists)
-                            file.delete();
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            launchNextTest();
-                        }
-                    });
-                }
-            }.start();
+        progressBar.incrementProgressBy(1);
+        percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
+        logBuilder.append(String.format("        %s tests %s\n", testIndex.toString(), (data != null ? "finished" : "failed")));
+        textLog.setText(logBuilder.toString());
+
+        if (data == null) {
+            try {
+                Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
+                final SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
+                new AlertDialog.Builder(this) {{
+                    setMessage(preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null));
+                    setTitle("VLC crashed on test");
+                    setCancelable(false);
+                }}.setNeutralButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                fillCurrentTestInfo(data);
+                            }
+                        }).show();
+                return;
+            } catch (PackageManager.NameNotFoundException e) {
+                //TODO VLC not install/bad version
+            }
+        }
+        fillCurrentTestInfo(data);
+    }
+
+    private void fillCurrentTestInfo(Intent data) {
+        if (data == null) {
+        } else if (testIndex.isScreenshot()) {
+            testScreenshot(data);
             return;
         } else {
-            if (data == null) {
-                //TODO
-            } else {
-                lastTestInfo.percentOfFrameDrop += data.getDoubleExtra("dropped_frame", 0d);
-                lastTestInfo.badFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
-            }
         }
         launchNextTest();
     }
 
-    private void launchNextTest() {
-        textLog.setText(logBuilder.toString());
+    private void testScreenshot(Intent data) {
+        final String screenshotFolder = data.getStringExtra("screenshot_folder");
+        final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
+        final List<Integer> colors = testFiles.get(fileIndex).getColors();
 
+        new Thread() {
+            @Override
+            public void run() {
+                int badScreenshots = 0;
+                for (int i = 0; i < numberOfScreenshot; i++) {
+                    String filePath = screenshotFolder + File.separator + SCREENSHOT_NAMING + i + ".jpg";
+                    File file = new File(filePath);
+                    boolean exists;
+                    if (!(exists = file.exists()) ||
+                            ScreenshotValidator.getValidityPercent(filePath, colors.get(i)) >= MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT) {
+                        badScreenshots++;
+                    }
+                    if (exists)
+                        file.delete();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        launchNextTest();
+                    }
+                });
+            }
+        }.start();
+    }
+
+    private void launchNextTest() {
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
-            lastTestInfo.percentOfFrameDrop /= 2.0;
-            lastTestInfo.percentOfBadScreenshots /= 2.0;
             resultsTest[loopNumber].add(lastTestInfo);
             lastTestInfo = null;
             fileIndex++;
