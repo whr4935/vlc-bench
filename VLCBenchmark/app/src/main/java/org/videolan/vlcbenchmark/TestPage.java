@@ -185,14 +185,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         }
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (data != null && resultCode != -1) {
-            oneTest.setVisibility(View.VISIBLE);
-            threeTests.setVisibility(View.VISIBLE);
-            percentText.setText(R.string.default_percent_value);
-            errorWhileTesting(resultCode);
-            return;
-        }
-
         if (testIndex.ordinal() == 0) {
             lastTestInfo = new TestInfo();
             lastTestInfo.name = testFiles.get(fileIndex).getName();
@@ -202,35 +194,60 @@ public class TestPage extends Activity implements BenchServiceListener {
 
         progressBar.incrementProgressBy(1);
         percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1));
-        logBuilder.append(String.format("        %s tests %s\n", testIndex.toString(), (data != null ? "finished" : "failed")));
+        logBuilder.append(String.format("        %s tests %s\n", testIndex.toString(), (resultCode == RESULT_OK ? "finished" : "failed")));
         textLog.setText(logBuilder.toString());
 
+        if (data != null && resultCode == -1) {
+            fillCurrentTestInfo(data, false);
+            return;
+        }
+
+        String errorMessage;
         if (data == null) {
             try {
                 Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
-                final SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
-                new AlertDialog.Builder(this) {{
-                    setMessage(preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null));
-                    setTitle("VLC crashed on test");
-                    setCancelable(false);
-                }}.setNeutralButton(android.R.string.ok,
+                SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
+                errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
+            } catch (PackageManager.NameNotFoundException e) {
+                errorMessage = e.getMessage();
+            }
+        } else
+            errorMessage = vlcErrorCodeToString(resultCode);
+
+        new AlertDialog.Builder(this) {{
+            setTitle("VLC crashed on test");
+            setCancelable(false);
+        }}
+                .setMessage(errorMessage)
+                .setNeutralButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                fillCurrentTestInfo(data);
+                                fillCurrentTestInfo(data, true);
                             }
-                        }).show();
-                return;
-            } catch (PackageManager.NameNotFoundException e) {
-                //TODO VLC not install/bad version
-            }
-        }
-        fillCurrentTestInfo(data);
+                        })
+                .show();
     }
 
-    private void fillCurrentTestInfo(Intent data) {
-        if (data == null) {
+    private String vlcErrorCodeToString(int resultCode) {
+        switch (resultCode) {
+            case 0:
+                return "No compatible cpu, incorrect VLC abi variant installed";
+            case 2:
+                return "Connection failed to audio service";
+            case 3:
+                return "VLC is not able to play this file, it could be incorrect path/uri, not supported codec or broken file";
+            case 4:
+                return "Error with hardware acceleration, user refused to switch to software decoding";
+            case 5:
+                return "VLC continues playback, but for audio track only. (Audio file detected or user chose to)";
+        }
+        return "Unknown error code";
+    }
+
+    private void fillCurrentTestInfo(Intent data, boolean failed) {
+        if (failed) {
             lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot());
         } else if (testIndex.isScreenshot()) {
             testScreenshot(data);
@@ -242,7 +259,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     private void testScreenshot(Intent data) {
-        final String screenshotFolder = data.getStringExtra("screenshot_folder");
+        final String screenshotFolder = data.getStringExtra("screenshot_folder"); //TODO replace with SharedPreference
         final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
         final List<Integer> colors = testFiles.get(fileIndex).getColors();
 
@@ -303,41 +320,6 @@ public class TestPage extends Activity implements BenchServiceListener {
         if (testIndex.isScreenshot())
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         startActivityForResult(intent, 42);
-    }
-
-    private void errorWhileTesting(int resultCode) {
-        String errorMsg;
-        switch (resultCode) {
-            case 0:
-                errorMsg = "No compatible cpu, incorrect VLC abi variant installed";
-                break;
-            case 2:
-                errorMsg = "Connection failed to audio service";
-                break;
-            case 3:
-                errorMsg = "VLC is not able to play this file, it could be incorrect path/uri, not supported codec or broken file";
-                break;
-            case 4:
-                errorMsg = "Error with hardware acceleration, user refused to switch to software decoding";
-                break;
-            case 5:
-                errorMsg = "VLC continues playback, but for audio track only. (Audio file detected or user chose to)";
-                break;
-            default:
-                return;
-        }
-        onError("Error: VLC failed", errorMsg);
-    }
-
-    private void onError(String title, String message) {
-        AlertDialog tmp = new AlertDialog.Builder(this).setTitle(title).setMessage(message).setCancelable(false).setNeutralButton("ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        }).setIcon(android.R.drawable.ic_dialog_alert).create();
-        tmp.setCancelable(false);
-        tmp.show();
     }
 
     private boolean checkSignature() {
