@@ -66,7 +66,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
     }
 
-    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc.debug";
+    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc.debug"; //TODO replace with release package
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
