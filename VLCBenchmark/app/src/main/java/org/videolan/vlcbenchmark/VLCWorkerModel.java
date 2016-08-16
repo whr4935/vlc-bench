@@ -69,21 +69,31 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private static final String VLC_PACKAGE_NAME = "org.videolan.vlc.debug";
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
-    private static final String BENCH_ACTION = "org.videolan.vlc.ACTION_BENCHMARK";
+    private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
+    private static final String PLAYBACK_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_PLAYBACK";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
 
     protected abstract void setupUiMembers();
+
     protected abstract void resetUiToDefault();
+
     protected abstract void updateUiOnServiceDone();
+
     protected abstract void initVlcProgress(int totalNumberOfElements);
+
     protected abstract void onFileTestStarted(String fileName);
+
     protected abstract void onSingleTestFinished(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
+
     protected abstract void onVlcCrashed(String errorMessage, Runnable resume);
+
     protected abstract void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore);
+
     protected abstract void onSaveUiData(Bundle saveInstanceState);
+
     protected abstract void onRestoreUiData(Bundle saveInstanceState);
 
     @Override
@@ -152,7 +162,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     }
 
     private Intent createIntentForVlc(MediaInfo currentFile) {
-        Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
+        Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
+                .setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*");
 
