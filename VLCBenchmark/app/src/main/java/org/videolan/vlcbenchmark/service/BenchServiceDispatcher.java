@@ -97,6 +97,10 @@ public class BenchServiceDispatcher extends Handler {
                 for (BenchServiceListener listener : listeners)
                     listener.updatePercent(percentAndBitRate.first, percentAndBitRate.second);
                 break;
+            case BenchService.STEP_FINISHED:
+                for (BenchServiceListener listener : listeners)
+                    listener.stepFinished((String)msg.obj);
+                break;
             default:
                 return;
         }

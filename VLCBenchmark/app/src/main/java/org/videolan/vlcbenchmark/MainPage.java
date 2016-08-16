@@ -54,6 +54,11 @@ public class MainPage extends VLCWorkerModel {
     }
 
     @Override
+    public void stepFinished(String message) {
+        textLog.append(message + '\n');
+    }
+
+    @Override
     public void updatePercent(double percent, long bitRate) {
         progressBar.setProgress((int) Math.round(percent));
         if (bitRate == BenchServiceDispatcher.NO_BITRATE)

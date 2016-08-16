@@ -32,6 +32,7 @@ public class BenchService extends IntentService {
     public static final int DONE_STATUS = 3;
     public static final int PERCENT_STATUS = 4;
     public static final int PERCENT_STATUS_BITRATE = 5;
+    public static final int STEP_FINISHED = 6;
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
