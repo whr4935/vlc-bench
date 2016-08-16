@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Created by noeldu_b on 7/11/16.
  */
-public class TestPage extends Activity implements BenchServiceListener {
+public class MainPage extends Activity implements BenchServiceListener {
 
     private BenchServiceDispatcher dispatcher;
     private List<TestInfo>[] resultsTest;
@@ -182,7 +182,7 @@ public class TestPage extends Activity implements BenchServiceListener {
     @Override
     public void doneReceived(List<MediaInfo> files) {
         testFiles = files;
-        TestPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        MainPage.this.testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = files.get(0);
         Intent intent = new Intent(BENCH_ACTION).setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
@@ -323,7 +323,7 @@ public class TestPage extends Activity implements BenchServiceListener {
                 fileIndex = 0;
             }
             if (loopNumber >= numberOfTests) {
-                Intent intent = new Intent(TestPage.this, ResultPage.class);
+                Intent intent = new Intent(MainPage.this, ResultPage.class);
                 intent.putExtra("resultsTest", resultsTest);
                 double softScore = 0, hardScore = 0;
                 for (int i = 0; i < numberOfTests; i++)
