@@ -18,7 +18,6 @@ import java.util.List;
  */
 public class MainPage extends VLCWorkerModel {
 
-    private StringBuilder logBuilder = new StringBuilder();
     private TextView percentText = null;
     private TextView textLog = null;
     private Button oneTest = null,
@@ -43,8 +42,7 @@ public class MainPage extends VLCWorkerModel {
         progressBar.setProgress(0);
         progressBar.setMax(100);
         percentText.setText(R.string.default_percent_value);
-        logBuilder = new StringBuilder();
-        textLog.setText(logBuilder.toString());
+        textLog.setText("");
     }
 
     @Override
@@ -90,7 +88,7 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     protected void onFileTestStarted(String fileName) {
-        logBuilder.append(fileName + '\n');
+        textLog.append(fileName + '\n');
     }
 
     @Override
@@ -102,8 +100,7 @@ public class MainPage extends VLCWorkerModel {
                     loopNumber, numberOfLoops));
         else
             percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber));
-        logBuilder.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
-        textLog.setText(logBuilder.toString());
+        textLog.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
     }
 
     @Override
@@ -137,7 +134,6 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     protected void onSaveUiData(Bundle saveInstanceState) {
-        saveInstanceState.putSerializable("LOG_TEXT", logBuilder.toString());
         saveInstanceState.putInt("PROGRESS_VALUE", progressBar.getProgress());
         saveInstanceState.putInt("PROGRESS_MAX", progressBar.getMax());
     }
@@ -145,7 +141,6 @@ public class MainPage extends VLCWorkerModel {
     @Override
     protected void onRestoreUiData(Bundle saveInstanceState) {
         super.onRestoreInstanceState(saveInstanceState);
-        logBuilder = new StringBuilder((String) saveInstanceState.getSerializable("LOG_TEXT"));
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setProgress(saveInstanceState.getInt("PROGRESS_VALUE", 0));
         progressBar.setMax(saveInstanceState.getInt("PROGRESS_MAX", 100));
