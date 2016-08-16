@@ -11,5 +11,5 @@ public interface BenchServiceListener {
 
     void failure(FAILURE_STATES reason, Exception exception);
     void doneReceived(List<MediaInfo> files);
-    void updatePercent(double percent);
+    void updatePercent(double percent, long bitRate);
 }

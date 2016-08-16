@@ -3,6 +3,7 @@ package org.videolan.vlcbenchmark;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -150,9 +151,27 @@ public class TestPage extends Activity implements BenchServiceListener {
     }
 
     @Override
-    public void updatePercent(final double percent) {
+    public void updatePercent(double percent, long bitRate) {
         progressBar.setProgress((int) Math.round(percent));
-        percentText.setText(String.format("%.2f %%", percent));
+        if (bitRate == BenchServiceDispatcher.NO_BITRATE)
+            percentText.setText(String.format("%.2f %%", percent));
+        else
+            percentText.setText(String.format("%.2f %% (%s)", percent, bitRateToString(bitRate)));
+    }
+
+    private String bitRateToString(long bitRate) {
+        if (bitRate <= 0)
+            return "0 bps";
+
+        double powOf10 = Math.round(Math.log10(bitRate));
+
+        if (powOf10 < 3)
+            return String.format("%l bps", bitRate);
+        else if (powOf10 >= 3 && powOf10 < 6)
+            return String.format("%.2f kbps", bitRate / 1_000d);
+        else if (powOf10 >= 6 && powOf10 < 9)
+            return String.format("%.2f mbps", bitRate / 1_000_000d);
+        return String.format("%.2f gbps", bitRate / 1_000_000_000d);
     }
 
     @Override
@@ -171,7 +190,11 @@ public class TestPage extends Activity implements BenchServiceListener {
                 .putExtra("disable_hardware", true).putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         oneTest.setVisibility(View.INVISIBLE);
         threeTests.setVisibility(View.INVISIBLE);
-        startActivityForResult(intent, 42);
+        try {
+            startActivityForResult(intent, 42);
+        } catch (ActivityNotFoundException e) {
+            //TODO or not, should be taken care of beforehand
+        }
     }
 
     @Override

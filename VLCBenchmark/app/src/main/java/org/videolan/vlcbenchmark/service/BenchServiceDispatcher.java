@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,8 @@ public class BenchServiceDispatcher extends Handler {
         initContext = null;
     }
 
+    public static final long NO_BITRATE = -1L;
+
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
@@ -87,7 +90,12 @@ public class BenchServiceDispatcher extends Handler {
                 break;
             case BenchService.PERCENT_STATUS:
                 for (BenchServiceListener listener : listeners)
-                    listener.updatePercent((double) msg.obj);
+                    listener.updatePercent((double) msg.obj, NO_BITRATE);
+                break;
+            case BenchService.PERCENT_STATUS_BITRATE:
+                Pair<Double, Long> percentAndBitRate = (Pair<Double, Long>) msg.obj;
+                for (BenchServiceListener listener : listeners)
+                    listener.updatePercent(percentAndBitRate.first, percentAndBitRate.second);
                 break;
             default:
                 return;
