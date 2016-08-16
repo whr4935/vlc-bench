@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -80,6 +81,8 @@ public class ResultAdapter extends BaseAdapter {
                         dialog.dismiss();
                     }
                 });
+                Window window = dialog.getWindow();
+                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
                 dialog.show();
             }
         });
