@@ -1,5 +1,6 @@
 package org.videolan.vlcbenchmark;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -8,6 +9,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -46,8 +50,55 @@ public class GridFragment extends Fragment {
         fillHeader(rowView, R.id.hardScore, "Hardware");
         rowView.setMinimumHeight(0);
         gv.addHeaderView(rowView);
+        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (l < 0 || l >= results.size())
+                    return ;
+
+                final Dialog dialog = new Dialog(view.getContext());
+                TestInfo test = results.get((int)l);
+                dialog.setContentView(R.layout.result_detail);
+                dialog.setTitle("Details for\n" + test.getName());
+                TextView tmp;
+
+                tmp = (TextView) dialog.findViewById(R.id.frames_dropped_software);
+                tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
+                tmp = (TextView) dialog.findViewById(R.id.frames_dropped_hardware);
+                tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
+
+                tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_software);
+                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
+                tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_hardware);
+                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
+
+                tmp = (TextView) dialog.findViewById(R.id.warnings_software);
+                tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
+                tmp = (TextView) dialog.findViewById(R.id.warnings_hardware);
+                tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
+
+                tmp = (TextView) dialog.findViewById(R.id.crashes_software);
+                tmp.setText("" + test.getCrashes(TestInfo.SOFT));
+                tmp = (TextView) dialog.findViewById(R.id.crashes_hardware);
+                tmp.setText("" + test.getCrashes(TestInfo.HARD));
+
+                ((Button) dialog.findViewById(R.id.detail_dismiss)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+                Window window = dialog.getWindow();
+                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
+                dialog.show();
+            }
+        });
         gv.setAdapter(new ResultAdapter(rowInflater, results));
         gv.setFocusable(false);
         return v;
+    }
+
+    private static String doubleToPercentString(double value) {
+        return String.format("%.2f%%", value);
     }
 }

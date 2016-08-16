@@ -48,50 +48,7 @@ public class ResultAdapter extends BaseAdapter {
         tv2.setText(String.valueOf(test.getSoftware()));
         tv3.setText(String.valueOf(test.getHardware()));
 
-        view.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                final Dialog dialog = new Dialog(v.getContext());
-                dialog.setContentView(R.layout.result_detail);
-                dialog.setTitle("Details for\n" + test.getName());
-                TextView tmp;
-
-                tmp = (TextView) dialog.findViewById(R.id.frames_dropped_software);
-                tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
-                tmp = (TextView) dialog.findViewById(R.id.frames_dropped_hardware);
-                tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
-
-                tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_software);
-                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
-                tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_hardware);
-                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
-
-                tmp = (TextView) dialog.findViewById(R.id.warnings_software);
-                tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
-                tmp = (TextView) dialog.findViewById(R.id.warnings_hardware);
-                tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
-
-                tmp = (TextView) dialog.findViewById(R.id.crashes_software);
-                tmp.setText("" + test.getCrashes(TestInfo.SOFT));
-                tmp = (TextView) dialog.findViewById(R.id.crashes_hardware);
-                tmp.setText("" + test.getCrashes(TestInfo.HARD));
-
-                ((Button) dialog.findViewById(R.id.detail_dismiss)).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-                Window window = dialog.getWindow();
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
-                dialog.show();
-            }
-        });
-
         return view;
-    }
-
-    private static String doubleToPercentString(double value) {
-        return String.format("%.2f%%", value);
     }
 
     @Override
