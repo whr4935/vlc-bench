@@ -51,15 +51,6 @@ public class BenchService extends IntentService {
         dispatcher = null;
     }
 
-    private static class InTestException extends Exception {
-        FAILURE_STATES what;
-
-        public InTestException(FAILURE_STATES what, String msg) {
-            super(msg);
-            this.what = what;
-        }
-    }
-
     @Override
     protected void onHandleIntent(Intent intent) {
         try {

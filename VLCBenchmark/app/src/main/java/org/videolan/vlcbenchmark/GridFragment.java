@@ -20,10 +20,6 @@ public class GridFragment extends Fragment implements View.OnClickListener, Adap
     private List<TestInfo> results;
     private Dialog detailDialog;
 
-    public GridFragment() {
-        super();
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
