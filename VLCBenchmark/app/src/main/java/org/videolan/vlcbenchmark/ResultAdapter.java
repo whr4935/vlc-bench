@@ -44,31 +44,31 @@ public class ResultAdapter extends BaseAdapter {
         TextView tv3 = (TextView) view.findViewById(R.id.hardScore);
 
         final TestInfo test = results.get(i);
-        tv1.setText(test.name);
-        tv2.setText(String.valueOf(test.software[0] + test.software[1]));
-        tv3.setText(String.valueOf(test.hardware[0] + test.hardware[1]));
+        tv1.setText(test.getName());
+        tv2.setText(String.valueOf(test.getSoftware()));
+        tv3.setText(String.valueOf(test.getHardware()));
 
         view.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 final Dialog dialog = new Dialog(v.getContext());
                 dialog.setContentView(R.layout.result_detail);
-                dialog.setTitle("Details for\n" + test.name);
+                dialog.setTitle("Details for\n" + test.getName());
                 TextView tmp;
 
                 tmp = (TextView) dialog.findViewById(R.id.frames_dropped_software);
-                tmp.setText("" + test.framesDropped[TestInfo.SOFT]);
+                tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
                 tmp = (TextView) dialog.findViewById(R.id.frames_dropped_hardware);
-                tmp.setText("" + test.framesDropped[TestInfo.HARD]);
+                tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
 
                 tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_software);
-                tmp.setText(doubleToPercentString(test.percentOfBadScreenshots[TestInfo.SOFT]));
+                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
                 tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_hardware);
-                tmp.setText(doubleToPercentString(test.percentOfBadScreenshots[TestInfo.HARD]));
+                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
 
                 tmp = (TextView) dialog.findViewById(R.id.warnings_software);
-                tmp.setText("" + test.numberOfWarnings[TestInfo.SOFT]);
+                tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
                 tmp = (TextView) dialog.findViewById(R.id.warnings_hardware);
-                tmp.setText("" + test.numberOfWarnings[TestInfo.HARD]);
+                tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
 
                 tmp = (TextView) dialog.findViewById(R.id.crashes_software);
                 tmp.setText("" + test.getCrashes(TestInfo.SOFT));

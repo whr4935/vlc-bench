@@ -90,13 +90,7 @@ public class ResultPage extends FragmentActivity {
 
         for (TestInfo element : testInfoList) {
             JSONObject testInfo = new JSONObject();
-            testInfo.put("name", element.name);
-            testInfo.put("hardware_score", element.hardware);
-            testInfo.put("software_score", element.software);
-            testInfo.put("loop_number", element.loopNumber);
-            testInfo.put("frame_dropped", element.framesDropped);
-            testInfo.put("percent_of_bad_screenshot", element.percentOfBadScreenshots);
-            testInfo.put("number_of_warning", element.numberOfWarnings);
+            element.transferInJSon(testInfo);
             testInfoArray.put(testInfo);
         }
         return testInfoArray;

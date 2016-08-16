@@ -164,10 +164,9 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         super.onActivityResult(requestCode, resultCode, data);
 
         if (testIndex.ordinal() == 0) {
-            lastTestInfo = new TestInfo();
-            lastTestInfo.name = testFiles.get(fileIndex).getName();
-            lastTestInfo.loopNumber = loopNumber;
-            onFileTestStarted(lastTestInfo.name);
+            String name = testFiles.get(fileIndex).getName();
+            lastTestInfo = new TestInfo(name, loopNumber);
+            onFileTestStarted(name);
         }
 
         onSingleTestFinished(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
@@ -269,8 +268,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
                 double softScore = 0, hardScore = 0;
                 for (int i = 0; i < numberOfTests; i++)
                     for (TestInfo test : resultsTest[i]) {
-                        softScore += test.software[TestInfo.PLAYBACK] + test.software[TestInfo.PERFORMANCE];
-                        hardScore += test.hardware[TestInfo.PLAYBACK] + test.hardware[TestInfo.PERFORMANCE];
+                        softScore += test.getSoftware();
+                        hardScore += test.getHardware();
                     }
                 int totalNumberOfElement = testFiles.size() * numberOfTests;
                 softScore /= totalNumberOfElement;
