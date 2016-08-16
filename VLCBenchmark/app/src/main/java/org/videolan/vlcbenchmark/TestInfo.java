@@ -42,11 +42,17 @@ public class TestInfo implements Serializable {
     }
 
     private static String strip(String str) {
-        if (str.startsWith("\n"))
-            str = str.substring(1);
-        if (str.endsWith("\n"))
-            str = str.substring(0, str.length());
-        return str;
+        int begin = 0, end = str.length() - 1;
+
+        if (str.isEmpty())
+            return "";
+        while (str.charAt(begin) == '\n')
+            begin++;
+        while (str.charAt(end) == '\n')
+            end--;
+        if (begin >= end)
+            return "";
+        return str.substring(begin, end);
     }
 
     public String getCrashes(int index) {
