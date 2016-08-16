@@ -12,8 +12,8 @@ public class TestInfo implements Serializable {
 
     public static final int PLAYBACK = 0; //screenshot
     public static final int PERFORMANCE = 1; //bad frames
-    static final int SOFT = 0;
-    static final int HARD = 1;
+    public static final int SOFT = 0;
+    public static final int HARD = 1;
     private static final String PLAYBACK_STR = "playback (screenshots/seek)";
     private static final String PERFORMANCE_STR = "performance (frames dropped)";
 
