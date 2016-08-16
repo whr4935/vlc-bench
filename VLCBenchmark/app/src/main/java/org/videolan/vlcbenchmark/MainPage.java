@@ -29,7 +29,7 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     protected void setupUiMembers() {
-        setContentView(R.layout.activity_test_page);
+        setContentView(R.layout.activity_main_page);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         percentText = (TextView) findViewById(R.id.percentText);
         oneTest = (Button) findViewById(R.id.benchOne);
