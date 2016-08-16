@@ -11,21 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
 
-public class GridFragment extends Fragment {
+public class GridFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
     private List<TestInfo> results;
+    private Dialog detailDialog;
 
     public GridFragment() {
+        super();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        detailDialog = new Dialog(getContext());
+        detailDialog.setContentView(R.layout.result_detail);
+        detailDialog.findViewById(R.id.detail_dismiss).setOnClickListener(this);
         if (getArguments() != null) {
             results = (List<TestInfo>)getArguments().getSerializable("results");
         }
@@ -36,6 +40,49 @@ public class GridFragment extends Fragment {
         textView.setText(text);
         textView.setTypeface(null, Typeface.BOLD);
         textView.setTextColor(Color.BLACK);
+    }
+
+    @Override
+    public void onClick(View view) {
+        detailDialog.dismiss();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        if (l < 0 || l >= results.size())
+            return ;
+
+        TestInfo test = results.get((int)l);
+        detailDialog.setTitle("Details for\n" + test.getName());
+        TextView tmp;
+
+        tmp = (TextView) detailDialog.findViewById(R.id.frames_dropped_software);
+        tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
+        tmp = (TextView) detailDialog.findViewById(R.id.frames_dropped_hardware);
+        tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
+
+        tmp = (TextView) detailDialog.findViewById(R.id.bad_screenshots_software);
+        tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
+        tmp = (TextView) detailDialog.findViewById(R.id.bad_screenshots_hardware);
+        tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
+
+        tmp = (TextView) detailDialog.findViewById(R.id.warnings_software);
+        tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
+        tmp = (TextView) detailDialog.findViewById(R.id.warnings_hardware);
+        tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
+
+        tmp = (TextView) detailDialog.findViewById(R.id.crashes_software);
+        tmp.setText("" + test.getCrashes(TestInfo.SOFT));
+        tmp = (TextView) detailDialog.findViewById(R.id.crashes_hardware);
+        tmp.setText("" + test.getCrashes(TestInfo.HARD));
+
+        Window window = detailDialog.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
+        detailDialog.show();
+    }
+
+    private static String doubleToPercentString(double value) {
+        return String.format("%.2f%%", value);
     }
 
     @Override
@@ -50,55 +97,9 @@ public class GridFragment extends Fragment {
         fillHeader(rowView, R.id.hardScore, "Hardware");
         rowView.setMinimumHeight(0);
         gv.addHeaderView(rowView);
-        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (l < 0 || l >= results.size())
-                    return ;
-
-                final Dialog dialog = new Dialog(view.getContext());
-                TestInfo test = results.get((int)l);
-                dialog.setContentView(R.layout.result_detail);
-                dialog.setTitle("Details for\n" + test.getName());
-                TextView tmp;
-
-                tmp = (TextView) dialog.findViewById(R.id.frames_dropped_software);
-                tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
-                tmp = (TextView) dialog.findViewById(R.id.frames_dropped_hardware);
-                tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
-
-                tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_software);
-                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
-                tmp = (TextView) dialog.findViewById(R.id.bad_screenshots_hardware);
-                tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
-
-                tmp = (TextView) dialog.findViewById(R.id.warnings_software);
-                tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
-                tmp = (TextView) dialog.findViewById(R.id.warnings_hardware);
-                tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
-
-                tmp = (TextView) dialog.findViewById(R.id.crashes_software);
-                tmp.setText("" + test.getCrashes(TestInfo.SOFT));
-                tmp = (TextView) dialog.findViewById(R.id.crashes_hardware);
-                tmp.setText("" + test.getCrashes(TestInfo.HARD));
-
-                ((Button) dialog.findViewById(R.id.detail_dismiss)).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-                Window window = dialog.getWindow();
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
-                dialog.show();
-            }
-        });
+        gv.setOnItemClickListener(this);
         gv.setAdapter(new ResultAdapter(rowInflater, results));
         gv.setFocusable(false);
         return v;
-    }
-
-    private static String doubleToPercentString(double value) {
-        return String.format("%.2f%%", value);
     }
 }
