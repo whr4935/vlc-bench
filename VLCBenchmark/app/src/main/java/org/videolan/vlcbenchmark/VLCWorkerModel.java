@@ -22,6 +22,8 @@ import android.view.View;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
+import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
+import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.io.File;
 import java.io.Serializable;

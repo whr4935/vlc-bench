@@ -1,4 +1,4 @@
-package org.videolan.vlcbenchmark;
+package org.videolan.vlcbenchmark.tools;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,4 +1,4 @@
-package org.videolan.vlcbenchmark;
+package org.videolan.vlcbenchmark.tools;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

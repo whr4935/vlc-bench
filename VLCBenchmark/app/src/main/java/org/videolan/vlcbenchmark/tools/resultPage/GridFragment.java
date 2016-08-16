@@ -1,4 +1,4 @@
-package org.videolan.vlcbenchmark;
+package org.videolan.vlcbenchmark.tools.resultPage;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.videolan.vlcbenchmark.R;
+import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.List;
 

@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
+import org.videolan.vlcbenchmark.tools.TestInfo;
+
 import java.util.List;
 
 /**
