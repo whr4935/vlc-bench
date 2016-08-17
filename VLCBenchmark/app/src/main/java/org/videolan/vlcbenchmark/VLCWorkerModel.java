@@ -206,7 +206,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
                 errorMessage = e.getMessage();
             }
         } else
-            errorMessage = vlcErrorCodeToString(resultCode);
+            errorMessage = vlcErrorCodeToString(resultCode, data);
 
         onVlcCrashed(errorMessage, new Runnable() {
             @Override
@@ -216,7 +216,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         });
     }
 
-    private String vlcErrorCodeToString(int resultCode) {
+    private String vlcErrorCodeToString(int resultCode, Intent data) {
         switch (resultCode) {
             case 0:
                 return "No compatible cpu, incorrect VLC abi variant installed";
@@ -228,6 +228,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
                 return "Error with hardware acceleration, user refused to switch to software decoding";
             case 5:
                 return "VLC continues playback, but for audio track only. (Audio file detected or user chose to)";
+            case 6:
+                return (data != null ? data.getStringExtra("Error") : "VLC's BenchActivity error");
         }
         return "Unknown error code";
     }
