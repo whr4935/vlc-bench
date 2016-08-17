@@ -23,16 +23,30 @@ import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * This class is the service responsible for:
+ * -downloading the JSon file
+ * -checking if the medias listed in the JSon file are present
+ * -checking if they are corresponding with our version of the files
+ * -downloading them if not present or incorrect
+ * <p>
+ * During this whole process it will forward information about its progress
+ * through a Handler to the calling activity.
+ * <p>
+ * Those information are of the following nature (accompanied with the data type it transmit) :
+ * -the service failed : FAILURE_STATES + Exception
+ * -the service is done : List<MediaInfo>
+ * -the service's progress rate or progress rate and download speed : double or Pair<Double, Long>
+ * -the service has finished a step in its process : String
+ */
 public class BenchService extends IntentService {
 
     //Message's what
     public static final int FAILURE = 0;
-    public static final int FILE_TESTED_STATUS = 1;
-    public static final int TEST_PASSED_STATUS = 2;
-    public static final int DONE_STATUS = 3;
-    public static final int PERCENT_STATUS = 4;
-    public static final int PERCENT_STATUS_BITRATE = 5;
-    public static final int STEP_FINISHED = 6;
+    public static final int DONE_STATUS = 1;
+    public static final int PERCENT_STATUS = 2;
+    public static final int PERCENT_STATUS_BITRATE = 3;
+    public static final int STEP_FINISHED = 4;
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
