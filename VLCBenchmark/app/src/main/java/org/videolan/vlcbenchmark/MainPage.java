@@ -29,6 +29,17 @@ public class MainPage extends VLCWorkerModel {
     private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
     private static final String PROGRESS_TEXT_FORMAT_LOOPS = PROGRESS_TEXT_FORMAT + " | loop %d/%d";
 
+    public void launchTests(View v) {
+        switch (v.getId()) {
+            case R.id.benchOne:
+                launchTests(1);
+                break;
+            case R.id.benchThree:
+                launchTests(3);
+                break;
+        }
+    }
+
     @Override
     protected void setupUiMembers() {
         setContentView(R.layout.activity_main_page);

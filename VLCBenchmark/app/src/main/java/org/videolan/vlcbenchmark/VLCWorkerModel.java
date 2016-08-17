@@ -17,7 +17,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
-import android.view.View;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
@@ -127,14 +126,12 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     }
 
     @UiThread
-    final public void launchTests(View v) {
-        int id = v.getId();
-
-        if (id == R.id.benchOne) {
-            numberOfTests = 1;
+    final public void launchTests(int numberOfTests) {
+        if (numberOfTests == 1) {
+            this.numberOfTests = 1;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
-        } else if (id == R.id.benchThree) {
-            numberOfTests = 3;
+        } else if (numberOfTests == 3) {
+            this.numberOfTests = 3;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
         } else
             return;
