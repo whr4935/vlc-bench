@@ -31,9 +31,26 @@ import java.util.List;
 
 /**
  * Created by penava_b on 16/08/16.
+ * <p>
+ * Main class of the project.
+ * This class handle the whole logic/algorithm side of the application.
+ * <p>
+ * It launches BenchService and retrieve the List<MediaInfo> from its result;
+ * but also handles the launch of VLC's BenchActivity, the retrieval of its results and their interpretation.
+ * <p>
+ * It extends from Activity yet it doesn't touch anything related to UI except {@link VLCWorkerModel#onActivityResult(int, int, Intent)}
+ * and at some specific points the termination of the activity.
+ * <p>
+ * This class cannot be instantiated directly it requires to be extended and to implement all of its abstract method,
+ * its in those methods only that the UI part of the activity can be handled.
+ * <p>
+ * This architecture allows the UI and logical part to be independent from one an other.
  */
 public abstract class VLCWorkerModel extends Activity implements BenchServiceListener {
 
+    /**
+     * We use this member to start, stop and listene to {@link org.videolan.vlcbenchmark.service.BenchService}
+     */
     private BenchServiceDispatcher dispatcher;
     private List<TestInfo>[] resultsTest;
     private List<MediaInfo> testFiles;
@@ -43,24 +60,41 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private TestInfo lastTestInfo = null;
     private int numberOfTests;
 
+    /**
+     * Enum tool used internally only to iterate simply
+     * over the different types of tests.
+     */
     private enum TEST_TYPES {
         SOFTWARE_SCREENSHOT,
         SOFTWARE_PLAYBACK,
         HARDWARE_SCREENSHOT,
         HARDWARE_PLAYBACK;
 
+        /**
+         * Allows to use this enum as an incrementing type that loops once it reached its last value.
+         * @return the next enum in ordinal order after the current one. If none are after it will return the first.
+         */
         public TEST_TYPES next() {
             return values()[(ordinal() + 1) % values().length];
         }
 
+        /**
+         * @return true if the ordinal of the current enum represents a test software
+         */
         public boolean isSoftware() {
             return (ordinal() / 2) % 2 == 0;
         }
 
+        /**
+         * @return true if the ordinal of the current enum represned a screenshot test
+         */
         public boolean isScreenshot() {
             return ordinal() % 2 == 0;
         }
 
+        /**
+         * @return a human readable version of the enum's value by replacing underscores with spaces and passing the string to low case.
+         */
         @Override
         public String toString() {
             return super.toString().replace("_", " ").toLowerCase();
@@ -77,26 +111,81 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
 
+    /**
+     * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
+     */
     protected abstract void setupUiMembers();
 
+    /**
+     *  Is called in {@link VLCWorkerModel#launchTests(int)}.
+     */
     protected abstract void resetUiToDefault();
 
+    /**
+     * Is called once that service has finished successfully.
+     */
     protected abstract void updateUiOnServiceDone();
 
+    /**
+     * Is called before the first launch of VLC.
+     * @param totalNumberOfElements the total number of tests that will occur from then.
+     */
     protected abstract void initVlcProgress(int totalNumberOfElements);
 
+    /**
+     * Is called when a new file just started to be tested.
+     * @param fileName the name of the file
+     */
     protected abstract void onFileTestStarted(String fileName);
 
+    /**
+     * Is called once a single test is finished.
+     * @param testName the name of the test (ex : screenshot software, ...)
+     * @param succeeded status of the test
+     * @param fileIndex the index of the current file
+     * @param numberOfFiles the total number of files
+     * @param testNumber the index of the current test ({@link TEST_TYPES#ordinal()}
+     * @param loopNumber the number of times we've repeated all tests
+     * @param numberOfLoops the total number of time we have to repeat
+     */
     protected abstract void onSingleTestFinished(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
 
+    /**
+     * Is called if VLC stopped due to an uncaught exception while testing.
+     *
+     * @param errorMessage a String representing the issue that caused VLC to crash.
+     * @param resume needs to be called if the implementation needs to continue testing other files.
+     */
     protected abstract void onVlcCrashed(String errorMessage, Runnable resume);
 
+    /**
+     * Is called when all tests are finished
+     * @param results a array list of {@link TestInfo} where each element of the array represents a loop and each element of the List the results of for a file.
+     * @param softScore the average software score
+     * @param hardScore the average hardware score
+     */
     protected abstract void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore);
 
+    /**
+     * Is called in {@link VLCWorkerModel#onSaveInstanceState(Bundle)}
+     * @param saveInstanceState the Bundle to use to save UI data states
+     */
     protected abstract void onSaveUiData(Bundle saveInstanceState);
 
+    /**
+     * Is called in {@link VLCWorkerModel#onRestoreInstanceState(Bundle)}
+     * @param saveInstanceState the Bundle to use to restore UI data states
+     */
     protected abstract void onRestoreUiData(Bundle saveInstanceState);
 
+    /**
+     * Initialization of the Activity.
+     *
+     * This calls {@link #setupUiMembers()}, sets up the {@link BenchServiceDispatcher} dispatcher member and request
+     * permissions to read on the external storage.
+     *
+     * @param savedInstanceState
+     */
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +197,14 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
     }
 
+    /**
+     * This methods will be called once the user authorized the application to read files on the external storage.
+     * If he didn't we create a dialog and kill the application once that dialog has been closed.
+     *
+     * @param requestCode ignored
+     * @param permissions ignored
+     * @param grantResults use this to check whether or not the {@link android.Manifest.permission#READ_EXTERNAL_STORAGE} permission has been granted.
+     */
     @Override
     final public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -125,6 +222,14 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
     }
 
+    /**
+     * Entry point of the class.
+     * Calling this method will result in the creation and launch of {@link org.videolan.vlcbenchmark.service.BenchService}.
+     * Launch that will result, if everything goes well, in the call of {@link VLCWorkerModel#doneReceived(List)} which will
+     * start VLC.
+     *
+     * @param numberOfTests number of repetition of all the tests. must be 1 or 3 other values are ignored.
+     */
     @UiThread
     final public void launchTests(int numberOfTests) {
         if (numberOfTests == 1) {
@@ -148,6 +253,12 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
     }
 
+    /**
+     * Method called when {@link org.videolan.vlcbenchmark.service.BenchService} has finished his task
+     * It call {@link VLCWorkerModel#updateUiOnServiceDone} and starts for the first time VLC.
+     *
+     * @param files list of metadata for all the video/media to test.
+     */
     @Override
     final public void doneReceived(List<MediaInfo> files) {
         testFiles = files;
@@ -161,6 +272,11 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
     }
 
+    /**
+     * This method creates a new intent that corresponds with VLC's BenchActivity launch protocol.
+     * @param currentFile metadata about the current file
+     * @return a new Intent
+     */
     private Intent createIntentForVlc(MediaInfo currentFile) {
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
@@ -174,6 +290,20 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         return intent;
     }
 
+    /**
+     * Re-entry point, in this method we receive directly from VLC its
+     * result code along with an Intent giving extra information about the result of VLC.
+     * <p>
+     * This method will be called a each end of a test and will therefor handle the launch of the next tests.
+     * It also handle that case were crashed without notice by checking if the Intent in argument if null and if so
+     * by getting the String describing the crashed VLC had by reading into VLC's shared preferences.
+     * <p>
+     * This method also calls a number of abstract method to allow the UI to update itself.
+     *
+     * @param requestCode the code we gave to VLC to launch itself.
+     * @param resultCode  the code on which VLC finished.
+     * @param data an Intent describing additional information and data about the test.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
@@ -214,6 +344,13 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         });
     }
 
+    /**
+     * Find the appropriate error message according to the result code and Intent.
+     *
+     * @param resultCode the return code of VLC
+     * @param data       the Intent received from VLC
+     * @return The String associated with the code given or the String given through the Intent if the result code is equal to 6
+     */
     private String vlcErrorCodeToString(int resultCode, Intent data) {
         switch (resultCode) {
             case 0:
@@ -232,6 +369,12 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         return "Unknown error code";
     }
 
+    /**
+     * Small factoring function.
+     *
+     * @param data   Intent contained results from VLC.
+     * @param failed boolean to know if the interpretation of the result of code of VLC indicated that VLC crashed.
+     */
     private void fillCurrentTestInfo(Intent data, boolean failed) {
         if (failed) {
             lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot());
@@ -244,6 +387,17 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         launchNextTest();
     }
 
+    /**
+     * This method is called once a screenshot test is finished.
+     * It spawns a new thread that will iterates over the screenshots
+     * and check their existence and validity.
+     * <p>
+     * Every time said conditions are not met a counter is incremented.
+     * At the end of the Thread we update call {@link TestInfo#badScreenshot(double, boolean)} with said number
+     * and call {@link VLCWorkerModel#launchTests(int)} on the UI thread.
+     *
+     * @param data the Intent from which we get in which folder the screenshots are located.
+     */
     private void testScreenshot(Intent data) {
         final String screenshotFolder = data.getStringExtra("screenshot_folder"); //TODO replace with SharedPreference
         final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
@@ -275,6 +429,16 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }.start();
     }
 
+    /**
+     * This method increment all the counters relatives to the type of test we will do,
+     * such as the type of test we should do, the index of the file we're testing and
+     * on what loop are we.
+     * <p>
+     * If we reached the end of the tests we then calculate the average score for hardware and software
+     * call the abstract method {@link VLCWorkerModel#onTestsFinished(List[], double, double)} and return
+     * <p>
+     * Otherwise we launch VLC's BenchActivity with the counters' new values.
+     */
     private void launchNextTest() {
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             resultsTest[loopNumber].add(lastTestInfo);
@@ -303,6 +467,11 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         startActivityForResult(createIntentForVlc(currentFile), 42);
     }
 
+    /**
+     * Tool method to check if VLC's signature and ours match.
+     *
+     * @return true if VLC's signature matches our else false
+     */
     private boolean checkSignature() {
         String benchPackageName = this.getPackageName();
         String vlcPackageName;
@@ -359,6 +528,11 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         return true;
     }
 
+    /**
+     * Save all the fields of the current instance
+     *
+     * @param savedInstanceState Bundle in which we save said data
+     */
     @Override
     final public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
@@ -371,6 +545,11 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         onSaveUiData(savedInstanceState);
     }
 
+    /**
+     * Restore all the members of the current instance previously saved inside a Bundle
+     *
+     * @param savedInstanceState Bundle from which we retrieve said data
+     */
     @Override
     final public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -384,6 +563,9 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         onRestoreUiData(savedInstanceState);
     }
 
+    /**
+     * Make sure that the service was stopped when the Activity is destroyed.
+     */
     @Override
     @CallSuper
     protected void onDestroy() {
