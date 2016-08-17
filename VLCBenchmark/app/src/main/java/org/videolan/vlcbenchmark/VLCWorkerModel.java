@@ -153,6 +153,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         testFiles = files;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = files.get(0);
+        updateUiOnServiceDone();
         try {
             startActivityForResult(createIntentForVlc(currentFile), 42);
         } catch (ActivityNotFoundException e) {
