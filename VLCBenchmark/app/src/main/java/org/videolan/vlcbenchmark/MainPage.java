@@ -91,6 +91,7 @@ public class MainPage extends VLCWorkerModel {
     protected void initVlcProgress(int totalNumberOfElements) {
         progressBar.setProgress(0);
         progressBar.setMax(totalNumberOfElements);
+        textLog.append("\n");
     }
 
     @Override

@@ -40,6 +40,13 @@ public class BenchService extends IntentService {
 
     private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/DaemonSnake/FileDump/master/";
 
+    //Steps strings
+    private static final String JSON_FINISH_STR = "The list of the videos was correctly retrieved";
+    private static final String DOWNLOAD_STR = "%s download finish";
+    private static final String SHA512_SUCCESS_STR = "%s integrity check successful";
+    private static final String SHA512_FAILED_STR = "%s integrity check failed";
+    private static final String DOWNLOAD_INIT_STR = "Starting download of %s...";
+
     private List<MediaInfo> filesInfo = null;
     private Handler dispatcher = null;
 
@@ -135,8 +142,12 @@ public class BenchService extends IntentService {
                 sendMessage(PERCENT_STATUS_BITRATE, new Pair<Double, Long>((DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT, (long) bitPerSeconds));
                 fromTime = System.nanoTime();
             }
-            if (checkFileSum(file, fileData.checksum))
+            sendMessage(STEP_FINISHED, String.format(DOWNLOAD_STR, fileData.name));
+            if (checkFileSum(file, fileData.checksum)) {
+                sendMessage(STEP_FINISHED, String.format(SHA512_SUCCESS_STR, fileData.name));
                 return;
+            }
+            sendMessage(STEP_FINISHED, String.format(SHA512_FAILED_STR, fileData.name));
             file.delete();
             throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
         } finally {
@@ -151,6 +162,7 @@ public class BenchService extends IntentService {
         filesInfo = JSonParser.getMediaInfos();
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
+        sendMessage(STEP_FINISHED, JSON_FINISH_STR);
         File mediaFolder = new File(getFilesDir().getPath() + "/media_dir");
         if (!mediaFolder.exists())
             mediaFolder.mkdir();
@@ -164,9 +176,13 @@ public class BenchService extends IntentService {
                     fileData.localUrl = localFile.getAbsolutePath();
                     unusedFiles.remove(localFile);
                     sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
+                    sendMessage(STEP_FINISHED, String.format(SHA512_SUCCESS_STR, fileData.name));
                     continue;
-                } else
+                } else {
                     localFile.delete();
+                    sendMessage(STEP_FINISHED, String.format(SHA512_FAILED_STR, fileData.name));
+                }
+            sendMessage(STEP_FINISHED, String.format(DOWNLOAD_INIT_STR, fileData.name));
             downloadFile(localFile, fileData, percent, 1.0 / filesInfo.size());
             fileData.localUrl = localFile.getAbsolutePath();
         }
