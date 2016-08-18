@@ -281,7 +281,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
-                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/DaemonSnake/FileDump/master/" + currentFile.getUrl()), "video/*");
+                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/Skantes/FileDump/master/" + currentFile.getUrl()), "video/*");
 
         if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);

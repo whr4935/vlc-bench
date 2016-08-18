@@ -52,7 +52,7 @@ public class BenchService extends IntentService {
     private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
     private static final double DOWNLOAD_FINISHED_PERCENT = 100.0;
 
-    private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/DaemonSnake/FileDump/master/";
+    private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/Skantes/FileDump/master/";
 
     //Steps strings
     private static final String JSON_FINISH_STR = "The list of the videos was correctly retrieved";

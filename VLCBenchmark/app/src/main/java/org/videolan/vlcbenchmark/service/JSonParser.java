@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class JSonParser {
 
-    private static final String JSON_FILE_URL = "https://raw.githubusercontent.com/DaemonSnake/FileDump/master/test.json";
+    private static final String JSON_FILE_URL = "https://raw.githubusercontent.com/Skantes/FileDump/master/test.json";
     private static String encoding = null;
 
     public static String getEncoding() {
