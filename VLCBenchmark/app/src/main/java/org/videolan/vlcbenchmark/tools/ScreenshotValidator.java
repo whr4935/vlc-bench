@@ -57,12 +57,12 @@ public class ScreenshotValidator {
         return lab;
     }
 
-    public static double[] averageColorForImage(String filePath) {
+    public static int averageColorForImage(String filePath) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
         if (bitmap == null)
-            return null;
+            throw new RuntimeException();
         long red = 0;
         long green = 0;
         long blue = 0;
@@ -77,10 +77,14 @@ public class ScreenshotValidator {
         red /= pixels.length;
         green /= pixels.length;
         blue /= pixels.length;
-        return rgbToLab(Color.rgb((int) red, (int) green, (int) blue));
+        return Color.rgb((int) red, (int) green, (int) blue);
     }
 
     public static double getValidityPercent(String filePath, Integer color) {
-        return CIE94ColorDifference(averageColorForImage(filePath), rgbToLab(color)) * 100f / 255f;
+        try {
+            return CIE94ColorDifference(rgbToLab(averageColorForImage(filePath)), rgbToLab(color)) * 100f / 255f;
+        } catch (RuntimeException e) {
+            return 100.0;
+        }
     }
 }
