@@ -327,7 +327,6 @@ public class BenchService extends IntentService {
     private boolean checkFileSum(File file, String checksum) throws GeneralSecurityException, IOException {
         MessageDigest algorithm;
         FileInputStream stream = null;
-        DigestInputStream digest = null;
 
         try {
             stream = new FileInputStream(file);
@@ -336,18 +335,15 @@ public class BenchService extends IntentService {
             int read = 0;
             while ((read = stream.read(buff, 0, 2048)) != -1)
                 algorithm.update(buff, 0, read);
-            long time1 = System.currentTimeMillis();
             buff = algorithm.digest();
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < buff.length; i++) {
-                sb.append(Integer.toString((buff[i] & 0xff) + 0x100, 16).substring(1));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : buff) {
+                sb.append(Integer.toString((buff[b] & 0xff) + 0x100, 16).substring(1));
             }
             return sb.toString().equals(checksum);
         } finally {
             if (stream != null)
                 stream.close();
-            if (digest != null)
-                digest.close();
         }
     }
 }
