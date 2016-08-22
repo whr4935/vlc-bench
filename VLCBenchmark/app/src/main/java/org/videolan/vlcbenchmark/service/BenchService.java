@@ -338,7 +338,7 @@ public class BenchService extends IntentService {
             buff = algorithm.digest();
             StringBuilder sb = new StringBuilder();
             for (byte b : buff) {
-                sb.append(Integer.toString((buff[b] & 0xff) + 0x100, 16).substring(1));
+                sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
             }
             return sb.toString().equals(checksum);
         } finally {
