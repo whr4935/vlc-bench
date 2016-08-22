@@ -59,6 +59,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private int loopNumber = 0;
     private TestInfo lastTestInfo = null;
     private int numberOfTests;
+    private boolean hasWarned = false;
 
     /**
      * Enum tool used internally only to iterate simply
@@ -110,6 +111,9 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
+    private static final String WARNING_MESSAGE = "VLCBenchmark will extensively test your phone's video capabilities." +
+            "\n\nIt will download a large amount of files and will run for several hours." +
+            "\nFurthermore, it will need the permission to access external storage";
 
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
@@ -192,6 +196,14 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         setupUiMembers();
 
         dispatcher = new BenchServiceDispatcher(this);
+
+        if (savedInstanceState != null) {
+            savedInstanceState.getBoolean("WARNING", hasWarned);
+        }
+        if (!hasWarned) {
+            new AlertDialog.Builder(this).setTitle("WARNING").setMessage(WARNING_MESSAGE).setNeutralButton(android.R.string.ok, null).show();
+            hasWarned = true;
+        }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -542,6 +554,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
         savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
         savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
+        savedInstanceState.putBoolean("WARNING", hasWarned);
         onSaveUiData(savedInstanceState);
     }
 
