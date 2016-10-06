@@ -37,6 +37,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
@@ -338,42 +339,44 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
-            initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (testIndex.ordinal() == 0) {
-            String name = testFiles.get(fileIndex).getName();
-            lastTestInfo = new TestInfo(name, loopNumber);
-            onFileTestStarted(name);
-        }
-
-        onSingleTestFinished(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
-
-        if (data != null && resultCode == -1) {
-            fillCurrentTestInfo(data, false);
-            return;
-        }
-
-        String errorMessage;
-        if (data == null) {
-            try {
-                Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
-                SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
-                errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
-            } catch (PackageManager.NameNotFoundException e) {
-                errorMessage = e.getMessage();
+        if (requestCode == 42) {
+            if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
+                initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
             }
-        } else
-            errorMessage = vlcErrorCodeToString(resultCode, data);
+            super.onActivityResult(requestCode, resultCode, data);
 
-        onVlcCrashed(errorMessage, new Runnable() {
-            @Override
-            public void run() {
-                fillCurrentTestInfo(data, true);
+            if (testIndex.ordinal() == 0) {
+                String name = testFiles.get(fileIndex).getName();
+                lastTestInfo = new TestInfo(name, loopNumber);
+                onFileTestStarted(name);
             }
-        });
+
+            onSingleTestFinished(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
+
+            if (data != null && resultCode == -1) {
+                fillCurrentTestInfo(data, false);
+                return;
+            }
+
+            String errorMessage;
+            if (data == null) {
+                try {
+                    Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
+                    SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
+                    errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
+                } catch (PackageManager.NameNotFoundException e) {
+                    errorMessage = e.getMessage();
+                }
+            } else
+                errorMessage = vlcErrorCodeToString(resultCode, data);
+
+            onVlcCrashed(errorMessage, new Runnable() {
+                @Override
+                public void run() {
+                    fillCurrentTestInfo(data, true);
+                }
+            });
+        }
     }
 
     /**
