@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="requestResults">0</integer>
+    <integer name="requestVLC">42</integer>
+</resources>

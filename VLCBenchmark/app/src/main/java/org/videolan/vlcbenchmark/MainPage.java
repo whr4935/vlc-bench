@@ -167,14 +167,14 @@ public class MainPage extends VLCWorkerModel {
         intent.putExtra("soft", softScore);
         intent.putExtra("hard", hardScore);
         oneTest.setVisibility(View.VISIBLE);
-        threeTests.setVisibility(View.VISIBLE); 
-        startActivityForResult(intent, 0);
+        threeTests.setVisibility(View.VISIBLE);
+        startActivityForResult(intent, R.integer.requestResults);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0) {
+        if (requestCode == R.integer.requestResults) {
             resetUiToDefault();
         }
     }

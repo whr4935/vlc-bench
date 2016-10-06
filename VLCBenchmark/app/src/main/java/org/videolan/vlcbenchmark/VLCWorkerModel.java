@@ -299,7 +299,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         MediaInfo currentFile = files.get(0);
         updateUiOnServiceDone();
         try {
-            startActivityForResult(createIntentForVlc(currentFile), 42);
+            startActivityForResult(createIntentForVlc(currentFile), R.integer.requestVLC);
         } catch (ActivityNotFoundException e) {
             //TODO or not, should be taken care of beforehand
         }
@@ -339,7 +339,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (requestCode == 42) {
+        if (requestCode == R.integer.requestVLC) {
             if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
                 initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
             }
@@ -499,7 +499,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
         testIndex = testIndex.next();
         MediaInfo currentFile = testFiles.get(fileIndex);
-        startActivityForResult(createIntentForVlc(currentFile), 42);
+        startActivityForResult(createIntentForVlc(currentFile), R.integer.requestVLC);
     }
 
     /**
