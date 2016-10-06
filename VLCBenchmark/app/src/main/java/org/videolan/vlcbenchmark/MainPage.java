@@ -191,5 +191,6 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     public void onBackPressed() {
+        finish();
     }
 }
