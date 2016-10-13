@@ -28,8 +28,10 @@
         </activity>
 
 
-        <service android:name=".service.BenchService" android:launchMode="singleTask">
-        </service>
+        <service
+            android:name=".service.BenchService"
+            android:launchMode="singleTask"
+            android:exported="false"/>
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

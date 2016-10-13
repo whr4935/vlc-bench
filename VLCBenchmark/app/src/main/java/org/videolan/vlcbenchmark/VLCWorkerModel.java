@@ -41,6 +41,7 @@ import android.util.Log;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
+import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;
@@ -376,6 +377,13 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
                     fillCurrentTestInfo(data, true);
                 }
             });
+        }
+    }
+
+    @Override
+    public void failure(FAILURE_STATES reason, Exception exception) {
+        if (dispatcher != null) {
+            dispatcher.stopService();
         }
     }
 

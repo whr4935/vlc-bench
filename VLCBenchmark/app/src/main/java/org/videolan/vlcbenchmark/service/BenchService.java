@@ -127,10 +127,10 @@ public class BenchService extends IntentService {
         try {
             downloadFiles();
         } catch (IOException e) {
-            sendMessage(FAILURE, FAILURE_STATES.CHECKSUM_FAILED, e);
+            sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
             return;
         } catch (GeneralSecurityException e) {
-            sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
+            sendMessage(FAILURE, FAILURE_STATES.CHECKSUM_FAILED, e);
             return;
         }
         sendMessage(DONE_STATUS, filesInfo);
@@ -205,7 +205,7 @@ public class BenchService extends IntentService {
                 }
         }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
-        if (what == DONE_STATUS || what == FAILURE)
+        if (what == DONE_STATUS)// || what == FAILURE)
             dispatcher = null;
     }
 
@@ -304,6 +304,9 @@ public class BenchService extends IntentService {
      * @throws GeneralSecurityException
      */
     private void downloadFiles() throws IOException, GeneralSecurityException {
+        if (!hasWifiAndLan(this)) {
+            throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
+        }
         filesInfo = JSonParser.getMediaInfos();
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);

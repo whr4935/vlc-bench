@@ -115,6 +115,7 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
+        super.failure(reason, exception);
         new AlertDialog.Builder(this).setTitle("Error during download").setMessage(exception.getMessage()).setNeutralButton("ok", null).show();
     }
 
@@ -201,4 +202,5 @@ public class MainPage extends VLCWorkerModel {
     public void onBackPressed() {
         finish();
     }
+
 }

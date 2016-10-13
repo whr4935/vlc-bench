@@ -99,7 +99,6 @@ public class BenchServiceDispatcher extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BenchService.FAILURE:
-                initContext = null;
                 for (BenchServiceListener listener : listeners)
                     listener.failure(FAILURE_STATES.values()[msg.arg1], (Exception) msg.obj);
                 break;
