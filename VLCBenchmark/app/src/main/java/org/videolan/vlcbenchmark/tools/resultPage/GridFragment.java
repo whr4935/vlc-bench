@@ -71,8 +71,10 @@ public class GridFragment extends Fragment implements View.OnClickListener, Adap
         tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
 
         tmp = (TextView) detailDialog.findViewById(R.id.crashes_software);
+        tmp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         tmp.setText("" + test.getCrashes(TestInfo.SOFT));
         tmp = (TextView) detailDialog.findViewById(R.id.crashes_hardware);
+        tmp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         tmp.setText("" + test.getCrashes(TestInfo.HARD));
 
         Window window = detailDialog.getWindow();

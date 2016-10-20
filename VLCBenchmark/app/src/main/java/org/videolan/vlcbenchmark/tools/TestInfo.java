@@ -23,6 +23,8 @@ package org.videolan.vlcbenchmark.tools;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.videolan.vlcbenchmark.ResultCodes;
+
 import java.io.Serializable;
 
 /**
@@ -30,12 +32,16 @@ import java.io.Serializable;
  */
 public class TestInfo implements Serializable {
 
-    public static final int PLAYBACK = 0; //screenshot
-    public static final int PERFORMANCE = 1; //bad frames
+    public static final int QUALITY = 0; //screenshot
+    public static final int PLAYBACK = 1; //bad frames
     public static final int SOFT = 0;
     public static final int HARD = 1;
-    private static final String PLAYBACK_STR = "playback (screenshots/seek)";
-    private static final String PERFORMANCE_STR = "performance (frames dropped)";
+    private static final String OK_STR = "Good";
+    private static final String QUALITY_STR = "Quality (screenshots/seek)";
+    private static final String PLAYBACK_STR = "Playback (frames dropped)";
+    private static final String NO_HW_STR = "No Hardware support";
+    private static final String VLC_CRASH_STR = "VLC crashed";
+    private static final String UNKNOWN_STR = "Unkown problem";
 
     private String name;
     private double[] software = {20d, 30d}; //playback, performance
@@ -44,7 +50,7 @@ public class TestInfo implements Serializable {
     private int[] framesDropped = {0, 0};
     private double[] percentOfBadScreenshots = {0d, 0d};
     private int[] numberOfWarnings = {0, 0};
-    private boolean[][] crashed = {{false, false}, {false, false}};
+    private String[][] crashed = {{"Quality: ", "Playback: "}, {"Quality: ", "Playback: "}};
 
     public TestInfo(String name, int loopNumber) {
         this.name = name;
@@ -56,11 +62,11 @@ public class TestInfo implements Serializable {
     }
 
     public double getSoftware() {
-        return software[PLAYBACK] + software[PERFORMANCE];
+        return software[QUALITY] + software[PLAYBACK];
     }
 
     public double getHardware() {
-        return hardware[PLAYBACK] + hardware[PERFORMANCE];
+        return hardware[QUALITY] + hardware[PLAYBACK];
     }
 
     public int getFrameDropped(int testType) {
@@ -83,14 +89,30 @@ public class TestInfo implements Serializable {
         double[] tmp = (isSoftware ? software : hardware);
 
         framesDropped[isSoftware ? SOFT : HARD] += number_of_dropped_frames;
-        tmp[PERFORMANCE] -= 5 * number_of_dropped_frames;
-        if (tmp[PERFORMANCE] <= 0)
-            tmp[PERFORMANCE] = 0;
+        tmp[PLAYBACK] -= 5 * number_of_dropped_frames;
+        if (tmp[PLAYBACK] <= 0)
+            tmp[PLAYBACK] = 0;
     }
 
-    public void vlcCrashed(boolean isSoftware, boolean isScreenshot) {
-        crashed[isSoftware ? SOFT : HARD][isScreenshot ? PLAYBACK : PERFORMANCE] = true;
-        (isSoftware ? software : hardware)[(isScreenshot ? PLAYBACK : PERFORMANCE)] = 0;
+    public void vlcCrashed(boolean isSoftware, boolean isScreenshot, int resultCode) {
+        switch (resultCode) {
+            case ResultCodes.RESULT_OK:
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += OK_STR;
+                break;
+            case ResultCodes.RESULT_FAILED:
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += (isScreenshot ? QUALITY_STR : PLAYBACK_STR);
+                break;
+            case ResultCodes.RESULT_NO_HW:
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += NO_HW_STR;
+                break;
+            case ResultCodes.RESULT_VLC_CRASH:
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += VLC_CRASH_STR;
+                break;
+            default:
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += UNKNOWN_STR;
+                break;
+        }
+        (isSoftware ? software : hardware)[(isScreenshot ? QUALITY : PLAYBACK)] = 0;
     }
 
     private static String strip(String str) {
@@ -108,9 +130,7 @@ public class TestInfo implements Serializable {
     }
 
     public String getCrashes(int index) {
-        if (!crashed[index][PLAYBACK] && !crashed[index][PERFORMANCE])
-            return "";
-        return strip((crashed[index][PLAYBACK] ? PLAYBACK_STR : "") + "\n" + (crashed[index][PERFORMANCE] ? PERFORMANCE_STR : "") + '\n');
+        return crashed[index][QUALITY] + "\n" + crashed[index][PLAYBACK] + '\n';
     }
 
     public void transferInJSon(JSONObject holder) throws JSONException {

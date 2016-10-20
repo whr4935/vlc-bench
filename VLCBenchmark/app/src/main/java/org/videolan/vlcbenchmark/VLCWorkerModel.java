@@ -351,14 +351,16 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
                 lastTestInfo = new TestInfo(name, loopNumber);
                 onFileTestStarted(name);
             }
-
             onSingleTestFinished(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
 
             if (data != null && resultCode == -1) {
-                fillCurrentTestInfo(data, false);
+                fillCurrentTestInfo(data, false, resultCode);
                 return;
             }
-
+            if (data == null && resultCode != ResultCodes.RESULT_OK) {
+                fillCurrentTestInfo(data, true, resultCode);
+                return;
+            }
             String errorMessage;
             if (data == null) {
                 try {
@@ -368,13 +370,14 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
                 } catch (PackageManager.NameNotFoundException e) {
                     errorMessage = e.getMessage();
                 }
-            } else
+            } else {
                 errorMessage = vlcErrorCodeToString(resultCode, data);
+            }
 
             onVlcCrashed(errorMessage, new Runnable() {
                 @Override
                 public void run() {
-                    fillCurrentTestInfo(data, true);
+                    fillCurrentTestInfo(data, true, ResultCodes.RESULT_VLC_CRASH);
                 }
             });
         }
@@ -418,9 +421,9 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      * @param data   Intent contained results from VLC.
      * @param failed boolean to know if the interpretation of the result of code of VLC indicated that VLC crashed.
      */
-    private void fillCurrentTestInfo(Intent data, boolean failed) {
+    private void fillCurrentTestInfo(Intent data, boolean failed, int resultCode) {
         if (failed) {
-            lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot());
+            lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), resultCode);
         } else if (testIndex.isScreenshot()) {
             testScreenshot(data);
             return;

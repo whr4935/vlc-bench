@@ -26,5 +26,5 @@ package org.videolan.vlcbenchmark.service;
 public enum FAILURE_STATES {
     CHECKSUM_FAILED,
     DOWNLOAD_FAILED,
-    SUCCESS;
+    SUCCESS
 }
