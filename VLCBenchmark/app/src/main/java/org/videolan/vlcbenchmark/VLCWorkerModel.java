@@ -124,7 +124,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
     }
 
-    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc.debug"; //TODO replace with release package
+    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc"; //TODO replace with release package
+    private static final String VLC_DEBUG_PACKAGE_NAME = "org.videolan.vlc.debug";
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
@@ -136,6 +137,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private static final String WARNING_MESSAGE = "VLCBenchmark will extensively test your phone's video capabilities." +
             "\n\nIt will download a large amount of files and will run for several hours." +
             "\nFurthermore, it will need the permission to access external storage";
+
+    private String vlcPackageName;
 
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
@@ -227,6 +230,14 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
             hasWarned = true;
         }
 
+        /* Getting vlc normal or debug package name, *
+         * according to our application's state */
+        if (BuildConfig.DEBUG) {
+            vlcPackageName = VLC_DEBUG_PACKAGE_NAME;
+        } else {
+            vlcPackageName = VLC_PACKAGE_NAME;
+        }
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
     }
@@ -313,7 +324,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      */
     private Intent createIntentForVlc(MediaInfo currentFile) {
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
-                .setComponent(new ComponentName(VLC_PACKAGE_NAME, BENCH_ACTIVITY))
+                .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
 //                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
                 .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/Skantes/FileDump/master/" + currentFile.getUrl()), "video/*");
 
@@ -364,7 +375,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
             String errorMessage;
             if (data == null) {
                 try {
-                    Context packageContext = createPackageContext(VLC_PACKAGE_NAME, 0);
+                    Context packageContext = createPackageContext(vlcPackageName, 0);
                     SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
                     errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
                 } catch (PackageManager.NameNotFoundException e) {
@@ -520,7 +531,6 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      */
     private boolean checkSignature() {
         String benchPackageName = this.getPackageName();
-        String vlcPackageName;
         Signature[] sigs_vlc = null;
         Signature[] sigs = null;
         int vlcSignature;
@@ -538,14 +548,6 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
             benchSignature = sigs[0].hashCode();
         else
             return false;
-
-        /* Getting vlc normal or debug package name, *
-         * according to our application's state */
-        if (benchPackageName.contains("debug")) {
-            vlcPackageName = VLC_PACKAGE_NAME;
-        } else {
-            vlcPackageName = "org.videolan.vlc";
-        }
 
         /* Getting vlc's signature */
         try {
