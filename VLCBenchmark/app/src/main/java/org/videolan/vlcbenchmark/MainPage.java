@@ -145,20 +145,20 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     protected void onVlcCrashed(String errorMessage, final Runnable continueTesting) {
-        new AlertDialog.Builder(this) {{
-            setTitle("VLC crashed on test");
-            setCancelable(false);
-        }}
-                .setMessage(errorMessage)
-                .setNeutralButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                                continueTesting.run();
-                            }
-                        })
-                .show();
+//        new AlertDialog.Builder(this) {{
+//            setTitle("VLC crashed on test");
+//            setCancelable(false);
+//        }}
+//                .setMessage(errorMessage)
+//                .setNeutralButton(android.R.string.ok,
+//                        new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                dialogInterface.dismiss();
+//                                continueTesting.run();
+//                            }
+//                        })
+//                .show();
     }
 
     @Override
