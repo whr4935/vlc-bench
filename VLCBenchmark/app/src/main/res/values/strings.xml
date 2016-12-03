@@ -11,4 +11,22 @@
     <string name="warnings">warnings</string>
     <string name="software">software</string>
     <string name="hardware">hardware</string>
+
+    <!-- bottom_navigation_bar -->
+    <string name="home_nav">Home</string>
+    <string name="result_nav">Results</string>
+    <string name="settings_nav">Settings</string>
+
+    <!-- toolbar -->
+    <string name="test_1x_toolbar">test 1x</string>
+    <string name="text_3x_toolbar">text 3x</string>
+
+    <!-- toolbar titles -->
+    <string name="title_home">VLC Benchmark</string>
+    <string name="title_results">Results</string>
+    <string name="title_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
