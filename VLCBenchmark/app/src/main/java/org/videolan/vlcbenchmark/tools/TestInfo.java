@@ -20,6 +20,9 @@
 
 package org.videolan.vlcbenchmark.tools;
 
+import android.util.Log;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,6 +45,8 @@ public class TestInfo implements Serializable {
     private static final String NO_HW_STR = "No Hardware support";
     private static final String VLC_CRASH_STR = "VLC crashed";
     private static final String UNKNOWN_STR = "Unkown problem";
+    private static final String QUALITY_SFX = "Quality: ";
+    private static final String PLAYBACK_SFX = "Playback: ";
 
     private String name;
     private double[] software = {20d, 30d}; //playback, performance
@@ -50,11 +55,69 @@ public class TestInfo implements Serializable {
     private int[] framesDropped = {0, 0};
     private double[] percentOfBadScreenshots = {0d, 0d};
     private int[] numberOfWarnings = {0, 0};
-    private String[][] crashed = {{"Quality: ", "Playback: "}, {"Quality: ", "Playback: "}};
+    private String[][] crashed = {{"", ""}, {"", ""}};
 
     public TestInfo(String name, int loopNumber) {
         this.name = name;
         this.loopNumber = loopNumber;
+    }
+
+    public TestInfo(JSONObject jsonObject) {
+        try {
+            JSONArray array;
+            name = jsonObject.getString("name");
+            array = jsonObject.getJSONArray("hardware_score");
+            for (int i = 0 ; i < array.length() ; ++i) {
+                hardware[i] = array.getDouble(i);
+            }
+            array = jsonObject.getJSONArray("software_score");
+            for (int i = 0 ; i < array.length() ; ++i) {
+                software[i] = array.getDouble(i);
+            }
+            loopNumber = jsonObject.getInt("loop_number");
+            array = jsonObject.getJSONArray("frames_dropped");
+            for (int i = 0 ; i < array.length() ; ++i) {
+                framesDropped[i] = array.getInt(i);
+            }
+            array = jsonObject.getJSONArray("percent_of_bad_screenshot");
+            for (int i = 0 ; i < array.length() ; ++i) {
+                percentOfBadScreenshots[i] = array.getDouble(i);
+            }
+            array = jsonObject.getJSONArray("number_of_warning");
+            for (int i = 0 ; i < array.length() ; ++i) {
+                numberOfWarnings[i] = array.getInt(i);
+            }
+            array = jsonObject.getJSONArray("crashed");
+            Log.e("VLCBench", "json array -> " + array.toString());
+            for (int i = 0 ; i < array.length() ; ++i) {
+                Log.e("VLCBench", "i = " + i);
+                JSONArray subArray = array.getJSONArray(i);
+                for (int j = 0 ; j < subArray.length() ; ++j) {
+                    crashed[i][j] = subArray.getString(j);
+                }
+            }
+        } catch (JSONException e){
+            Log.e("VLCBench", e.toString());
+            //TODO
+        }
+    }
+
+    public void display() {
+        Log.e("VLCBench - testinfo", "name = " + name);
+        Log.e("VLCBench - testinfo", "software = " + (software[0] + software[1]));
+        Log.e("VLCBench - testinfo", "hardware = " + (hardware[0] + hardware[1]));
+        Log.e("VLCBench - testinfo", "loopnumber = " + loopNumber);
+        Log.e("VLCBench - testinfo", "framesDropped[0] = " + framesDropped[0]);
+        Log.e("VLCBench - testinfo", "framesDropped[1] = " + framesDropped[1]);
+        Log.e("VLCBench - testinfo", "percentOfBadScreenshots[0] = " + percentOfBadScreenshots[0]);
+        Log.e("VLCBench - testinfo", "percentOfBadScreenshots[1] = " + percentOfBadScreenshots[1]);
+        Log.e("VLCBench - testinfo", "numberOfWarnings[0] = " + numberOfWarnings[0]);
+        Log.e("VLCBench - testinfo", "numberOfWarnings[1] = " + numberOfWarnings[1]);
+        Log.e("VLCBench - testinfo", crashed[0][0]);
+        Log.e("VLCBench - testinfo", crashed[0][1]);
+        Log.e("VLCBench - testinfo", crashed[1][0]);
+        Log.e("VLCBench - testinfo", crashed[1][1]);
+        Log.e("VLCBench - testinfo", "EOT");
     }
 
     public String getName() {
@@ -94,22 +157,27 @@ public class TestInfo implements Serializable {
             tmp[PLAYBACK] = 0;
     }
 
+    private String getSfx(boolean isScreenshot) {
+        return (isScreenshot ? QUALITY_SFX : PLAYBACK_SFX);
+    }
+
     public void vlcCrashed(boolean isSoftware, boolean isScreenshot, int resultCode) {
         switch (resultCode) {
             case ResultCodes.RESULT_OK:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += OK_STR;
+                Log.e("VLCBench", "Received RESULT_OK");
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + OK_STR;
                 break;
             case ResultCodes.RESULT_FAILED:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += (isScreenshot ? QUALITY_STR : PLAYBACK_STR);
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = (isScreenshot ? QUALITY_STR : PLAYBACK_STR);
                 break;
             case ResultCodes.RESULT_NO_HW:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += NO_HW_STR;
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + NO_HW_STR;
                 break;
             case ResultCodes.RESULT_VLC_CRASH:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += VLC_CRASH_STR;
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) +VLC_CRASH_STR;
                 break;
             default:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] += UNKNOWN_STR;
+                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) +UNKNOWN_STR;
                 break;
         }
         (isSoftware ? software : hardware)[(isScreenshot ? QUALITY : PLAYBACK)] = 0;
@@ -133,13 +201,28 @@ public class TestInfo implements Serializable {
         return crashed[index][QUALITY] + "\n" + crashed[index][PLAYBACK] + '\n';
     }
 
+    public String getCrashes(int decoding, int testtype) {
+        return crashed[decoding][testtype];
+    }
+
+    public boolean hasCrashed(int decoding) {
+        if (crashed[decoding][QUALITY] != "" || crashed[decoding][PLAYBACK] != "") {
+            return true;
+        }
+        return false;
+    }
+
     public void transferInJSon(JSONObject holder) throws JSONException {
         holder.put("name", name);
-        holder.put("hardware_score", hardware);
-        holder.put("software_score", software);
+        holder.put("hardware_score", new JSONArray(hardware));
+        holder.put("software_score", new JSONArray(software));
         holder.put("loop_number", loopNumber);
-        holder.put("frame_dropped", framesDropped);
-        holder.put("percent_of_bad_screenshot", percentOfBadScreenshots);
-        holder.put("number_of_warning", numberOfWarnings);
+        holder.put("frames_dropped", new JSONArray(framesDropped));
+        holder.put("percent_of_bad_screenshot", new JSONArray(percentOfBadScreenshots));
+        holder.put("number_of_warning", new JSONArray(numberOfWarnings));
+        JSONArray array = new JSONArray();
+        array.put(new JSONArray(crashed[0]));
+        array.put(new JSONArray(crashed[1]));
+        holder.put("crashed", array);
     }
 }

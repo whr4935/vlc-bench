@@ -23,79 +23,190 @@ package org.videolan.vlcbenchmark;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.support.v7.widget.Toolbar;
 
+import org.json.JSONException;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
+import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import javax.security.auth.login.LoginException;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * Created by noeldu_b on 7/11/16.
  */
-public class MainPage extends VLCWorkerModel {
+public class MainPage extends VLCWorkerModel
+        implements CurrentTestFragment.TestView, MainPageFragment.IMainPageFragment {
 
     private TextView percentText = null;
     private TextView textLog = null;
-    private Button oneTest = null,
-            threeTests = null;
     private ProgressBar progressBar = null;
+
+    private Toolbar toolbar = null;
+    private BottomNavigationView bottomNavigationView = null;
 
     private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
     private static final String PROGRESS_TEXT_FORMAT_LOOPS = PROGRESS_TEXT_FORMAT + " | loop %d/%d";
 
-    public void launchTests(View v) {
-        switch (v.getId()) {
-            case R.id.benchOne:
+    private boolean hasDownloaded = true;
+    private CurrentTestFragment currentTestFragment = null;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.test_1x_toolbar:
                 launchTests(1);
                 break;
-            case R.id.benchThree:
+            case R.id.test_3x_toolbar:
                 launchTests(3);
                 break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    public void setDialogFragment(CurrentTestFragment fragment) {
+        Log.e("VLCBench", "Setting current test fragment");
+        currentTestFragment = fragment;
+        if (fragment != null) {
+            View view = currentTestFragment.getView();
+            progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+            textLog = (TextView) view.findViewById(R.id.current_sample);
+            percentText = (TextView) view.findViewById(R.id.percentText);
+        } else {
+            progressBar = null;
+            textLog = null;
+            percentText = null;
         }
     }
 
     @Override
-    protected void setupUiMembers() {
+    protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        percentText = (TextView) findViewById(R.id.percentText);
-        oneTest = (Button) findViewById(R.id.benchOne);
-        threeTests = (Button) findViewById(R.id.benchThree);
-        textLog = (TextView) findViewById(R.id.extractEditText);
+        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.home_nav:
+                                if (findViewById(R.id.main_page_fragment_holder) != null) {
+                                    Log.e("VLCBench", "You're in the fucking condition to instantiate your fragment");
+                                    Fragment fragment;
+                                    if (hasDownloaded) {
+                                        fragment = new MainPageFragment();
+                                    } else {
+                                        fragment = new MainPageDownloadFragment();
+                                    }
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.main_page_fragment_holder, fragment)
+                                            .addToBackStack(null)
+                                            .commit();
+                                }
+                                break;
+                            case R.id.results_nav:
+                                if (findViewById(R.id.main_page_fragment_holder) != null) {
+                                    MainPageResultListFragment fragment = new MainPageResultListFragment();
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.main_page_fragment_holder, fragment)
+                                            .addToBackStack(null)
+                                            .commit();
+                                }
+                                break;
+                            case R.id.settings_nav:
+                                if (findViewById(R.id.main_page_fragment_holder) != null) {
+                                    MainPageSettingsFragment fragment = new MainPageSettingsFragment();
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.main_page_fragment_holder, fragment)
+                                            .addToBackStack(null)
+                                            .commit();
+                                }
+                                break;
+                        }
+                        return false;
+                    }
+                }
+        );
+
+        if (findViewById(R.id.main_page_fragment_holder) != null && savedInstanceState == null) {
+            Log.e("VLCBench", "You're in the fucking condition to instantiate your fragment");
+            Fragment fragment;
+            if (hasDownloaded) {
+                fragment = new MainPageFragment();
+            } else {
+                fragment = new MainPageDownloadFragment();
+
+            }
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.main_page_fragment_holder, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+
     }
 
     @Override
     protected void resetUiToDefault() {
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        percentText.setText(R.string.default_percent_value);
-        textLog.setText("");
+        if (currentTestFragment != null) {
+            progressBar.setProgress(0);
+            progressBar.setMax(100);
+            percentText.setText(R.string.default_percent_value);
+            textLog.setText("");
+        }
     }
 
     @Override
     protected void updateUiOnServiceDone() {
-        oneTest.setVisibility(View.INVISIBLE);
-        threeTests.setVisibility(View.INVISIBLE);
     }
+
+
 
     @Override
     public void stepFinished(String message) {
-        textLog.append(message + '\n');
+//        textLog.append(message + '\n');
+        //currentTestFragment.setText(message);
+        //textLog.setText(message);
     }
 
     @Override
     public void updatePercent(double percent, long bitRate) {
-        progressBar.setProgress((int) Math.round(percent));
-        if (bitRate == BenchServiceDispatcher.NO_BITRATE)
-            percentText.setText(String.format("%.2f %%", percent));
-        else
-            percentText.setText(String.format("%.2f %% (%s)", percent, bitRateToString(bitRate)));
+        if (currentTestFragment != null) {
+            progressBar.setProgress((int) Math.round(percent));
+            if (bitRate == BenchServiceDispatcher.NO_BITRATE)
+                percentText.setText(String.format("%.2f %%", percent));
+            else
+                percentText.setText(String.format("%.2f %% (%s)", percent, bitRateToString(bitRate)));
+        }
     }
 
     private String bitRateToString(long bitRate) {
@@ -123,24 +234,24 @@ public class MainPage extends VLCWorkerModel {
     protected void initVlcProgress(int totalNumberOfElements) {
         progressBar.setProgress(0);
         progressBar.setMax(totalNumberOfElements);
-        textLog.append("\n");
+        progressBar.setMax(totalNumberOfElements);
+//        textLog.append("\n");
     }
 
     @Override
     protected void onFileTestStarted(String fileName) {
-        textLog.append(fileName + '\n');
+        textLog.setText(fileName);
     }
 
     @Override
     protected void onSingleTestFinished(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
         progressBar.incrementProgressBy(1);
-
         if (numberOfLoops != 1)
             percentText.setText(String.format(PROGRESS_TEXT_FORMAT_LOOPS, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber,
                     loopNumber, numberOfLoops));
         else
             percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber));
-        textLog.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
+        //textLog.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
     }
 
     @Override
@@ -163,39 +274,53 @@ public class MainPage extends VLCWorkerModel {
 
     @Override
     protected void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore) {
-        Intent intent = new Intent(MainPage.this, ResultPage.class);
-        intent.putExtra("resultsTest", results);
-        intent.putExtra("soft", softScore);
-        intent.putExtra("hard", hardScore);
-        oneTest.setVisibility(View.VISIBLE);
-        threeTests.setVisibility(View.VISIBLE);
-        startActivityForResult(intent, R.integer.requestResults);
+        ArrayList<TestInfo>[] testResults;
+        try {
+            testResults = new ArrayList[]{new ArrayList<TestInfo>()};
+            Log.e("VLCBench", "Starting transfert loop");
+            if (results != null && results[0] != null) {
+                for (int j = 0 ; j < results[0].size() ; ++j) {
+                    testResults[0].add(j, results[0].get(j));
+                }
+            } else {
+                Log.e("VLCBenchmark", "Missing test information");
+                return;
+            }
+            JsonHandler.save((testResults[0]));
+            Intent intent = new Intent(MainPage.this, ResultPage.class);
+            intent.putExtra("resultsTest", testResults);
+            intent.putExtra("soft", softScore);
+            intent.putExtra("hard", hardScore);
+            startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
+        } catch (JSONException e) {
+            Log.e("VLCBenchmark", "Failed to save test : " + e.toString());
+        } catch (ClassCastException e) {
+            Log.e("VLCBenchmark", "ArrayList declaration failed :" + e.toString());
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == R.integer.requestResults) {
+        if (requestCode == getResources().getInteger(R.integer.requestResults)) {
             resetUiToDefault();
         }
     }
 
     @Override
     protected void onSaveUiData(Bundle saveInstanceState) {
-        saveInstanceState.putInt("PROGRESS_VALUE", progressBar.getProgress());
-        saveInstanceState.putInt("PROGRESS_MAX", progressBar.getMax());
+//        saveInstanceState.putInt("PROGRESS_VALUE", progressBar.getProgress());
+//        saveInstanceState.putInt("PROGRESS_MAX", progressBar.getMax());
     }
 
     @Override
     protected void onRestoreUiData(Bundle saveInstanceState) {
         super.onRestoreInstanceState(saveInstanceState);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setProgress(saveInstanceState.getInt("PROGRESS_VALUE", 0));
-        progressBar.setMax(saveInstanceState.getInt("PROGRESS_MAX", 100));
-        percentText = (TextView) findViewById(R.id.percentText);
-        oneTest = (Button) findViewById(R.id.benchOne);
-        threeTests = (Button) findViewById(R.id.benchThree);
-        textLog = (TextView) findViewById(R.id.extractEditText);
+//        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+//        progressBar.setProgress(saveInstanceState.getInt("PROGRESS_VALUE", 0));
+//        progressBar.setMax(saveInstanceState.getInt("PROGRESS_MAX", 100));
+//        percentText = (TextView) findViewById(R.id.percentText);
+//        textLog = (TextView) findViewById(R.id.extractEditText);
     }
 
     @Override

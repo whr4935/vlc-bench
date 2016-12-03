@@ -1,0 +1,219 @@
+package org.videolan.vlcbenchmark.tools;
+
+import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+
+import java.lang.reflect.Array;
+import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class JsonHandler {
+
+    private static String getName() {
+        String str_date = new Date().toLocaleString();
+        Log.e("VLCBench", "date = " + new Date().toLocaleString());
+        str_date = str_date.replaceAll(",", "");
+        str_date = str_date.replaceAll(" ", "_");
+        str_date = str_date.replaceAll(":", "_");
+        return str_date;
+    }
+
+    private static String getFolder() {
+        return Environment.getExternalStorageDirectory() + File.separator + "jsonFolder" + File.separator;
+    }
+
+    private static void secureJsonLocation() {
+        File folder = new File(getFolder());
+        boolean check;
+        if (!folder.exists()) {
+            Log.e("VLCBench", "Folder does not exist");
+            check = folder.mkdir();
+            if (check) {
+                Log.e("VLCBench", "Folder was created");
+            } else { Log.e("VLCBench", "Folder was not created"); }
+        }
+        else { Log.e("VLCBench", "Folder exists"); }
+    }
+
+    public static void save(ArrayList<TestInfo> testInfoList) throws JSONException {
+        Log.e("VLCBench", "folder = " + getFolder());
+        JSONArray testInformation;
+        testInformation = getTestInformation(testInfoList);
+        FileOutputStream fileOutputStream;
+        secureJsonLocation();
+        File jsonFile = new File(getFolder() + getName() + ".txt");
+        try {
+            fileOutputStream = new FileOutputStream(jsonFile);
+            fileOutputStream.write(testInformation.toString(4).getBytes());
+        } catch (IOException e) {
+            Log.e("VLC Benchmark", "Failed to save json test results");
+            //TODO handle fail to write to file
+        }
+    }
+
+    public static ArrayList<TestInfo> load(String fileName) {
+        Log.e("VLCBench", "filename = " + getFolder() + fileName);
+        File jsonFile = new File(getFolder() + fileName);
+        ArrayList<TestInfo> testInfoList = new ArrayList<TestInfo>();
+        try {
+            StringBuilder text = new StringBuilder();
+            BufferedReader br = new BufferedReader(new FileReader(jsonFile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+                text.append('\n');
+            }
+            br.close();
+            Log.e("VLCBench", "FileInputStream => " + text.toString());
+            JSONArray jsonArray = new JSONArray(text.toString());
+            for (int i = 0 ; i < jsonArray.length() ; ++i) {
+                Log.e("VLCBench", "JsonArray loop => " + i);
+                testInfoList.add(i, new TestInfo(jsonArray.getJSONObject(i)));
+            }
+        } catch (FileNotFoundException e) {
+            Log.e("VLCBenchmark", "Json file not found: " + e.toString());
+            return null;
+        } catch (JSONException e) {
+            Log.e("VLCBenchmark", "Failed to load json file : " + e.toString());
+            return null;
+        } catch (IOException e) {
+            Log.e("VLCBenchmark", "Failed to read jsonFile : " + e.toString());
+            return null;
+        }
+        return testInfoList;
+    }
+
+    public static ArrayList<String> getFileNames() {
+        File dir = new File(getFolder());
+        File[] files = dir.listFiles();
+        ArrayList<String> fileNames = new ArrayList<String>();
+        if (files != null) {
+            for (File file : files) {
+                fileNames.add(file.getName().replaceAll(".txt", ""));
+            }
+            Collections.sort(fileNames);
+            Collections.reverse(fileNames);
+            for (String name : fileNames) {
+                Log.e("VLCBench", "name = " + name);
+            }
+        }
+        return fileNames;
+    }
+
+    /**
+     * Returns the JSON array to send to the server.
+     *
+     * @param testInfoList list of all test results.
+     * @return null in case of failure.
+     */
+    public static JSONObject dumpResults(ArrayList<TestInfo> testInfoList) throws JSONException {
+        JSONObject results = new JSONObject();
+        JSONObject deviceInformation;
+        JSONArray testInformation;
+
+        deviceInformation = getDeviceInformation();
+        testInformation = getTestInformation(testInfoList);
+
+        if (deviceInformation == null || testInformation == null)
+            return null;
+
+        results.put("device_information", deviceInformation);
+        results.put("test_information", testInformation);
+        return results;
+    }
+
+    /**
+     * Returns test information in a JSONArray.
+     *
+     * @param testInfoList list of all test results.
+     * @return null in case of failure.
+     */
+    private static JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) throws JSONException {
+        JSONArray testInfoArray = new JSONArray();
+
+        for (TestInfo element : testInfoList) {
+            JSONObject testInfo = new JSONObject();
+            element.transferInJSon(testInfo);
+            testInfoArray.put(testInfo);
+            Log.e("VLCBench", "testinfo = " + testInfo.toString());
+        }
+        return testInfoArray;
+    }
+
+    public static void displayDeviceInfo() {
+        Log.e("VLCBench", "board = " + Build.BOARD);
+        Log.e("VLCBench", "bootloader = " + Build.BOOTLOADER);
+        Log.e("VLCBench", "brand = " + Build.BRAND);
+        Log.e("VLCBench", "device = " + Build.DEVICE);
+        Log.e("VLCBench", "display = " + Build.DISPLAY);
+        Log.e("VLCBench", "fingerprint = " + Build.FINGERPRINT);
+        Log.e("VLCBench", "host = " + Build.HOST);
+        Log.e("VLCBench", "id = " + Build.ID);
+        Log.e("VLCBench", "manufacturer = " + Build.MANUFACTURER);
+        Log.e("VLCBench", "model = " + Build.MODEL);
+        Log.e("VLCBench", "product = " + Build.PRODUCT);
+        Log.e("VLCBench", "serial = " + Build.SERIAL);
+
+        /* Min version API 21 */
+//        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
+//        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
+//        properties.put("supported_abi", Build.SUPPORTED_ABIS);
+
+        Log.e("VLCBench", "tags = " + Build.TAGS);
+        Log.e("VLCBench", "time = " + Build.TIME);
+        Log.e("VLCBench", "type = " + Build.TYPE);
+        Log.e("VLCBench", "user = " + Build.USER);
+
+        Log.e("VLCBench", "os_arch = " + System.getProperty("os.arch"));
+    }
+
+    /**
+     * Returns device information in a JSONObject.
+     *
+     * @return null in case of failure.
+     */
+    private static JSONObject getDeviceInformation() throws JSONException {
+        JSONObject properties = new JSONObject();
+        properties.put("board", Build.BOARD);
+        properties.put("bootloader", Build.BOOTLOADER);
+        properties.put("brand", Build.BRAND);
+        properties.put("device", Build.DEVICE);
+        properties.put("display", Build.DISPLAY);
+        properties.put("fingerprint", Build.FINGERPRINT);
+        properties.put("host", Build.HOST);
+        properties.put("id", Build.ID);
+        properties.put("manufacturer", Build.MANUFACTURER);
+        properties.put("model", Build.MODEL);
+        properties.put("product", Build.PRODUCT);
+        properties.put("serial", Build.SERIAL);
+
+        /* Min version API 21 */
+//        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
+//        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
+//        properties.put("supported_abi", Build.SUPPORTED_ABIS);
+
+        properties.put("tags", Build.TAGS);
+        properties.put("time", Build.TIME);
+        properties.put("type", Build.TYPE);
+        properties.put("user", Build.USER);
+
+        properties.put("os_arch", System.getProperty("os.arch"));
+        return properties;
+    }
+}

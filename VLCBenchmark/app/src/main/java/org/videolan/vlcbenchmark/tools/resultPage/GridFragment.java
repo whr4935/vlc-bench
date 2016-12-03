@@ -2,6 +2,7 @@ package org.videolan.vlcbenchmark.tools.resultPage;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.R;
+import org.videolan.vlcbenchmark.ResultDetailPage;
+import org.videolan.vlcbenchmark.ResultPage;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.List;
@@ -52,34 +55,39 @@ public class GridFragment extends Fragment implements View.OnClickListener, Adap
             return ;
 
         TestInfo test = results.get((int)l);
-        detailDialog.setTitle("Details for\n" + test.getName());
-        TextView tmp;
 
-        tmp = (TextView) detailDialog.findViewById(R.id.frames_dropped_software);
-        tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
-        tmp = (TextView) detailDialog.findViewById(R.id.frames_dropped_hardware);
-        tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
+        Intent intent = new Intent(getActivity(), ResultDetailPage.class);
+        intent.putExtra("result", test);
+        startActivity(intent);
 
-        tmp = (TextView) detailDialog.findViewById(R.id.bad_screenshots_software);
-        tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
-        tmp = (TextView) detailDialog.findViewById(R.id.bad_screenshots_hardware);
-        tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
-
-        tmp = (TextView) detailDialog.findViewById(R.id.warnings_software);
-        tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
-        tmp = (TextView) detailDialog.findViewById(R.id.warnings_hardware);
-        tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
-
-        tmp = (TextView) detailDialog.findViewById(R.id.crashes_software);
-        tmp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-        tmp.setText("" + test.getCrashes(TestInfo.SOFT));
-        tmp = (TextView) detailDialog.findViewById(R.id.crashes_hardware);
-        tmp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-        tmp.setText("" + test.getCrashes(TestInfo.HARD));
-
-        Window window = detailDialog.getWindow();
-        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
-        detailDialog.show();
+//        detailDialog.setTitle("Details for\n" + test.getName());
+//        TextView tmp;
+//
+//        tmp = (TextView) detailDialog.findViewById(R.id.frames_dropped_software);
+//        tmp.setText("" + test.getFrameDropped(TestInfo.SOFT));
+//        tmp = (TextView) detailDialog.findViewById(R.id.frames_dropped_hardware);
+//        tmp.setText("" + test.getFrameDropped(TestInfo.HARD));
+//
+//        tmp = (TextView) detailDialog.findViewById(R.id.bad_screenshots_software);
+//        tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.SOFT)));
+//        tmp = (TextView) detailDialog.findViewById(R.id.bad_screenshots_hardware);
+//        tmp.setText(doubleToPercentString(test.getBadScreenshots(TestInfo.HARD)));
+//
+//        tmp = (TextView) detailDialog.findViewById(R.id.warnings_software);
+//        tmp.setText("" + test.getNumberOfWarnings(TestInfo.SOFT));
+//        tmp = (TextView) detailDialog.findViewById(R.id.warnings_hardware);
+//        tmp.setText("" + test.getNumberOfWarnings(TestInfo.HARD));
+//
+//        tmp = (TextView) detailDialog.findViewById(R.id.crashes_software);
+//        tmp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+//        tmp.setText("" + test.getCrashes(TestInfo.SOFT));
+//        tmp = (TextView) detailDialog.findViewById(R.id.crashes_hardware);
+//        tmp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+//        tmp.setText("" + test.getCrashes(TestInfo.HARD));
+//
+//        Window window = detailDialog.getWindow();
+//        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, window.getAttributes().height);
+//        detailDialog.show();
     }
 
     private static String doubleToPercentString(double value) {

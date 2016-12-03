@@ -1,0 +1,59 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="org.videolan.vlcbenchmark.MainPageFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/launch_test_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="center">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_test_x1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu_start_test"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/default_margin"
+                />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_test_x3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu_start_testx3"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/default_margin"/>
+
+        </LinearLayout>
+
+
+        <ScrollView
+            android:id="@+id/test_explanation_scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/launch_test_layout"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginTop="@dimen/default_margin"
+            android:background="@color/white"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/test_explanation_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please press one the button below to start the benchmark"/>
+
+        </ScrollView>
+        
+    </RelativeLayout>
+
+</FrameLayout>

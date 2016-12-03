@@ -37,6 +37,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
@@ -68,7 +69,7 @@ import java.util.List;
  * <p>
  * This architecture allows the UI and logical part to be independent from one an other.
  */
-public abstract class VLCWorkerModel extends Activity implements BenchServiceListener {
+public abstract class VLCWorkerModel extends AppCompatActivity implements BenchServiceListener {
 
     /**
      * We use this member to start, stop and listene to {@link org.videolan.vlcbenchmark.service.BenchService}
@@ -81,7 +82,6 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private int loopNumber = 0;
     private TestInfo lastTestInfo = null;
     private int numberOfTests;
-    private boolean hasWarned = false;
 
     /**
      * Enum tool used internally only to iterate simply
@@ -124,7 +124,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
     }
 
-    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc"; //TODO replace with release package
+    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc";
     private static final String VLC_DEBUG_PACKAGE_NAME = "org.videolan.vlc.debug";
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
@@ -134,6 +134,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
+    private static final String SHARED_PREFERENCE_WARNING = "org.videolan.vlc.gui.video.benchmark.WARNING";
     private static final String WARNING_MESSAGE = "VLCBenchmark will extensively test your phone's video capabilities." +
             "\n\nIt will download a large amount of files and will run for several hours." +
             "\nFurthermore, it will need the permission to access external storage";
@@ -143,7 +144,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
      */
-    protected abstract void setupUiMembers();
+    protected abstract void setupUiMembers(Bundle savedInstanceState);
 
     /**
      *  Is called in {@link VLCWorkerModel#launchTests(int)}.
@@ -218,16 +219,20 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUiMembers();
+        setupUiMembers(savedInstanceState);
 
         dispatcher = new BenchServiceDispatcher(this);
 
-        if (savedInstanceState != null) {
-            savedInstanceState.getBoolean("WARNING", hasWarned);
-        }
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        boolean hasWarned = sharedPref.getBoolean(SHARED_PREFERENCE_WARNING, false);
+
+        Log.e("VLCBench", "hasWarned is " + hasWarned);
+
         if (!hasWarned) {
             new AlertDialog.Builder(this).setTitle("WARNING").setMessage(WARNING_MESSAGE).setNeutralButton(android.R.string.ok, null).show();
-            hasWarned = true;
+            SharedPreferences.Editor editor= sharedPref.edit();
+            editor.putBoolean(SHARED_PREFERENCE_WARNING, true);
+            editor.apply();
         }
 
         /* Getting vlc normal or debug package name, *
@@ -238,6 +243,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
             vlcPackageName = VLC_PACKAGE_NAME;
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
     }
@@ -277,7 +284,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      */
     @UiThread
     final public void launchTests(int numberOfTests) {
-        if (numberOfTests == 1) {
+            if (numberOfTests == 1) {
             this.numberOfTests = 1;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
         } else if (numberOfTests == 3) {
@@ -311,8 +318,9 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         MediaInfo currentFile = files.get(0);
         updateUiOnServiceDone();
         try {
-            startActivityForResult(createIntentForVlc(currentFile), R.integer.requestVLC);
+            startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
         } catch (ActivityNotFoundException e) {
+            Log.e("VLCBench", "Ca pete, Yolo 42 ne passe pas.");
             //TODO or not, should be taken care of beforehand
         }
     }
@@ -351,7 +359,8 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (requestCode == R.integer.requestVLC) {
+        //if (requestCode == R.integer.requestVLC) {
+         if (requestCode == getResources().getInteger(R.integer.requestVLC)) {
             if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
                 initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
             }
@@ -521,7 +530,7 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         }
         testIndex = testIndex.next();
         MediaInfo currentFile = testFiles.get(fileIndex);
-        startActivityForResult(createIntentForVlc(currentFile), R.integer.requestVLC);
+        startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
     }
 
     /**
@@ -590,7 +599,6 @@ public abstract class VLCWorkerModel extends Activity implements BenchServiceLis
         savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
         savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
         savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
-        savedInstanceState.putBoolean("WARNING", hasWarned);
         onSaveUiData(savedInstanceState);
     }
 

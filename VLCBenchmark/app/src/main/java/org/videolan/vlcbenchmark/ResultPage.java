@@ -26,22 +26,30 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.resultPage.GridFragment;
 
 import java.util.ArrayList;
 
-public class ResultPage extends FragmentActivity {
+public class ResultPage extends AppCompatActivity {//FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result_page);
+
+        setupUi();
 
         ArrayList<TestInfo>[] results = (ArrayList<TestInfo>[]) getIntent().getSerializableExtra("resultsTest");
         double soft = getIntent().getDoubleExtra("soft", 0f);
@@ -52,6 +60,9 @@ public class ResultPage extends FragmentActivity {
 
         int index = 0;
         for (ArrayList<TestInfo> resultList : results) {
+            for (TestInfo info : resultList) {
+                info.display();
+            }
             Bundle args = new Bundle();
             args.putSerializable("results", resultList);
             mTabHost.addTab(mTabHost.newTabSpec("tab" + index).setIndicator("Test number " + (index + 1)), GridFragment.class, args);
@@ -68,87 +79,32 @@ public class ResultPage extends FragmentActivity {
 
     }
 
-    /**
-     * Returns the JSON array to send to the server.
-     *
-     * @param testInfoList list of all test results.
-     * @return null in case of failure.
-     */
-    public JSONObject dumpResults(ArrayList<TestInfo> testInfoList) throws JSONException {
-        JSONObject results = new JSONObject();
-        JSONObject deviceInformation;
-        JSONArray testInformation;
-
-        deviceInformation = getDeviceInformation();
-        testInformation = getTestInformation(testInfoList);
-
-        if (deviceInformation == null || testInformation == null)
-            return null;
-
-        results.put("device_information", deviceInformation);
-        results.put("test_information", testInformation);
-        return results;
+    private void setupUi() {
+        try {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e) {
+            Log.e("VLCBenchmark", e.toString());
+        }
     }
 
     @Override
-    public void onBackPressed() {
-        new AlertDialog.Builder(this).setTitle("Are you sure?").setMessage("Are you sure you want to go back?\nYou'll have no way to come back here.")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ResultPage.super.onBackPressed();
-                    }
-                }).setNegativeButton(android.R.string.no, null).show();
-    }
-
-    /**
-     * Returns test information in a JSONArray.
-     *
-     * @param testInfoList list of all test results.
-     * @return null in case of failure.
-     */
-    private JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) throws JSONException {
-        JSONArray testInfoArray = new JSONArray();
-
-        for (TestInfo element : testInfoList) {
-            JSONObject testInfo = new JSONObject();
-            element.transferInJSon(testInfo);
-            testInfoArray.put(testInfo);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
         }
-        return testInfoArray;
+        return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Returns device information in a JSONObject.
-     *
-     * @return null in case of failure.
-     */
-    private JSONObject getDeviceInformation() throws JSONException {
-        JSONObject properties = new JSONObject();
-        properties.put("board", Build.BOARD);
-        properties.put("bootloader", Build.BOOTLOADER);
-        properties.put("brand", Build.BRAND);
-        properties.put("device", Build.DEVICE);
-        properties.put("display", Build.DISPLAY);
-        properties.put("fingerprint", Build.FINGERPRINT);
-        properties.put("host", Build.HOST);
-        properties.put("id", Build.ID);
-        properties.put("manufacturer", Build.MANUFACTURER);
-        properties.put("model", Build.MODEL);
-        properties.put("product", Build.PRODUCT);
-        properties.put("serial", Build.SERIAL);
-
-        /* Min version API 21 */
-//        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
-//        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
-//        properties.put("supported_abi", Build.SUPPORTED_ABIS);
-
-        properties.put("tags", Build.TAGS);
-        properties.put("time", Build.TIME);
-        properties.put("type", Build.TYPE);
-        properties.put("user", Build.USER);
-
-        properties.put("os_arch", System.getProperty("os.arch"));
-        return properties;
-    }
+//    @Override
+//    public void onBackPressed() {
+//        new AlertDialog.Builder(this).setTitle("Are you sure?").setMessage("Are you sure you want to go back?\nYou'll have no way to come back here.")
+//                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        ResultPage.super.onBackPressed();
+//                    }
+//                }).setNegativeButton(android.R.string.no, null).show();
+//    }
 }

@@ -1,0 +1,71 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="org.videolan.vlcbenchmark.CurrentTestFragment">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Testing ..."
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:id="@+id/test_text"
+            android:textSize="18sp"
+            android:layout_margin="@dimen/default_margin"/>
+
+        <TextView
+            android:id="@+id/current_sample"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"
+            android:text="Current sample"
+            android:layout_below="@+id/test_text"
+            android:textColor="@color/black"/>
+
+        <ProgressBar
+            android:layout_width="fill_parent"
+            android:layout_height="8dp"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center_horizontal"
+            android:max="100"
+            android:minWidth="200dp"
+            android:visibility="visible"
+            android:layout_marginTop="@dimen/default_margin"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_below="@+id/current_sample"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textAlignment="center"
+            android:id="@+id/percentText"
+            android:freezesText="true"
+            android:text="@string/default_percent_value"
+            android:layout_marginTop="@dimen/default_margin"
+            android:layout_marginBottom="0dp"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/progressBar"/>
+
+        <Button
+            android:id="@+id/current_test_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_below="@id/percentText"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+
+</FrameLayout>

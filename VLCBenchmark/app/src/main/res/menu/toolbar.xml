@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/test_1x_toolbar"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_start_test"
+        android:title="@string/test_1x_toolbar"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/test_3x_toolbar"
+        android:enabled="true"
+        android:icon="@drawable/ic_menu_start_testx3"
+        android:title="@string/text_3x_toolbar"
+        app:showAsAction="ifRoom"
+        />
+</menu>
