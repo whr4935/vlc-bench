@@ -21,11 +21,8 @@
 package org.videolan.vlcbenchmark;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -33,9 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
@@ -46,12 +41,8 @@ import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import javax.security.auth.login.LoginException;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * Created by noeldu_b on 7/11/16.
@@ -69,21 +60,8 @@ public class MainPage extends VLCWorkerModel
     private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
     private static final String PROGRESS_TEXT_FORMAT_LOOPS = PROGRESS_TEXT_FORMAT + " | loop %d/%d";
 
-    private boolean hasDownloaded = true;
+    private boolean hasDownloaded = false;
     private CurrentTestFragment currentTestFragment = null;
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.test_1x_toolbar:
-                launchTests(1);
-                break;
-            case R.id.test_3x_toolbar:
-                launchTests(3);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,14 +70,38 @@ public class MainPage extends VLCWorkerModel
         return true;
     }
 
+    public void setDownloaded(boolean hasDownloaded) {
+        this.hasDownloaded = hasDownloaded;
+        if (currentTestFragment != null && this.hasDownloaded) {
+            currentTestFragment.dismiss();
+        }
+        if (hasDownloaded) {
+            Fragment fragment = new MainPageFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_page_fragment_holder, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            Fragment fragment = new MainPageDownloadFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_page_fragment_holder, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
     public void setDialogFragment(CurrentTestFragment fragment) {
-        Log.e("VLCBench", "Setting current test fragment");
         currentTestFragment = fragment;
         if (fragment != null) {
             View view = currentTestFragment.getView();
             progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             textLog = (TextView) view.findViewById(R.id.current_sample);
             percentText = (TextView) view.findViewById(R.id.percentText);
+            if (currentTestFragment.getTag().equals("Download dialog")) {
+                textLog.setText("Downloading ...");
+            } else if (currentTestFragment.getTag().equals("Current test")) {
+                textLog.setText("Testing ...");
+            }
         } else {
             progressBar = null;
             textLog = null;
@@ -110,6 +112,7 @@ public class MainPage extends VLCWorkerModel
     @Override
     protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
+
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(getResources().getColor(R.color.white));
@@ -121,7 +124,6 @@ public class MainPage extends VLCWorkerModel
                         switch (item.getItemId()) {
                             case R.id.home_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
-                                    Log.e("VLCBench", "You're in the fucking condition to instantiate your fragment");
                                     Fragment fragment;
                                     if (hasDownloaded) {
                                         fragment = new MainPageFragment();
@@ -157,21 +159,6 @@ public class MainPage extends VLCWorkerModel
                     }
                 }
         );
-
-        if (findViewById(R.id.main_page_fragment_holder) != null && savedInstanceState == null) {
-            Log.e("VLCBench", "You're in the fucking condition to instantiate your fragment");
-            Fragment fragment;
-            if (hasDownloaded) {
-                fragment = new MainPageFragment();
-            } else {
-                fragment = new MainPageDownloadFragment();
-
-            }
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_page_fragment_holder, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        }
 
     }
 
@@ -226,7 +213,7 @@ public class MainPage extends VLCWorkerModel
 
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
-        super.failure(reason, exception);
+        currentTestFragment.dismiss(); //todo find some way not to spawn the dialog if no wifi
         new AlertDialog.Builder(this).setTitle("Error during download").setMessage(exception.getMessage()).setNeutralButton("ok", null).show();
     }
 
@@ -275,6 +262,7 @@ public class MainPage extends VLCWorkerModel
     @Override
     protected void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore) {
         ArrayList<TestInfo>[] testResults;
+        currentTestFragment.dismiss();
         try {
             testResults = new ArrayList[]{new ArrayList<TestInfo>()};
             Log.e("VLCBench", "Starting transfert loop");

@@ -25,9 +25,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.Pair;
+
+import org.videolan.vlcbenchmark.ServiceActions;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,9 +39,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.DigestInputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashSet;
@@ -67,6 +71,7 @@ public class BenchService extends IntentService {
     public static final int PERCENT_STATUS = 2;
     public static final int PERCENT_STATUS_BITRATE = 3;
     public static final int STEP_FINISHED = 4;
+    public static final int FILE_CHECK = 5;
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
@@ -86,6 +91,11 @@ public class BenchService extends IntentService {
      * the list of MediaInfo for all videos/media.
      */
     private List<MediaInfo> filesInfo = null;
+
+    /**
+     *
+     */
+    private ArrayList<MediaInfo> filesToDownload = null;
 
     /**
      * Field holding an instance of {@link Handler} used by the service
@@ -125,15 +135,23 @@ public class BenchService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            downloadFiles();
+            int action = intent.getIntExtra("action", 2);
+            switch (action) {
+                case ServiceActions.SERVICE_CHECKFILES:
+                    checkFiles();
+                    break;
+                case ServiceActions.SERVICE_DOWNLOAD:
+                    downloadFiles();
+                    break;
+                default:
+                    Log.e("VLCBench", "Unknown service action requested");
+                    break;
+            }
         } catch (IOException e) {
             sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
-            return;
         } catch (GeneralSecurityException e) {
             sendMessage(FAILURE, FAILURE_STATES.CHECKSUM_FAILED, e);
-            return;
         }
-        sendMessage(DONE_STATUS, filesInfo);
     }
 
     /**
@@ -206,7 +224,8 @@ public class BenchService extends IntentService {
         }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
         if (what == DONE_STATUS)// || what == FAILURE)
-            dispatcher = null;
+            dispatcher = null; //todo check if not better to leave dispatcher for all bench life cycle
+        //it is probably better to keep dispatcher, in case of second launch
     }
 
     /**
@@ -229,14 +248,17 @@ public class BenchService extends IntentService {
      */
     private static boolean hasWifiAndLan(Context context) {
         boolean networkEnabled = false;
+        Log.e("VLCBench", "called hasWifiAndLan");
         ConnectivityManager connectivity = (ConnectivityManager) (context.getSystemService(Context.CONNECTIVITY_SERVICE));
         if (connectivity != null) {
             NetworkInfo networkInfo = connectivity.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected() &&
                     (networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
+                Log.e("VLCBench", "network enabled = true");
                 networkEnabled = true;
             }
         }
+        Log.e("VLCBench", "network enabled = false;");
         return networkEnabled;
     }
 
@@ -255,6 +277,7 @@ public class BenchService extends IntentService {
      */
     private void downloadFile(File file, MediaInfo fileData, double percent, double pas) throws IOException, GeneralSecurityException {
         if (!hasWifiAndLan(this)) {
+            Log.e("VLCBench", "No wifi !!");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         file.createNewFile();
@@ -285,11 +308,56 @@ public class BenchService extends IntentService {
             sendMessage(STEP_FINISHED, String.format(SHA512_FAILED_STR, fileData.name));
             file.delete();
             throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
+        } catch (Exception e) {
+            Log.e("VLCBench", "Failed to download file : " + e.toString());
         } finally {
             if (fileStream != null)
                 fileStream.close();
             if (urlStream != null)
                 urlStream.close();
+        }
+    }
+
+    //TODO add file deletion or take it out of download files
+    //TODO create new download list as to loop only on files to download
+    //TODO what happens when no internet ?
+    private void checkFiles() {
+        try {
+            filesInfo = JSonParser.getMediaInfos();
+            File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "media_folder");
+            File[] files = dir.listFiles();
+            filesToDownload = new ArrayList<MediaInfo>();
+            for (MediaInfo mediaFile : filesInfo) {
+                boolean presence = false;
+                if (files != null) {
+                    for (File localFile : files) {
+                        if (localFile.getName().equals(mediaFile.getName())) {
+                            if (!checkFileSum(localFile, mediaFile.checksum)) {
+                                localFile.delete(); //TODO handle return value
+                                mediaFile.localUrl = localFile.getAbsolutePath();
+                                filesToDownload.add(mediaFile);
+                            }
+                            mediaFile.localUrl = localFile.getAbsolutePath();
+                            presence = true;
+                            break;
+                        }
+                    }
+                }
+                if (!presence) {
+                    filesToDownload.add(mediaFile);
+                }
+            }
+        } catch (IOException e) {
+            Log.e("VLCBench", "Failed to get Json configuration file: " + e.toString());
+            //TODO alert dialog
+        } catch (GeneralSecurityException e) {
+            //TODO alert dialog
+            Log.e("VLCBench", "Failed to generate File checksum: " + e.toString());
+        }
+        if (filesToDownload.size() > 0) {
+            sendMessage(FILE_CHECK, false);
+        } else {
+            sendMessage(DONE_STATUS, filesInfo);
         }
     }
 
@@ -305,13 +373,14 @@ public class BenchService extends IntentService {
      */
     private void downloadFiles() throws IOException, GeneralSecurityException {
         if (!hasWifiAndLan(this)) {
+            Log.e("VLCBench", "Downloading Filessss no wifi !!");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         filesInfo = JSonParser.getMediaInfos();
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
         sendMessage(STEP_FINISHED, JSON_FINISH_STR);
-        File mediaFolder = new File(getFilesDir().getPath() + "/media_dir");
+        File mediaFolder = new File(Environment.getExternalStorageDirectory() + File.separator + "media_folder");
         if (!mediaFolder.exists())
             mediaFolder.mkdir();
         HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
@@ -336,6 +405,7 @@ public class BenchService extends IntentService {
         }
         for (File toRemove : unusedFiles)
             toRemove.delete();
+        sendMessage(DONE_STATUS, filesInfo);
     }
 
     /**

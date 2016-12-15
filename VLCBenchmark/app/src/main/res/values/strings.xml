@@ -17,10 +17,6 @@
     <string name="result_nav">Results</string>
     <string name="settings_nav">Settings</string>
 
-    <!-- toolbar -->
-    <string name="test_1x_toolbar">test 1x</string>
-    <string name="text_3x_toolbar">text 3x</string>
-
     <!-- toolbar titles -->
     <string name="title_home">VLC Benchmark</string>
     <string name="title_results">Results</string>

@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -61,11 +62,10 @@ public class BenchServiceDispatcher extends Handler {
 
     private ServiceConnection serviceConnection;
 
-    public void startService(Activity context) {
+    public void startService(Activity context, Intent intent) {
         if (initContext != null)
             throw new RuntimeException("Can't create two BenchService from the same BenchServiceDispatcher, stop the previous one first");
         initContext = context;
-        Intent intent = new Intent(context, BenchService.class);
         context.startService(intent);
         if (serviceConnection != null)
             return ;
@@ -120,8 +120,11 @@ public class BenchServiceDispatcher extends Handler {
                 for (BenchServiceListener listener : listeners)
                     listener.stepFinished((String)msg.obj);
                 break;
+            case BenchService.FILE_CHECK:
+                for (BenchServiceListener listener : listeners)
+                    listener.setDownloaded((boolean)msg.obj);
             default:
-                return;
+                break;
         }
     }
 }

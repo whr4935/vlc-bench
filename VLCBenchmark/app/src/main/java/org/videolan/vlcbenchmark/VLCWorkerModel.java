@@ -40,6 +40,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
@@ -211,7 +212,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     /**
      * Initialization of the Activity.
      *
-     * This calls {@link #setupUiMembers()}, sets up the {@link BenchServiceDispatcher} dispatcher member and request
+     * This calls {@link #setupUiMembers(Bundle savedInstanceState)}, sets up the {@link BenchServiceDispatcher} dispatcher member and request
      * permissions to read on the external storage.
      *
      * @param savedInstanceState
@@ -219,12 +220,17 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUiMembers(savedInstanceState);
 
         dispatcher = new BenchServiceDispatcher(this);
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         boolean hasWarned = sharedPref.getBoolean(SHARED_PREFERENCE_WARNING, false);
+
+        Intent intent = new Intent(this, BenchService.class);
+        intent.putExtra("action", 0);
+        dispatcher.startService(this, intent);
+
+        setupUiMembers(savedInstanceState);
 
         Log.e("VLCBench", "hasWarned is " + hasWarned);
 
@@ -298,8 +304,23 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         loopNumber = 0;
         resetUiToDefault();
 
+        MediaInfo currentFile = testFiles.get(0);
+        for (MediaInfo file : testFiles) {
+            Log.e("VLCBench", "File name = " + file.getName());
+            Log.e("VLCBench", "localUri = " + file.getLocalUrl());
+        }
+        updateUiOnServiceDone();
         try {
-            dispatcher.startService(this);
+            startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
+        } catch (ActivityNotFoundException e) {
+            Log.e("VLCBench", "Failed to start VLC");
+            //TODO or not, should be taken care of beforehand
+        }
+
+        try {
+            Intent intent = new Intent(this, BenchService.class);
+            intent.putExtra("action", 1);
+            dispatcher.startService(this, intent);
         } catch (RuntimeException e) {
             new AlertDialog.Builder(this).setTitle("Please wait").setMessage("VLC will start shortly").setNeutralButton(android.R.string.ok, null).show();
         }
@@ -313,16 +334,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     final public void doneReceived(List<MediaInfo> files) {
+        Log.e("VLCBench", "Done received");
         testFiles = files;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        MediaInfo currentFile = files.get(0);
-        updateUiOnServiceDone();
-        try {
-            startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
-        } catch (ActivityNotFoundException e) {
-            Log.e("VLCBench", "Ca pete, Yolo 42 ne passe pas.");
-            //TODO or not, should be taken care of beforehand
-        }
+        setDownloaded(true);
     }
 
     /**
@@ -333,9 +348,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private Intent createIntentForVlc(MediaInfo currentFile) {
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
-//                                        .setDataAndTypeAndNormalize(Uri.parse("file:/" + Uri.parse(currentFile.getLocalUrl())), "video/*") //TODO use this line when vlc and vlc-benchmark have the same ID
-                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/Skantes/FileDump/master/" + currentFile.getUrl()), "video/*");
-
+                .setDataAndTypeAndNormalize(Uri.parse("file://" + Uri.parse(currentFile.getLocalUrl())), "video/*");
+//                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/Skantes/FileDump/master/" + currentFile.getUrl()), "video/*");
+        Log.e("VLCBench", "Opening file: " + currentFile.getLocalUrl());
         if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);
         if (testIndex.isScreenshot())
@@ -359,7 +374,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        //if (requestCode == R.integer.requestVLC) {
          if (requestCode == getResources().getInteger(R.integer.requestVLC)) {
             if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
                 initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
@@ -400,13 +414,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                     fillCurrentTestInfo(data, true, ResultCodes.RESULT_VLC_CRASH);
                 }
             });
-        }
-    }
-
-    @Override
-    public void failure(FAILURE_STATES reason, Exception exception) {
-        if (dispatcher != null) {
-            dispatcher.stopService();
         }
     }
 

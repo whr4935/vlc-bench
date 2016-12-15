@@ -29,11 +29,10 @@ public class MainPageFragment extends Fragment {
         oneTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("VLCBench", "Pressed on one test button");
                 CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
                 fragment.setCancelable(false);
                 fragment.show(getFragmentManager(), "Current test"); // tmp
-//                mListener.launchTests(1);
+                mListener.launchTests(1);
             }
         });
 
@@ -41,7 +40,10 @@ public class MainPageFragment extends Fragment {
         threeTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("VLCBench", "Pressed on three test button");
+                CurrentTestFragment fragment = new CurrentTestFragment();
+                fragment.setCancelable(false);
+                fragment.show(getFragmentManager(), "Current test");
+                mListener.launchTests(1);
             }
         });
         return view;

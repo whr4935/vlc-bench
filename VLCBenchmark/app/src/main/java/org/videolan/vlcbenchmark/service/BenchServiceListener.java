@@ -31,4 +31,5 @@ public interface BenchServiceListener {
     void doneReceived(List<MediaInfo> files);
     void updatePercent(double percent, long bitRate);
     void stepFinished(String message);
+    void setDownloaded(boolean hasDownloaded);
 }
