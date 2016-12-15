@@ -91,16 +91,22 @@ public class MainPageResultListFragment extends Fragment {
         return software;
     }
 
-    public class TestListAdapter extends RecyclerView.Adapter<MainPageResultListFragment.TestListAdapter.ViewHolder> {
+    public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
 
         ArrayList<String> mData;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView mTextView;
+            public TextView mTitle;
+            public TextView mSoftware;
+            public TextView mHardware;
 
             public ViewHolder(View view) {
                 super(view);
-                mTextView = (TextView) view.findViewById(R.id.test_name);
+                mTitle = (TextView) view.findViewById(R.id.test_name);
+                mSoftware = (TextView) view.findViewById(R.id.test_software);
+                mSoftware.setTextSize(13);
+                mHardware = (TextView) view.findViewById(R.id.test_hardware);
+                mHardware.setTextSize(13);
             }
 
         }
@@ -110,16 +116,17 @@ public class MainPageResultListFragment extends Fragment {
         }
 
         @Override
-        public MainPageResultListFragment.TestListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            android.view.View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.test_list_rows, parent, false);
-            return new MainPageResultListFragment.TestListAdapter.ViewHolder(view);
+        public TestListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.test_list_rows, parent, false);
+            return new ViewHolder(view);
         }
 
-
-
         @Override
-        public void onBindViewHolder(MainPageResultListFragment.TestListAdapter.ViewHolder holder, int position) {
-            holder.mTextView.setText(mData.get(position));
+        public void onBindViewHolder(TestListAdapter.ViewHolder holder, int position) {
+            ArrayList<TestInfo> test = JsonHandler.load(mData.get(position) + ".txt");
+            holder.mTitle.setText(mData.get(position));
+            holder.mSoftware.setText("Software: " + String.valueOf(getSoftScore(test)));
+            holder.mHardware.setText("Hardware: " + String.valueOf(getHardScore(test)));
         }
 
         @Override
