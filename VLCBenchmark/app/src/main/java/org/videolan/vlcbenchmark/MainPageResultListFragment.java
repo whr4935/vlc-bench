@@ -50,13 +50,15 @@ public class MainPageResultListFragment extends Fragment {
                         Log.e("VLCBench", "Called onItemClick");
                         TextView text = (TextView) view.findViewById(R.id.test_name);
                         String fileName = text.getText() + ".txt";
+                        TextView software = (TextView) view.findViewById(R.id.test_software);
+                        TextView hardware = (TextView) view.findViewById(R.id.test_hardware);
                         ArrayList<TestInfo>[] testInfoList = new ArrayList[]{new ArrayList<TestInfo>()};
                         testInfoList[0] = JsonHandler.load(fileName);
                         if (testInfoList[0] != null) {
                             Intent intent = new Intent(getActivity(), ResultPage.class);
-                            intent.putExtra("resultsTest", testInfoList);
-                            intent.putExtra("soft", getSoftScore(testInfoList[0]));
-                            intent.putExtra("hard", getHardScore(testInfoList[0]));
+                            //intent.putExtra("resultsTest", testInfoList);
+                            intent.putExtra("soft", software.getText());
+                            intent.putExtra("hard", hardware.getText());
                             intent.putExtra("name", text.getText());
                             startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
                         }

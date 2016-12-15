@@ -60,11 +60,11 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result_page);
 
-        results = (ArrayList<TestInfo>[]) getIntent().getSerializableExtra("resultsTest");
-        double soft = getIntent().getDoubleExtra("soft", 0f);
-        double hard = getIntent().getDoubleExtra("hard", 0f);
+        //results = (ArrayList<TestInfo>[]) getIntent().getSerializableExtra("resultsTest");
+        String soft = getIntent().getStringExtra("soft");
+        String hard = getIntent().getStringExtra("hard");
 
-        setupUi(results[0]);
+        setupUi();
 
         TextView softView = (TextView) findViewById(R.id.softAvg);
         String softText = "Software score : " + soft;
@@ -76,10 +76,13 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
 
     }
 
-    private void setupUi(ArrayList<TestInfo> results) {
+    private void setupUi() {
+        String name = getIntent().getStringExtra("name");
+
+        ArrayList<TestInfo> results = JsonHandler.load(name + ".txt");
 
         if (getIntent().hasExtra("name")) {
-            getSupportActionBar().setTitle(getIntent().getStringExtra("name"));
+            getSupportActionBar().setTitle(name);
         }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.test_result_list);
@@ -96,10 +99,11 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
                 new RecyclerItemClickListener(this, mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-//                        TestInfo test = results.get(position);
-//                        Intent intent = new Intent(getParent(), ResultDetailPage.class);
-//                        intent.putExtra("result", test);
-//                        startActivity(intent);
+                        ArrayList<TestInfo> results = JsonHandler.load(getSupportActionBar().getTitle().toString() + ".txt");
+                        TestInfo test = results.get(position);
+                        Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
+                        intent.putExtra("result", test);
+                        startActivity(intent);
                         Log.e("VLCBench", "onItemClick called");
                     }
 
