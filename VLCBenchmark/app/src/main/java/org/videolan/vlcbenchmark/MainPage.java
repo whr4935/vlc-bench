@@ -130,6 +130,7 @@ public class MainPage extends VLCWorkerModel
                                     } else {
                                         fragment = new MainPageDownloadFragment();
                                     }
+                                    getSupportActionBar().setTitle("VLC Benchmark");
                                     getSupportFragmentManager().beginTransaction()
                                             .replace(R.id.main_page_fragment_holder, fragment)
                                             .addToBackStack(null)
@@ -139,6 +140,7 @@ public class MainPage extends VLCWorkerModel
                             case R.id.results_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
                                     MainPageResultListFragment fragment = new MainPageResultListFragment();
+                                    getSupportActionBar().setTitle("Results");
                                     getSupportFragmentManager().beginTransaction()
                                             .replace(R.id.main_page_fragment_holder, fragment)
                                             .addToBackStack(null)
@@ -148,6 +150,7 @@ public class MainPage extends VLCWorkerModel
                             case R.id.settings_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
                                     MainPageSettingsFragment fragment = new MainPageSettingsFragment();
+                                    getSupportActionBar().setTitle("Settings");
                                     getSupportFragmentManager().beginTransaction()
                                             .replace(R.id.main_page_fragment_holder, fragment)
                                             .addToBackStack(null)

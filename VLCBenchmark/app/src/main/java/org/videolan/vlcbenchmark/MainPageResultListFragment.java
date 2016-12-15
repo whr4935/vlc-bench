@@ -57,6 +57,7 @@ public class MainPageResultListFragment extends Fragment {
                             intent.putExtra("resultsTest", testInfoList);
                             intent.putExtra("soft", getSoftScore(testInfoList[0]));
                             intent.putExtra("hard", getHardScore(testInfoList[0]));
+                            intent.putExtra("name", text.getText());
                             startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
                         }
                     }
