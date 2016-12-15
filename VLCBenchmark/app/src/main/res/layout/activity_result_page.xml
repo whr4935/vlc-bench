@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="10dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingTop="10dp">
+    android:layout_height="match_parent">
 
-    <android.support.v4.app.FragmentTabHost
-        android:id="@android:id/tabhost"
+    <!--<android.support.v4.app.FragmentTabHost-->
+        <!--android:id="@android:id/tabhost"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+        <!--<LinearLayout-->
+            <!--android:orientation="vertical"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent">-->
+
+            <!--<TabWidget-->
+                <!--android:id="@android:id/tabs"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_weight="0"-->
+                <!--android:layout_height="wrap_content" />-->
+
+            <!--<FrameLayout-->
+                <!--android:id="@android:id/tabcontent"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="0dp"-->
+                <!--android:layout_weight="1"/>-->
+
+        <!--</LinearLayout>-->
+    <!--</android.support.v4.app.FragmentTabHost>-->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/test_result_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:paddingStart="@dimen/default_margin"
+        android:paddingEnd="@dimen/default_margin"
+        />
 
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_weight="0"
-                android:layout_height="wrap_content" />
-
-            <FrameLayout
-                android:id="@android:id/tabcontent"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-    </android.support.v4.app.FragmentTabHost>
 
     <Button
         android:layout_width="wrap_content"
@@ -38,7 +44,8 @@
         android:text="@string/send_results"
         android:id="@+id/uploadButton"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/default_margin"/>
 
     <TextView
         android:layout_width="fill_parent"
@@ -49,7 +56,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:layout_alignTop="@+id/uploadButton" />
+        android:layout_alignTop="@+id/uploadButton"
+        android:layout_marginBottom="@dimen/default_margin"/>
 
     <TextView
         android:layout_width="fill_parent"
@@ -60,6 +68,7 @@
         android:layout_toEndOf="@+id/uploadButton"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:layout_alignTop="@+id/uploadButton" />
+        android:layout_alignTop="@+id/uploadButton"
+        android:layout_marginBottom="@dimen/default_margin"/>
 
 </RelativeLayout>

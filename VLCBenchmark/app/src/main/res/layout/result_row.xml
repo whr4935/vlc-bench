@@ -14,11 +14,11 @@
         android:textAlignment="center"
         android:gravity="center" />
 
-    <!--black line 1-->
-    <View
-        android:layout_height="match_parent"
-        android:layout_width="2dp"
-        android:background="#000000"/>
+    <!--&lt;!&ndash;black line 1&ndash;&gt;-->
+    <!--<View-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="2dp"-->
+        <!--android:background="#000000"/>-->
     <TextView
         android:layout_weight="1"
         android:layout_width="0px"
@@ -28,11 +28,11 @@
         android:textAlignment="center"
         android:gravity="center" />
 
-    <!--black line 2-->
-    <View
-        android:layout_height="match_parent"
-        android:layout_width="2dp"
-        android:background="#000000"/>
+    <!--&lt;!&ndash;black line 2&ndash;&gt;-->
+    <!--<View-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="2dp"-->
+        <!--android:background="#000000"/>-->
     <TextView
         android:layout_weight="1"
         android:layout_width="0px"
