@@ -51,13 +51,58 @@ public class JsonHandler {
         else { Log.e("VLCBench", "Folder exists"); }
     }
 
-    public static void save(ArrayList<TestInfo> testInfoList) throws JSONException {
+    public static String toDatePrettyPrint(String name) {
+        char[] array;
+        int count = 0;
+        int i = 0;
+        array = name.toCharArray();
+        while (i < array.length && count < 3) {
+            if (array[i] == '_') {
+                array[i] = ' ';
+                ++count;
+            }
+            ++i;
+        }
+        while (i < array.length && count < 5) {
+            if (array[i] == '_') {
+                array[i] = ':';
+                ++count;
+            }
+            ++i;
+        }
+        return new String(array);
+    }
+
+    public static String fromDatePrettyPrint(String name) {
+        char[] array;
+        int count = 0;
+        int i = 0;
+        array = name.toCharArray();
+        while (i < array.length && count < 3) {
+            if (array[i] == ' ') {
+                array[i] = '_';
+                ++count;
+            }
+            ++i;
+        }
+        while (i < array.length && count < 5) {
+            if (array[i] == ':') {
+                array[i] = '_';
+                ++count;
+            }
+            ++i;
+        }
+        return new String(array);
+    }
+
+    public static String save(ArrayList<TestInfo> testInfoList) throws JSONException {
         Log.e("VLCBench", "folder = " + getFolder());
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList);
         FileOutputStream fileOutputStream;
         secureJsonLocation();
-        File jsonFile = new File(getFolder() + getName() + ".txt");
+        String name = getName();
+        File jsonFile = new File(getFolder() + name + ".txt");
         try {
             fileOutputStream = new FileOutputStream(jsonFile);
             fileOutputStream.write(testInformation.toString(4).getBytes());
@@ -65,10 +110,10 @@ public class JsonHandler {
             Log.e("VLC Benchmark", "Failed to save json test results");
             //TODO handle fail to write to file
         }
+        return name;
     }
 
     public static ArrayList<TestInfo> load(String fileName) {
-        Log.e("VLCBench", "filename = " + getFolder() + fileName);
         File jsonFile = new File(getFolder() + fileName);
         ArrayList<TestInfo> testInfoList = new ArrayList<TestInfo>();
         try {
@@ -80,10 +125,8 @@ public class JsonHandler {
                 text.append('\n');
             }
             br.close();
-            Log.e("VLCBench", "FileInputStream => " + text.toString());
             JSONArray jsonArray = new JSONArray(text.toString());
             for (int i = 0 ; i < jsonArray.length() ; ++i) {
-                Log.e("VLCBench", "JsonArray loop => " + i);
                 testInfoList.add(i, new TestInfo(jsonArray.getJSONObject(i)));
             }
         } catch (FileNotFoundException e) {

@@ -53,37 +53,35 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
-    protected ArrayList<TestInfo>[] results;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result_page);
 
-        //results = (ArrayList<TestInfo>[]) getIntent().getSerializableExtra("resultsTest");
-        String soft = getIntent().getStringExtra("soft");
-        String hard = getIntent().getStringExtra("hard");
-
         setupUi();
-
-        TextView softView = (TextView) findViewById(R.id.softAvg);
-        String softText = "Software score : " + soft;
-        softView.setText(softText);
-
-        TextView hardView = (TextView) findViewById(R.id.hardAvg);
-        String hardText = "Hardware score : " + hard;
-        hardView.setText(hardText);
-
     }
 
     private void setupUi() {
+        if (!getIntent().hasExtra("name")) {
+            Log.e("VLCBench", "Failed to get name extra in intent");
+            return;
+        }
         String name = getIntent().getStringExtra("name");
+        getSupportActionBar().setTitle(JsonHandler.toDatePrettyPrint(name));
 
         ArrayList<TestInfo> results = JsonHandler.load(name + ".txt");
-
-        if (getIntent().hasExtra("name")) {
-            getSupportActionBar().setTitle(name);
+        if (results == null) {
+            return;
         }
+
+        TextView softView = (TextView) findViewById(R.id.softAvg);
+        String softText = "Software score : " + TestInfo.getSoftScore(results) + " / " + (TestInfo.SCORE_TOTAL * results.size());
+        softView.setText(softText);
+
+        TextView hardView = (TextView) findViewById(R.id.hardAvg);
+        String hardText = "Hardware score : " + TestInfo.getHardScore(results) + " / " + (TestInfo.SCORE_TOTAL * results.size());
+        hardView.setText(hardText);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.test_result_list);
         mRecyclerView.setHasFixedSize(true);
@@ -99,7 +97,8 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
                 new RecyclerItemClickListener(this, mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        ArrayList<TestInfo> results = JsonHandler.load(getSupportActionBar().getTitle().toString() + ".txt");
+                        String filename = JsonHandler.fromDatePrettyPrint(getSupportActionBar().getTitle().toString()) + ".txt";
+                        ArrayList<TestInfo> results = JsonHandler.load(filename);
                         TestInfo test = results.get(position);
                         Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
                         intent.putExtra("result", test);
@@ -136,18 +135,15 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView title;
-            public TextView hardware;
-            public TextView software;
+            public TextView mResult;
 
             public ViewHolder(View view) {
                 super(view);
 
                 title = (TextView) view.findViewById(R.id.test_name);
                 title.setTextSize(16);
-                hardware = (TextView) view.findViewById(R.id.test_hardware);
-                hardware.setTextSize(11);
-                software = (TextView) view.findViewById(R.id.test_software);
-                software.setTextSize(11);
+                mResult = (TextView) view.findViewById(R.id.test_result);
+                mResult.setTextSize(12);
             }
         }
 
@@ -170,8 +166,8 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             Log.e("VLCBench", "onBindViewHolder");
             holder.title.setText(mData.get(position).getName());
-            holder.hardware.setText(String.valueOf("Hardware: " + mData.get(position).getHardware()));
-            holder.software.setText(String.valueOf("Software: " + mData.get(position).getSoftware()));
+            holder.mResult.setText("Result: " +
+                    ((mData.get(position).getHardware() + mData.get(position).getSoftware() + " / " + (TestInfo.SCORE_TOTAL * 2))));
         }
 
         @Override

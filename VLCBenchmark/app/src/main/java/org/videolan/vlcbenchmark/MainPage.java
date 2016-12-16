@@ -72,9 +72,6 @@ public class MainPage extends VLCWorkerModel
 
     public void setDownloaded(boolean hasDownloaded) {
         this.hasDownloaded = hasDownloaded;
-        if (currentTestFragment != null && this.hasDownloaded) {
-            currentTestFragment.dismiss();
-        }
         if (hasDownloaded) {
             Fragment fragment = new MainPageFragment();
             getSupportFragmentManager().beginTransaction()
@@ -265,6 +262,7 @@ public class MainPage extends VLCWorkerModel
     @Override
     protected void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore) {
         ArrayList<TestInfo>[] testResults;
+        String name;
         currentTestFragment.dismiss();
         try {
             testResults = new ArrayList[]{new ArrayList<TestInfo>()};
@@ -277,16 +275,21 @@ public class MainPage extends VLCWorkerModel
                 Log.e("VLCBenchmark", "Missing test information");
                 return;
             }
-            JsonHandler.save((testResults[0]));
+            name = JsonHandler.save((testResults[0]));
             Intent intent = new Intent(MainPage.this, ResultPage.class);
-            intent.putExtra("resultsTest", testResults);
-            intent.putExtra("soft", softScore);
-            intent.putExtra("hard", hardScore);
+            intent.putExtra("name", name);
             startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
         } catch (JSONException e) {
             Log.e("VLCBenchmark", "Failed to save test : " + e.toString());
         } catch (ClassCastException e) {
             Log.e("VLCBenchmark", "ArrayList declaration failed :" + e.toString());
+        }
+    }
+
+    @Override
+    public void doneDownload() {
+        if (currentTestFragment != null) {
+            currentTestFragment.dismiss();
         }
     }
 

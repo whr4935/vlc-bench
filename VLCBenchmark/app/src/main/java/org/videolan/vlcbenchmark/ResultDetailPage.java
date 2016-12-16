@@ -85,18 +85,13 @@ public class ResultDetailPage extends AppCompatActivity {
     private void setCrashText(TextView textView, int decoding) {
         StringBuilder text = new StringBuilder();
         if (result.hasCrashed(decoding)) {
-            Log.e("VLCBench", "test " + decoding + " has crashed");
-            result.display();
             text.append("Crash:\n  - ");
             text.append(result.getCrashes(decoding, 0));
             if (result.getCrashes(decoding, 0) != "") {
                 text.append("\n  - ");
             }
             text.append(result.getCrashes(decoding, 1));
-            Log.e("VLCBench", "text = " + text.toString());
             textView.setText(text.toString());
-        } else {
-            Log.e("VLCBench", "has not crashed");
         }
     }
 

@@ -29,6 +29,8 @@ import org.json.JSONObject;
 import org.videolan.vlcbenchmark.ResultCodes;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * Created by penava_b on 19/07/16.
@@ -47,6 +49,8 @@ public class TestInfo implements Serializable {
     private static final String UNKNOWN_STR = "Unkown problem";
     private static final String QUALITY_SFX = "Quality: ";
     private static final String PLAYBACK_SFX = "Playback: ";
+
+    public static final double SCORE_TOTAL = 50d;
 
     private String name;
     private double[] software = {20d, 30d}; //playback, performance
@@ -98,8 +102,37 @@ public class TestInfo implements Serializable {
             }
         } catch (JSONException e){
             Log.e("VLCBench", e.toString());
-            //TODO
+            //TODO handle json exception
         }
+    }
+
+    public static double getHardScore(ArrayList<TestInfo> testInfo) {
+        double hardware = 0;
+        for (TestInfo info : testInfo) {
+            hardware += info.getHardware();
+            Log.e("VLCBench", "name = " + info.getName());
+        }
+//        hardware /= testInfo.size();
+        return hardware;
+    }
+
+    public static double getSoftScore(ArrayList<TestInfo> testInfo) {
+        double software = 0;
+        for (TestInfo info : testInfo) {
+            Log.e("VLCBench", "name = " + info.getName());
+            software += info.getSoftware();
+        }
+//        software /= testInfo.size();
+        return software;
+    }
+
+    public static double getGlobalScore(ArrayList<TestInfo> list) {
+
+        return getHardScore(list) + getSoftScore(list);
+    }
+
+    public static String getGlobal(ArrayList<TestInfo> list) {
+        return getGlobalScore(list) + " %";
     }
 
     public void display() {

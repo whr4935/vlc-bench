@@ -72,6 +72,7 @@ public class BenchService extends IntentService {
     public static final int PERCENT_STATUS_BITRATE = 3;
     public static final int STEP_FINISHED = 4;
     public static final int FILE_CHECK = 5;
+    public static final int DONE_DOWNLOAD = 6;
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
@@ -405,6 +406,7 @@ public class BenchService extends IntentService {
         }
         for (File toRemove : unusedFiles)
             toRemove.delete();
+        sendMessage(DONE_DOWNLOAD, null); //TODO fix this ugly part
         sendMessage(DONE_STATUS, filesInfo);
     }
 

@@ -142,6 +142,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     private String vlcPackageName;
 
+    public abstract void doneDownload();
+
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
      */

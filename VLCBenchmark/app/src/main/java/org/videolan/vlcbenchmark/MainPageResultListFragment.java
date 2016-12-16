@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import junit.framework.Test;
+
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
@@ -49,19 +51,9 @@ public class MainPageResultListFragment extends Fragment {
                     public void onItemClick(View view, int position) {
                         Log.e("VLCBench", "Called onItemClick");
                         TextView text = (TextView) view.findViewById(R.id.test_name);
-                        String fileName = text.getText() + ".txt";
-                        TextView software = (TextView) view.findViewById(R.id.test_software);
-                        TextView hardware = (TextView) view.findViewById(R.id.test_hardware);
-                        ArrayList<TestInfo>[] testInfoList = new ArrayList[]{new ArrayList<TestInfo>()};
-                        testInfoList[0] = JsonHandler.load(fileName);
-                        if (testInfoList[0] != null) {
-                            Intent intent = new Intent(getActivity(), ResultPage.class);
-                            //intent.putExtra("resultsTest", testInfoList);
-                            intent.putExtra("soft", software.getText());
-                            intent.putExtra("hard", hardware.getText());
-                            intent.putExtra("name", text.getText());
-                            startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
-                        }
+                        Intent intent = new Intent(getActivity(), ResultPage.class);
+                        intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
+                        startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
                     }
 
                     @Override
@@ -73,25 +65,7 @@ public class MainPageResultListFragment extends Fragment {
         return view;
     }
 
-    private double getHardScore(ArrayList<TestInfo> testInfo) {
-        double hardware = 0;
-        for (TestInfo info : testInfo) {
-            hardware += info.getHardware();
-            Log.e("VLCBench", "name = " + info.getName());
-        }
-        hardware /= testInfo.size();
-        return hardware;
-    }
 
-    private double getSoftScore(ArrayList<TestInfo> testInfo) {
-        double software = 0;
-        for (TestInfo info : testInfo) {
-            Log.e("VLCBench", "name = " + info.getName());
-            software += info.getSoftware();
-        }
-        software /= testInfo.size();
-        return software;
-    }
 
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
 
@@ -99,16 +73,14 @@ public class MainPageResultListFragment extends Fragment {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView mTitle;
-            public TextView mSoftware;
-            public TextView mHardware;
+            public TextView mResult;
 
             public ViewHolder(View view) {
                 super(view);
                 mTitle = (TextView) view.findViewById(R.id.test_name);
-                mSoftware = (TextView) view.findViewById(R.id.test_software);
-                mSoftware.setTextSize(13);
-                mHardware = (TextView) view.findViewById(R.id.test_hardware);
-                mHardware.setTextSize(13);
+                mTitle.setTextSize(16);
+                mResult = (TextView) view.findViewById(R.id.test_result);
+                mResult.setTextSize(12);
             }
 
         }
@@ -126,9 +98,9 @@ public class MainPageResultListFragment extends Fragment {
         @Override
         public void onBindViewHolder(TestListAdapter.ViewHolder holder, int position) {
             ArrayList<TestInfo> test = JsonHandler.load(mData.get(position) + ".txt");
-            holder.mTitle.setText(mData.get(position));
-            holder.mSoftware.setText("Software: " + String.valueOf(getSoftScore(test)));
-            holder.mHardware.setText("Hardware: " + String.valueOf(getHardScore(test)));
+            holder.mTitle.setText(JsonHandler.toDatePrettyPrint(mData.get(position)));
+            TestInfo.getGlobalScore(test);
+            holder.mResult.setText("Result: " + TestInfo.getGlobalScore(test) + " / " + test.size() * 2 * TestInfo.SCORE_TOTAL);
         }
 
         @Override

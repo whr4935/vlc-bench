@@ -123,6 +123,11 @@ public class BenchServiceDispatcher extends Handler {
             case BenchService.FILE_CHECK:
                 for (BenchServiceListener listener : listeners)
                     listener.setDownloaded((boolean)msg.obj);
+                break;
+            case BenchService.DONE_DOWNLOAD:
+                for (BenchServiceListener listener : listeners) {
+                    listener.doneDownload();
+                }
             default:
                 break;
         }
