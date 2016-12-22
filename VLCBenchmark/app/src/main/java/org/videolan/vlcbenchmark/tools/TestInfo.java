@@ -131,10 +131,6 @@ public class TestInfo implements Serializable {
         return getHardScore(list) + getSoftScore(list);
     }
 
-    public static String getGlobal(ArrayList<TestInfo> list) {
-        return getGlobalScore(list) + " %";
-    }
-
     public void display() {
         Log.e("VLCBench - testinfo", "name = " + name);
         Log.e("VLCBench - testinfo", "software = " + (software[0] + software[1]));

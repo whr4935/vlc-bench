@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ public class CurrentTestFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Log.e("VLCBench", "CurrentTestFragment onCreateView");
         View view = inflater.inflate(R.layout.fragment_current_test, container, false);
         Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -47,12 +49,14 @@ public class CurrentTestFragment extends DialogFragment {
 
     @Override
     public void onStart() {
+        Log.e("VLCBench", "CurrentTestFragment onStart()");
         mListener.setDialogFragment(this);
         super.onStart();
     }
 
     @Override
     public void onDetach() {
+        Log.e("VLCBench", "CurrentTestFragment onDetach()");
         mListener.setDialogFragment(null);
         super.onDetach();
     }

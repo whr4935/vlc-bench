@@ -219,26 +219,32 @@ public class MainPage extends VLCWorkerModel
 
     @Override
     protected void initVlcProgress(int totalNumberOfElements) {
-        progressBar.setProgress(0);
-        progressBar.setMax(totalNumberOfElements);
-        progressBar.setMax(totalNumberOfElements);
+        if (currentTestFragment != null) {
+            progressBar.setProgress(0);
+            progressBar.setMax(totalNumberOfElements);
+            progressBar.setMax(totalNumberOfElements);
 //        textLog.append("\n");
+        }
     }
 
     @Override
     protected void onFileTestStarted(String fileName) {
-        textLog.setText(fileName);
+        if (currentTestFragment != null) {
+            textLog.setText(fileName);
+        }
     }
 
     @Override
     protected void onSingleTestFinished(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
-        progressBar.incrementProgressBy(1);
-        if (numberOfLoops != 1)
-            percentText.setText(String.format(PROGRESS_TEXT_FORMAT_LOOPS, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber,
-                    loopNumber, numberOfLoops));
-        else
-            percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber));
-        //textLog.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
+        if (currentTestFragment != null) {
+            progressBar.incrementProgressBy(1);
+            if (numberOfLoops != 1)
+                percentText.setText(String.format(PROGRESS_TEXT_FORMAT_LOOPS, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber,
+                        loopNumber, numberOfLoops));
+            else
+                percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber));
+            //textLog.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
+        }
     }
 
     @Override
@@ -263,7 +269,9 @@ public class MainPage extends VLCWorkerModel
     protected void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore) {
         ArrayList<TestInfo>[] testResults;
         String name;
-        currentTestFragment.dismiss();
+        if(currentTestFragment != null) {
+            currentTestFragment.dismiss();
+        }
         try {
             testResults = new ArrayList[]{new ArrayList<TestInfo>()};
             Log.e("VLCBench", "Starting transfert loop");
