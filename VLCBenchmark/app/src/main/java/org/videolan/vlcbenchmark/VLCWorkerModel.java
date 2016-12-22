@@ -21,7 +21,6 @@
 package org.videolan.vlcbenchmark;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -43,7 +42,6 @@ import android.util.Log;
 import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
-import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;

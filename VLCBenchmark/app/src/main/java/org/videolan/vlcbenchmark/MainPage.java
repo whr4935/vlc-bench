@@ -180,9 +180,6 @@ public class MainPage extends VLCWorkerModel
 
     @Override
     public void stepFinished(String message) {
-//        textLog.append(message + '\n');
-        //currentTestFragment.setText(message);
-        //textLog.setText(message);
     }
 
     @Override
@@ -223,7 +220,6 @@ public class MainPage extends VLCWorkerModel
             progressBar.setProgress(0);
             progressBar.setMax(totalNumberOfElements);
             progressBar.setMax(totalNumberOfElements);
-//        textLog.append("\n");
         }
     }
 
@@ -243,26 +239,11 @@ public class MainPage extends VLCWorkerModel
                         loopNumber, numberOfLoops));
             else
                 percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber));
-            //textLog.append(String.format("        %s tests %s\n", testName, (succeeded ? "finished" : "failed")));
         }
     }
 
     @Override
     protected void onVlcCrashed(String errorMessage, final Runnable continueTesting) {
-//        new AlertDialog.Builder(this) {{
-//            setTitle("VLC crashed on test");
-//            setCancelable(false);
-//        }}
-//                .setMessage(errorMessage)
-//                .setNeutralButton(android.R.string.ok,
-//                        new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-//                                dialogInterface.dismiss();
-//                                continueTesting.run();
-//                            }
-//                        })
-//                .show();
     }
 
     @Override
@@ -274,7 +255,6 @@ public class MainPage extends VLCWorkerModel
         }
         try {
             testResults = new ArrayList[]{new ArrayList<TestInfo>()};
-            Log.e("VLCBench", "Starting transfert loop");
             if (results != null && results[0] != null) {
                 for (int j = 0 ; j < results[0].size() ; ++j) {
                     testResults[0].add(j, results[0].get(j));
@@ -311,18 +291,11 @@ public class MainPage extends VLCWorkerModel
 
     @Override
     protected void onSaveUiData(Bundle saveInstanceState) {
-//        saveInstanceState.putInt("PROGRESS_VALUE", progressBar.getProgress());
-//        saveInstanceState.putInt("PROGRESS_MAX", progressBar.getMax());
     }
 
     @Override
     protected void onRestoreUiData(Bundle saveInstanceState) {
         super.onRestoreInstanceState(saveInstanceState);
-//        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-//        progressBar.setProgress(saveInstanceState.getInt("PROGRESS_VALUE", 0));
-//        progressBar.setMax(saveInstanceState.getInt("PROGRESS_MAX", 100));
-//        percentText = (TextView) findViewById(R.id.percentText);
-//        textLog = (TextView) findViewById(R.id.extractEditText);
     }
 
     @Override
