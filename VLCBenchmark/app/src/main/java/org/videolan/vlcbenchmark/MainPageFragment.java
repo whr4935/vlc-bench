@@ -42,7 +42,7 @@ public class MainPageFragment extends Fragment {
                 CurrentTestFragment fragment = new CurrentTestFragment();
                 fragment.setCancelable(false);
                 fragment.show(getFragmentManager(), "Current test");
-                mListener.launchTests(1);
+                mListener.launchTests(3);
             }
         });
         return view;
