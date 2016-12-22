@@ -36,16 +36,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".SettingsPage"
-            android:configChanges="orientation|screenSize" />
 
         <service
             android:name=".service.BenchService"
             android:exported="false"
             android:launchMode="singleTask" />
 
-        <activity android:name=".ResultListActivity" />
         <activity android:name=".ResultDetailPage"
             android:theme="@style/SubPageTheme">
         </activity>
