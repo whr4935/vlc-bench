@@ -318,14 +318,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             Log.e("VLCBench", "Failed to start VLC");
             //TODO or not, should be taken care of beforehand
         }
-
-        try {
-            Intent intent = new Intent(this, BenchService.class);
-            intent.putExtra("action", 1);
-            dispatcher.startService(this, intent);
-        } catch (RuntimeException e) {
-            new AlertDialog.Builder(this).setTitle("Please wait").setMessage("VLC will start shortly").setNeutralButton(android.R.string.ok, null).show();
-        }
     }
 
     /**
