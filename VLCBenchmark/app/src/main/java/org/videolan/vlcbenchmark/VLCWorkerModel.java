@@ -495,8 +495,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * Otherwise we launch VLC's BenchActivity with the counters' new values.
      */
     private void launchNextTest() {
-        Log.e("VLCBench", "loopNumber = " + loopNumber);
-        Log.e("VLCBench", "numberOfTests = " + numberOfTests);
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             resultsTest[loopNumber].add(lastTestInfo);
             lastTestInfo = null;
