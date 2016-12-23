@@ -31,6 +31,7 @@ import org.videolan.vlcbenchmark.ResultCodes;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by penava_b on 19/07/16.
@@ -64,6 +65,18 @@ public class TestInfo implements Serializable {
     public TestInfo(String name, int loopNumber) {
         this.name = name;
         this.loopNumber = loopNumber;
+    }
+
+    public TestInfo(String name, double[] software, double[] hardware, int[] framesDropped,
+                    double[] percentOfBadScreenshots, int[] numberOfWarnings, String[][] crashed) {
+        this.name = name;
+        this.software = software;
+        this.hardware = hardware;
+        this.loopNumber = 0;
+        this.framesDropped = framesDropped;
+        this.percentOfBadScreenshots = percentOfBadScreenshots;
+        this.numberOfWarnings = numberOfWarnings;
+        this.crashed = crashed;
     }
 
     public TestInfo(JSONObject jsonObject) {
@@ -151,9 +164,13 @@ public class TestInfo implements Serializable {
         return software[QUALITY] + software[PLAYBACK];
     }
 
+    public double getSoftwareSpecific(int quality) { return software[quality]; }
+
     public double getHardware() {
         return hardware[QUALITY] + hardware[PLAYBACK];
     }
+
+    public double getHardwareSpecific(int quality) { return hardware[quality]; }
 
     public int getFrameDropped(int testType) {
         return framesDropped[testType == SOFT ? SOFT : HARD];
@@ -232,6 +249,50 @@ public class TestInfo implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public static ArrayList<TestInfo> mergeTests(List<TestInfo>[] results) {
+        ArrayList<TestInfo> test = new ArrayList<>();
+        for (int i = 0 ; i < results[0].size() ; ++i) {
+            double[] software = {0d, 0d};
+            double[] hardware = {0d, 0d};
+            int[] framesDropped = {0, 0};
+            double[] percentOfBadScreenshots = {0d, 0d};
+            int[] numberOfWarnings = {0, 0};
+            String[][] crashed = {{"", ""}, {"", ""}};
+
+            for (int inc = 0 ; inc < results.length ; ++inc) {
+                software[TestInfo.QUALITY] += results[inc].get(i).getSoftwareSpecific(TestInfo.QUALITY);
+                software[TestInfo.PLAYBACK] += results[inc].get(i).getSoftwareSpecific(TestInfo.PLAYBACK);
+                hardware[TestInfo.QUALITY] += results[inc].get(i).getHardwareSpecific(TestInfo.QUALITY);
+                hardware[TestInfo.PLAYBACK] += results[inc].get(i).getHardwareSpecific(TestInfo.PLAYBACK);
+                framesDropped[TestInfo.QUALITY] += results[inc].get(i).getFrameDropped(TestInfo.QUALITY);
+                framesDropped[TestInfo.PLAYBACK] += results[inc].get(i).getFrameDropped(TestInfo.PLAYBACK);
+                percentOfBadScreenshots[TestInfo.QUALITY] += results[inc].get(i).getBadScreenshots(TestInfo.QUALITY);
+                percentOfBadScreenshots[TestInfo.PLAYBACK] += results[inc].get(i).getBadScreenshots(TestInfo.PLAYBACK);
+                numberOfWarnings[TestInfo.QUALITY] += results[inc].get(i).getNumberOfWarnings(TestInfo.QUALITY);
+                numberOfWarnings[TestInfo.PLAYBACK] += results[inc].get(i).getNumberOfWarnings(TestInfo.PLAYBACK);
+                crashed[TestInfo.SOFT][TestInfo.QUALITY] += results[inc].get(i).getCrashes(TestInfo.SOFT, TestInfo.QUALITY) + "\n";
+                crashed[TestInfo.SOFT][TestInfo.PLAYBACK] += results[inc].get(i).getCrashes(TestInfo.SOFT, TestInfo.PLAYBACK) + "\n";
+                crashed[TestInfo.HARD][TestInfo.QUALITY] += results[inc].get(i).getCrashes(TestInfo.HARD, TestInfo.QUALITY) + "\n";
+                crashed[TestInfo.HARD][TestInfo.PLAYBACK] += results[inc].get(i).getCrashes(TestInfo.HARD, TestInfo.PLAYBACK) + "\n";
+            }
+
+            software[TestInfo.QUALITY] /= results.length;
+            software[TestInfo.PLAYBACK] /= results.length;
+            hardware[TestInfo.QUALITY] /= results.length;
+            hardware[TestInfo.PLAYBACK] /= results.length;
+            framesDropped[TestInfo.QUALITY] /= results.length;
+            framesDropped[TestInfo.PLAYBACK] /= results.length;
+            percentOfBadScreenshots[TestInfo.QUALITY] /= results.length;
+            percentOfBadScreenshots[TestInfo.PLAYBACK] /= results.length;
+            numberOfWarnings[TestInfo.QUALITY] /= results.length;
+            numberOfWarnings[TestInfo.PLAYBACK] /= results.length;
+
+            test.add(new TestInfo(results[0].get(i).getName(), software, hardware,
+                    framesDropped, percentOfBadScreenshots, numberOfWarnings, crashed));
+        }
+        return test;
     }
 
     public void transferInJSon(JSONObject holder) throws JSONException {

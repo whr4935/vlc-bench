@@ -80,7 +80,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private int fileIndex = 0;
     private int loopNumber = 0;
     private TestInfo lastTestInfo = null;
-    private int numberOfTests;
+    protected int numberOfTests;
 
     /**
      * Enum tool used internally only to iterate simply
@@ -192,10 +192,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     /**
      * Is called when all tests are finished
      * @param results a array list of {@link TestInfo} where each element of the array represents a loop and each element of the List the results of for a file.
-     * @param softScore the average software score
-     * @param hardScore the average hardware score
      */
-    protected abstract void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore);
+    protected abstract void onTestsFinished(List<TestInfo>[] results);
 
     /**
      * Is called in {@link VLCWorkerModel#onSaveInstanceState(Bundle)}
@@ -492,11 +490,13 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * on what loop are we.
      * <p>
      * If we reached the end of the tests we then calculate the average score for hardware and software
-     * call the abstract method {@link VLCWorkerModel#onTestsFinished(List[], double, double)} and return
+     * call the abstract method {@link VLCWorkerModel#onTestsFinished(List[])} and return
      * <p>
      * Otherwise we launch VLC's BenchActivity with the counters' new values.
      */
     private void launchNextTest() {
+        Log.e("VLCBench", "loopNumber = " + loopNumber);
+        Log.e("VLCBench", "numberOfTests = " + numberOfTests);
         if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
             resultsTest[loopNumber].add(lastTestInfo);
             lastTestInfo = null;
@@ -506,16 +506,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                 fileIndex = 0;
             }
             if (loopNumber >= numberOfTests) {
-                double softScore = 0, hardScore = 0;
-                for (int i = 0; i < numberOfTests; i++)
-                    for (TestInfo test : resultsTest[i]) {
-                        softScore += test.getSoftware();
-                        hardScore += test.getHardware();
-                    }
-                int totalNumberOfElement = testFiles.size() * numberOfTests;
-                softScore /= totalNumberOfElement;
-                hardScore /= totalNumberOfElement;
-                onTestsFinished(resultsTest, softScore, hardScore);
+                onTestsFinished(resultsTest);
                 return;
             }
         }

@@ -176,12 +176,11 @@ public class MainPage extends VLCWorkerModel
     protected void updateUiOnServiceDone() {
     }
 
-
-
     @Override
     public void stepFinished(String message) {
     }
 
+    //todo percent of bar relative to all test, not just specific loop;
     @Override
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
@@ -247,30 +246,19 @@ public class MainPage extends VLCWorkerModel
     }
 
     @Override
-    protected void onTestsFinished(List<TestInfo>[] results, double softScore, double hardScore) {
-        ArrayList<TestInfo>[] testResults;
+    protected void onTestsFinished(List<TestInfo>[] results) {
+        ArrayList<TestInfo> testResult = TestInfo.mergeTests(results);
         String name;
         if(currentTestFragment != null) {
             currentTestFragment.dismiss();
         }
         try {
-            testResults = new ArrayList[]{new ArrayList<TestInfo>()};
-            if (results != null && results[0] != null) {
-                for (int j = 0 ; j < results[0].size() ; ++j) {
-                    testResults[0].add(j, results[0].get(j));
-                }
-            } else {
-                Log.e("VLCBenchmark", "Missing test information");
-                return;
-            }
-            name = JsonHandler.save((testResults[0]));
+            name = JsonHandler.save((testResult));
             Intent intent = new Intent(MainPage.this, ResultPage.class);
             intent.putExtra("name", name);
             startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
         } catch (JSONException e) {
             Log.e("VLCBenchmark", "Failed to save test : " + e.toString());
-        } catch (ClassCastException e) {
-            Log.e("VLCBenchmark", "ArrayList declaration failed :" + e.toString());
         }
     }
 
