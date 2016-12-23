@@ -232,8 +232,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
         setupUiMembers(savedInstanceState);
 
-        Log.e("VLCBench", "hasWarned is " + hasWarned);
-
         if (!hasWarned) {
             new AlertDialog.Builder(this).setTitle("WARNING").setMessage(WARNING_MESSAGE).setNeutralButton(android.R.string.ok, null).show();
             SharedPreferences.Editor editor= sharedPref.edit();
@@ -305,10 +303,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         resetUiToDefault();
 
         MediaInfo currentFile = testFiles.get(0);
-        for (MediaInfo file : testFiles) {
-            Log.e("VLCBench", "File name = " + file.getName());
-            Log.e("VLCBench", "localUri = " + file.getLocalUrl());
-        }
         updateUiOnServiceDone();
         try {
             startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
@@ -326,7 +320,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     final public void doneReceived(List<MediaInfo> files) {
-        Log.e("VLCBench", "Done received");
         testFiles = files;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         setDownloaded(true);
@@ -342,7 +335,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                 .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
                 .setDataAndTypeAndNormalize(Uri.parse("file://" + Uri.parse(currentFile.getLocalUrl())), "video/*");
 //                .setDataAndTypeAndNormalize(Uri.parse("https://raw.githubusercontent.com/Skantes/FileDump/master/" + currentFile.getUrl()), "video/*");
-        Log.e("VLCBench", "Opening file: " + currentFile.getLocalUrl());
         if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);
         if (testIndex.isScreenshot())

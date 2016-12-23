@@ -92,9 +92,7 @@ public class TestInfo implements Serializable {
                 numberOfWarnings[i] = array.getInt(i);
             }
             array = jsonObject.getJSONArray("crashed");
-            Log.e("VLCBench", "json array -> " + array.toString());
             for (int i = 0 ; i < array.length() ; ++i) {
-                Log.e("VLCBench", "i = " + i);
                 JSONArray subArray = array.getJSONArray(i);
                 for (int j = 0 ; j < subArray.length() ; ++j) {
                     crashed[i][j] = subArray.getString(j);
@@ -110,19 +108,15 @@ public class TestInfo implements Serializable {
         double hardware = 0;
         for (TestInfo info : testInfo) {
             hardware += info.getHardware();
-            Log.e("VLCBench", "name = " + info.getName());
         }
-//        hardware /= testInfo.size();
         return hardware;
     }
 
     public static double getSoftScore(ArrayList<TestInfo> testInfo) {
         double software = 0;
         for (TestInfo info : testInfo) {
-            Log.e("VLCBench", "name = " + info.getName());
             software += info.getSoftware();
         }
-//        software /= testInfo.size();
         return software;
     }
 
@@ -193,7 +187,6 @@ public class TestInfo implements Serializable {
     public void vlcCrashed(boolean isSoftware, boolean isScreenshot, int resultCode) {
         switch (resultCode) {
             case ResultCodes.RESULT_OK:
-                Log.e("VLCBench", "Received RESULT_OK");
                 crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + OK_STR;
                 break;
             case ResultCodes.RESULT_FAILED:

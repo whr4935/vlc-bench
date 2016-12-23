@@ -92,12 +92,10 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
                         Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
                         intent.putExtra("result", test);
                         startActivity(intent);
-                        Log.e("VLCBench", "onItemClick called");
                     }
 
                     @Override
                     public void onLongItemClick(View view, int position) {
-                        Log.e("VLCBench", "onLongItemClick called");
                     }
                 })
         );
@@ -137,23 +135,17 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
         }
 
         public TestResultListAdapter(ArrayList<TestInfo> data) {
-            Log.e("VLCBench", "in TestResultListAdapter()");
-            for (TestInfo info : data) {
-                Log.e("VLCBench", "test name is " + info.getName());
-            }
             mData = data;
         }
 
         @Override
         public TestResultListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.test_list_rows, parent, false);
-            Log.e("VLCBench", "onCreateViewHolder");
             return new TestResultListAdapter.ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Log.e("VLCBench", "onBindViewHolder");
             holder.title.setText(mData.get(position).getName());
             holder.mResult.setText("Result: " +
                     ((mData.get(position).getHardware() + mData.get(position).getSoftware() + " / " + (TestInfo.SCORE_TOTAL * 2))));
@@ -161,7 +153,6 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
 
         @Override
         public int getItemCount() {
-            Log.e("VLCBench", "size = " + mData.size());
             return mData.size();
         }
     }

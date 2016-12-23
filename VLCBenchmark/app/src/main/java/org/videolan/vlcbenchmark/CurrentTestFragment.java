@@ -44,7 +44,6 @@ public class CurrentTestFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Log.e("VLCBench", "CurrentTestFragment onCreateView");
         View view = inflater.inflate(R.layout.fragment_current_test, container, false);
         Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -69,14 +68,12 @@ public class CurrentTestFragment extends DialogFragment {
 
     @Override
     public void onStart() {
-        Log.e("VLCBench", "CurrentTestFragment onStart()");
         mListener.setDialogFragment(this);
         super.onStart();
     }
 
     @Override
     public void onDetach() {
-        Log.e("VLCBench", "CurrentTestFragment onDetach()");
         mListener.setDialogFragment(null);
         super.onDetach();
     }

@@ -67,7 +67,6 @@ public class MainPageResultListFragment extends Fragment {
                 new RecyclerItemClickListener(this.getContext(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Log.e("VLCBench", "Called onItemClick");
                         TextView text = (TextView) view.findViewById(R.id.test_name);
                         Intent intent = new Intent(getActivity(), ResultPage.class);
                         intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
@@ -76,7 +75,6 @@ public class MainPageResultListFragment extends Fragment {
 
                     @Override
                     public void onLongItemClick(View view, int position) {
-                        Log.e("VLCBench", "Called onLongItemClick");
                     }
                 }
                 ));

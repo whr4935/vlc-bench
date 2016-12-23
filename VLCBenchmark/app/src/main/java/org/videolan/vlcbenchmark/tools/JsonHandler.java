@@ -27,7 +27,6 @@ public class JsonHandler {
 
     private static String getName() {
         String str_date = new Date().toLocaleString();
-        Log.e("VLCBench", "date = " + new Date().toLocaleString());
         str_date = str_date.replaceAll(",", "");
         str_date = str_date.replaceAll(" ", "_");
         str_date = str_date.replaceAll(":", "_");
@@ -152,9 +151,6 @@ public class JsonHandler {
             }
             Collections.sort(fileNames);
             Collections.reverse(fileNames);
-            for (String name : fileNames) {
-                Log.e("VLCBench", "name = " + name);
-            }
         }
         return fileNames;
     }
@@ -194,7 +190,6 @@ public class JsonHandler {
             JSONObject testInfo = new JSONObject();
             element.transferInJSon(testInfo);
             testInfoArray.put(testInfo);
-            Log.e("VLCBench", "testinfo = " + testInfo.toString());
         }
         return testInfoArray;
     }
