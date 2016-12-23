@@ -128,9 +128,7 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
                 super(view);
 
                 title = (TextView) view.findViewById(R.id.test_name);
-                title.setTextSize(16);
                 mResult = (TextView) view.findViewById(R.id.test_result);
-                mResult.setTextSize(12);
             }
         }
 

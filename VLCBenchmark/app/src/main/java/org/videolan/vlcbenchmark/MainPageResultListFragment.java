@@ -94,9 +94,7 @@ public class MainPageResultListFragment extends Fragment {
             public ViewHolder(View view) {
                 super(view);
                 mTitle = (TextView) view.findViewById(R.id.test_name);
-                mTitle.setTextSize(16);
                 mResult = (TextView) view.findViewById(R.id.test_result);
-                mResult.setTextSize(12);
             }
 
         }
