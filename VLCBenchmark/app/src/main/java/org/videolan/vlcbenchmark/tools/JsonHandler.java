@@ -37,17 +37,13 @@ public class JsonHandler {
         return Environment.getExternalStorageDirectory() + File.separator + "jsonFolder" + File.separator;
     }
 
-    private static void secureJsonLocation() {
+    private static boolean secureJsonLocation() {
         File folder = new File(getFolder());
-        boolean check;
+        boolean ret = true;
         if (!folder.exists()) {
-            Log.e("VLCBench", "Folder does not exist");
-            check = folder.mkdir();
-            if (check) {
-                Log.e("VLCBench", "Folder was created");
-            } else { Log.e("VLCBench", "Folder was not created"); }
+            ret = folder.mkdir();
         }
-        else { Log.e("VLCBench", "Folder exists"); }
+        return ret;
     }
 
     public static String toDatePrettyPrint(String name) {
@@ -95,11 +91,13 @@ public class JsonHandler {
     }
 
     public static String save(ArrayList<TestInfo> testInfoList) throws JSONException {
-        Log.e("VLCBench", "folder = " + getFolder());
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList);
         FileOutputStream fileOutputStream;
-        secureJsonLocation();
+        if (!secureJsonLocation()) {
+            Log.e("VLCBench", "Failed to created json folder");
+            return null;
+        }
         String name = getName();
         File jsonFile = new File(getFolder() + name + ".txt");
         try {
