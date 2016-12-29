@@ -146,7 +146,7 @@ public class MainPage extends VLCWorkerModel
                                 break;
                             case R.id.settings_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
-                                    MainPageSettingsFragment fragment = new MainPageSettingsFragment();
+                                    SettingsFragment fragment = new SettingsFragment();
                                     getSupportActionBar().setTitle("Settings");
                                     getSupportFragmentManager().beginTransaction()
                                             .replace(R.id.main_page_fragment_holder, fragment)

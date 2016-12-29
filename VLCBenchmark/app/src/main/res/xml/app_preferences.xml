@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/general_pref_category">
+
+        <Preference
+            android:title="@string/delete_saves_pref"
+            android:key="delete_key"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/misc_pref_category">
+
+        <Preference
+            android:title="@string/about_pref"
+            android:key="about_key"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -153,6 +153,18 @@ public class JsonHandler {
         return fileNames;
     }
 
+    public static boolean deleteFiles(){
+        File dir = new File(getFolder());
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if (!file.delete()) {
+                Log.e("VLCBench", "Failed to delete test results");
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Returns the JSON array to send to the server.
      *

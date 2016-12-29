@@ -25,4 +25,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- settings -->
+    <string name="general_pref_category">General</string>
+    <string name="misc_pref_category">Misc</string>
+    <string name="about_pref">About</string>
+    <string name="delete_saves_pref">Delete saved results</string>
+
 </resources>
