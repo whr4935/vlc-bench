@@ -31,5 +31,6 @@
     <string name="misc_pref_category">Misc</string>
     <string name="about_pref">About</string>
     <string name="delete_saves_pref">Delete saved results</string>
+    <string name="delete_samples_pref">Delete video samples</string>
 
 </resources>

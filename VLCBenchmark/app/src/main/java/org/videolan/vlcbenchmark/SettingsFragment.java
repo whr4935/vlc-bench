@@ -43,6 +43,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
                 dialog.show();
                 break;
+            case "delete_samples":
+                break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
                 break;

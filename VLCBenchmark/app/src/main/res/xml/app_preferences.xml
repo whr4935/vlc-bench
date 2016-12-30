@@ -6,6 +6,10 @@
             android:title="@string/delete_saves_pref"
             android:key="delete_key"/>
 
+        <Preference
+            android:title="@string/delete_samples_pref"
+            android:key="delete_samples"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/misc_pref_category">
