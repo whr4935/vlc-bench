@@ -20,7 +20,12 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -38,6 +43,41 @@ public class MainPageFragment extends Fragment {
 
     public MainPageFragment() {}
 
+    private void startTestDialog(int testNumber) {
+        CurrentTestFragment fragment = new CurrentTestFragment();
+        fragment.setCancelable(false);
+        fragment.show(getFragmentManager(), "Current test");
+        mListener.launchTests(testNumber);
+    }
+
+    private void checkForTestStart(final int testNumber) {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = getContext().registerReceiver(null, ifilter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        float batteryPct = level / (float)scale * 100f;
+
+        if (batteryPct <= 50f && !isCharging) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("WARNING")
+                    .setMessage("You only have " + batteryPct + " % of battery charge left, you should plug your phone")
+                    .setNeutralButton("Cancel", null)
+                    .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startTestDialog(testNumber);
+                        }
+                    })
+                    .show();
+        } else {
+            startTestDialog(testNumber);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,10 +88,7 @@ public class MainPageFragment extends Fragment {
         oneTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
-                fragment.setCancelable(false);
-                fragment.show(getFragmentManager(), "Current test"); // tmp
-                mListener.launchTests(1);
+                checkForTestStart(1);
             }
         });
 
@@ -59,10 +96,7 @@ public class MainPageFragment extends Fragment {
         threeTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CurrentTestFragment fragment = new CurrentTestFragment();
-                fragment.setCancelable(false);
-                fragment.show(getFragmentManager(), "Current test");
-                mListener.launchTests(3);
+                checkForTestStart(3);
             }
         });
         return view;
