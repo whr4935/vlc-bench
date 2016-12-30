@@ -11,6 +11,7 @@
     <string name="warnings">warnings</string>
     <string name="software">software</string>
     <string name="hardware">hardware</string>
+    <string name="no_results">No result found, please run a test.</string>
 
     <!-- bottom_navigation_bar -->
     <string name="home_nav">Home</string>

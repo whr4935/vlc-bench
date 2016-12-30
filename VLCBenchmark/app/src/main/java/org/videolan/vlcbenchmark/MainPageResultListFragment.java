@@ -50,6 +50,7 @@ public class MainPageResultListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        ArrayList<String> data;
 
         View view = inflater.inflate(R.layout.fragment_main_page_result_list_fragment, container, false);
 
@@ -61,7 +62,13 @@ public class MainPageResultListFragment extends Fragment {
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
 
-        mAdapter = new MainPageResultListFragment.TestListAdapter(JsonHandler.getFileNames());
+        data = JsonHandler.getFileNames();
+        mAdapter = new MainPageResultListFragment.TestListAdapter(data);
+
+        if (data.isEmpty()) {
+            view.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
+        }
+
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this.getContext(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
