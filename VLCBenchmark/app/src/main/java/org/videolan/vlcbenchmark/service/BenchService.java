@@ -31,13 +31,18 @@ import android.os.IBinder;
 import android.util.Log;
 import android.util.Pair;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.videolan.vlcbenchmark.ServiceActions;
+import org.videolan.vlcbenchmark.tools.JsonHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -136,13 +141,16 @@ public class BenchService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            int action = intent.getIntExtra("action", 2);
+            int action = intent.getIntExtra("action", ServiceActions.SERVICE_UNKNOWN);
             switch (action) {
                 case ServiceActions.SERVICE_CHECKFILES:
                     checkFiles();
                     break;
                 case ServiceActions.SERVICE_DOWNLOAD:
                     downloadFiles();
+                    break;
+                case ServiceActions.SERVICE_POST:
+                    UploadJson(intent.getStringExtra("json"));
                     break;
                 default:
                     Log.e("VLCBench", "Unknown service action requested");
@@ -261,6 +269,30 @@ public class BenchService extends IntentService {
         }
         Log.e("VLCBench", "network enabled = false;");
         return networkEnabled;
+    }
+
+
+    /**
+     *  Uploads json result file to server
+     * @param json json string from JsonObject.toString()
+     */
+    private void UploadJson(String json) {
+        String url = "http://192.168.1.190:8080/result"; //tmp url
+        HttpURLConnection connection;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestMethod("POST");
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(json);
+            writer.flush();
+            int httpResult = connection.getResponseCode();
+            // TODO use response to send message to UI
+        } catch (IOException e) {
+            Log.e("VLCBench", e.toString());
+        }
     }
 
     /**

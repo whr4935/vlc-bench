@@ -30,18 +30,23 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.ArrayList;
 
-public class ResultPage extends AppCompatActivity {//FragmentActivity {
+public class ResultPage extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
+    ArrayList<TestInfo> results;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +64,7 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
         String name = getIntent().getStringExtra("name");
         getSupportActionBar().setTitle(JsonHandler.toDatePrettyPrint(name));
 
-        ArrayList<TestInfo> results = JsonHandler.load(name + ".txt");
+        results = JsonHandler.load(name + ".txt");
         if (results == null) {
             return;
         }
@@ -105,6 +110,26 @@ public class ResultPage extends AppCompatActivity {//FragmentActivity {
         } catch (NullPointerException e) {
             Log.e("VLCBenchmark", e.toString());
         }
+
+        /* Sending JSON results to server */
+        Button button = (Button) findViewById(R.id.uploadButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONObject res;
+                try {
+                        res = JsonHandler.dumpResults(results);
+                    } catch (JSONException e){
+                        Log.e("VLCBench", e.toString());
+                        return;
+                    }
+                /* Starts the upload in BenchService */
+                Intent intent = new Intent(ResultPage.this, BenchService.class);
+                intent.putExtra("action", ServiceActions.SERVICE_POST);
+                intent.putExtra("json", res.toString());
+                startService(intent);
+            }
+        });
     }
 
     @Override
