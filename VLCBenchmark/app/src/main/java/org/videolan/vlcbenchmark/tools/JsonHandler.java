@@ -22,6 +22,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.videolan.vlcbenchmark.SystemPropertiesProxy;
 
 public class JsonHandler {
 
@@ -251,10 +252,9 @@ public class JsonHandler {
         properties.put("product", Build.PRODUCT);
         properties.put("serial", Build.SERIAL);
 
-        /* Min version API 21 */
-//        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
-//        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
-//        properties.put("supported_abi", Build.SUPPORTED_ABIS);
+        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
+        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
+        properties.put("supported_abi_list", Build.SUPPORTED_ABIS);
 
         properties.put("tags", Build.TAGS);
         properties.put("time", Build.TIME);
@@ -262,6 +262,18 @@ public class JsonHandler {
         properties.put("user", Build.USER);
 
         properties.put("os_arch", System.getProperty("os.arch"));
+        properties.put("kernel_name", System.getProperty("os.name"));
+        properties.put("kernel_version", System.getProperty("os.version"));
+
+        properties.put("version", Build.VERSION.RELEASE);
+        properties.put("sdk", Build.VERSION.SDK_INT);
+
+        properties.put("cpu_model", SystemPropertiesProxy.getCpuModel());
+        properties.put("cpu_cores", SystemPropertiesProxy.getCpuCoreNumber());
+        properties.put("cpu_min_freq", SystemPropertiesProxy.getCpuMinFreq());
+        properties.put("cpu_max_freq", SystemPropertiesProxy.getCpuMaxFreq());
+        properties.put("total_ram", SystemPropertiesProxy.getRamTotal());
+
         return properties;
     }
 }
