@@ -245,7 +245,6 @@ public class JsonHandler {
         properties.put("device", Build.DEVICE);
         properties.put("display", Build.DISPLAY);
         properties.put("fingerprint", Build.FINGERPRINT);
-        properties.put("host", Build.HOST);
         properties.put("id", Build.ID);
         properties.put("manufacturer", Build.MANUFACTURER);
         properties.put("model", Build.MODEL);
@@ -257,9 +256,7 @@ public class JsonHandler {
         properties.put("supported_abi_list", Build.SUPPORTED_ABIS);
 
         properties.put("tags", Build.TAGS);
-        properties.put("time", Build.TIME);
         properties.put("type", Build.TYPE);
-        properties.put("user", Build.USER);
 
         properties.put("os_arch", System.getProperty("os.arch"));
         properties.put("kernel_name", System.getProperty("os.name"));
