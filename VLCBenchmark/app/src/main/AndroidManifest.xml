@@ -8,6 +8,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/icon_benchmark"
@@ -27,18 +31,17 @@
             android:name=".ResultPage"
             android:configChanges="orientation|screenSize"
             android:theme="@style/SubPageTheme" />
-        <activity
-            android:name=".tools.AddFileToJson">
-        </activity>
+        <activity android:name=".tools.AddFileToJson"></activity>
 
         <service
             android:name=".service.BenchService"
             android:exported="false"
             android:launchMode="singleTask" />
 
-        <activity android:name=".ResultDetailPage"
-            android:theme="@style/SubPageTheme">
-        </activity>
+        <activity
+            android:name=".ResultDetailPage"
+            android:theme="@style/SubPageTheme"></activity>
+        <activity android:name=".BenchGLActivity"></activity>
     </application>
 
 </manifest>

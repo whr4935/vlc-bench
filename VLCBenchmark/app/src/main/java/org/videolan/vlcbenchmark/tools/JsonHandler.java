@@ -1,5 +1,6 @@
 package org.videolan.vlcbenchmark.tools;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
@@ -172,12 +173,12 @@ public class JsonHandler {
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    public static JSONObject dumpResults(ArrayList<TestInfo> testInfoList) throws JSONException {
+    public static JSONObject dumpResults(ArrayList<TestInfo> testInfoList, Intent gpuData) throws JSONException {
         JSONObject results = new JSONObject();
         JSONObject deviceInformation;
         JSONArray testInformation;
 
-        deviceInformation = getDeviceInformation();
+        deviceInformation = getDeviceInformation(gpuData);
         testInformation = getTestInformation(testInfoList);
 
         if (deviceInformation == null || testInformation == null)
@@ -237,7 +238,7 @@ public class JsonHandler {
      *
      * @return null in case of failure.
      */
-    private static JSONObject getDeviceInformation() throws JSONException {
+    private static JSONObject getDeviceInformation(Intent gpuData) throws JSONException {
         JSONObject properties = new JSONObject();
         properties.put("board", Build.BOARD);
         properties.put("bootloader", Build.BOOTLOADER);
@@ -251,9 +252,9 @@ public class JsonHandler {
         properties.put("product", Build.PRODUCT);
         properties.put("serial", Build.SERIAL);
 
-        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
-        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
-        properties.put("supported_abi_list", Build.SUPPORTED_ABIS);
+        properties.put("supported_32_bit_abi", new JSONArray(Build.SUPPORTED_32_BIT_ABIS));
+        properties.put("supported_64_bit_abi", new JSONArray(Build.SUPPORTED_64_BIT_ABIS));
+        properties.put("supported_abi_list", new JSONArray(Build.SUPPORTED_ABIS));
 
         properties.put("tags", Build.TAGS);
         properties.put("type", Build.TYPE);
@@ -270,6 +271,12 @@ public class JsonHandler {
         properties.put("cpu_min_freq", SystemPropertiesProxy.getCpuMinFreq());
         properties.put("cpu_max_freq", SystemPropertiesProxy.getCpuMaxFreq());
         properties.put("total_ram", SystemPropertiesProxy.getRamTotal());
+
+        properties.put("gpu_model", gpuData.getStringExtra("gl_renderer"));
+        properties.put("gpu_vendor", gpuData.getStringExtra("gl_vendor"));
+        properties.put("opengl_version", gpuData.getStringExtra("gl_version"));
+
+        Log.e("VLCBench", "json: " + properties.toString(4));
 
         return properties;
     }

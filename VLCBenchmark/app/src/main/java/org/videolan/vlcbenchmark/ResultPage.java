@@ -116,20 +116,29 @@ public class ResultPage extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JSONObject res;
-                try {
-                        res = JsonHandler.dumpResults(results);
-                    } catch (JSONException e){
-                        Log.e("VLCBench", e.toString());
-                        return;
-                    }
-                /* Starts the upload in BenchService */
-                Intent intent = new Intent(ResultPage.this, BenchService.class);
-                intent.putExtra("action", ServiceActions.SERVICE_POST);
-                intent.putExtra("json", res.toString());
-                startService(intent);
+                /* Starts the BenchGLActivity to get gpu information */
+                startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class), 48);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 48) {
+            JSONObject res;
+            try {
+                res = JsonHandler.dumpResults(results, data);
+            } catch (JSONException e) {
+                Log.e("VLCBench", e.toString());
+                return;
+            }
+            /* Starts the upload in BenchService */
+            Intent intent = new Intent(ResultPage.this, BenchService.class);
+            intent.putExtra("action", ServiceActions.SERVICE_POST);
+            intent.putExtra("json", res.toString());
+            startService(intent);
+        }
     }
 
     @Override
