@@ -1,7 +1,5 @@
 package org.videolan.vlcbenchmark;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -63,7 +61,6 @@ public class SystemPropertiesProxy {
             FileReader file = new FileReader(filename);
             BufferedReader reader = new BufferedReader(file);
             while ((line = reader.readLine()) != null) {
-                Log.e("VLCBench", line);
                 if (line.regionMatches(0, info, 0, info.length())) {
                     String[] splits = line.split(": ");
                     if (splits.length > 1) {
