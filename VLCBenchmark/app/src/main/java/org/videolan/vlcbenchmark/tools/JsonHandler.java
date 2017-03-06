@@ -254,7 +254,6 @@ public class JsonHandler {
 
         properties.put("supported_32_bit_abi", new JSONArray(Build.SUPPORTED_32_BIT_ABIS));
         properties.put("supported_64_bit_abi", new JSONArray(Build.SUPPORTED_64_BIT_ABIS));
-        properties.put("supported_abi_list", new JSONArray(Build.SUPPORTED_ABIS));
 
         properties.put("tags", Build.TAGS);
         properties.put("type", Build.TYPE);
@@ -264,7 +263,7 @@ public class JsonHandler {
         properties.put("kernel_version", System.getProperty("os.version"));
 
         properties.put("version", Build.VERSION.RELEASE);
-        properties.put("sdk", Build.VERSION.SDK_INT);
+        properties.put("sdk", String.valueOf(Build.VERSION.SDK_INT));
 
         properties.put("cpu_model", SystemPropertiesProxy.getCpuModel());
         properties.put("cpu_cores", SystemPropertiesProxy.getCpuCoreNumber());
