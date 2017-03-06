@@ -262,17 +262,18 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     @Override
     final public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    finish();
-                }
-            }).create();
-            dialog.setCancelable(false);
-            dialog.setTitle("Bad permission");
-            dialog.setMessage("Cannot proceed without asked permission.\n\nExiting...");
-            dialog.show();
+        // check for grantResult size. On some devices this callback is called before responding to the dialog
+        if (requestCode == 1 && grantResults.length >= 1 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                }).create();
+                dialog.setCancelable(false);
+                dialog.setTitle("Bad permission");
+                dialog.setMessage("Cannot proceed without asked permission.\n\nExiting...");
+                dialog.show();
         }
     }
 
