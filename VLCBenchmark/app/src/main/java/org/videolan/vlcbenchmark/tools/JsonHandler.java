@@ -177,15 +177,25 @@ public class JsonHandler {
         JSONObject results = new JSONObject();
         JSONObject deviceInformation;
         JSONArray testInformation;
+        double score_software = 0;
+        double score_hardware = 0;
 
         deviceInformation = getDeviceInformation(gpuData);
         testInformation = getTestInformation(testInfoList);
+
+        for (TestInfo test : testInfoList) {
+            score_software += test.getSoftware();
+            score_hardware += test.getHardware();
+        }
 
         if (deviceInformation == null || testInformation == null)
             return null;
 
         results.put("device_information", deviceInformation);
         results.put("test_information", testInformation);
+        results.put("score_software", score_software);
+        results.put("score_hardware", score_hardware);
+        results.put("score", score_software + score_hardware);
         return results;
     }
 
