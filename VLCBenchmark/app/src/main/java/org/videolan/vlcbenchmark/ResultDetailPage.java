@@ -28,6 +28,8 @@ import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
+import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
+
 public class ResultDetailPage extends AppCompatActivity {
 
     TestInfo result;
@@ -77,12 +79,12 @@ public class ResultDetailPage extends AppCompatActivity {
         mHardwareCrash = (TextView) findViewById(R.id.hardware_crash);
 
         mName.setText(result.getName());
-        mSoftwareScore.setText("Score: " + result.getSoftware());
-        mSoftwareBadScreenshot.setText("Percent of bad screenshots: " + result.getBadScreenshots(0));
+        mSoftwareScore.setText("Score: " + format2Dec(result.getSoftware()));
+        mSoftwareBadScreenshot.setText("Percent of bad screenshots: " + format2Dec(result.getBadScreenshots(0)) + " %");
         mSoftwareFramesDropped.setText("Frames dropped: " + result.getFrameDropped(0));
         mSoftwareWarningNumber.setText("Number of warnings: " + result.getNumberOfWarnings(0));
-        mHardwareScore.setText("Score: " + result.getHardware());
-        mHardwareBadScreenshot.setText("Percent of bad screenshots: " + result.getBadScreenshots(1));
+        mHardwareScore.setText("Score: " + format2Dec(result.getHardware()));
+        mHardwareBadScreenshot.setText("Percent of bad screenshots: " + format2Dec(result.getBadScreenshots(1)) + " %");
         mHardwareFramesDropped.setText("Frames dropped: " + result.getFrameDropped(1));
         mHardwareWarningNumber.setText("Number of warnings: " + result.getNumberOfWarnings(1));
 

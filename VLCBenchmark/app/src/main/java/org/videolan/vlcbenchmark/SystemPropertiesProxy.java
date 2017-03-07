@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
+
+import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 /**
  *  SystemPropertiesProxy gets
@@ -14,8 +15,6 @@ public class SystemPropertiesProxy {
     /* String[] to store the unit indicator (ex: Gigabyte -> G)
     * in use for getReadableValue(...)*/
     private static String[] ext = {"K", "M", "G"};
-    /* format to remove all decimals after the second */
-    private static DecimalFormat df2 = new DecimalFormat(".##");
 
     /**
      * This class cannot be instantiated
@@ -88,7 +87,7 @@ public class SystemPropertiesProxy {
             number = number / 1000.0;
             count += 1;
         }
-        return df2.format(number) + " " + ext[count];
+        return format2Dec(number) + " " + ext[count];
     }
 
     /**

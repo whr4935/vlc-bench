@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +34,8 @@ import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.ArrayList;
+
+import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -121,7 +122,7 @@ public class MainPageResultListFragment extends Fragment {
             ArrayList<TestInfo> test = JsonHandler.load(mData.get(position) + ".txt");
             holder.mTitle.setText(JsonHandler.toDatePrettyPrint(mData.get(position)));
             TestInfo.getGlobalScore(test);
-            holder.mResult.setText("Result: " + TestInfo.getGlobalScore(test) + " / " + test.size() * 2 * TestInfo.SCORE_TOTAL);
+            holder.mResult.setText("Result: " + format2Dec(TestInfo.getGlobalScore(test)) + " / " + format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
         }
 
         @Override

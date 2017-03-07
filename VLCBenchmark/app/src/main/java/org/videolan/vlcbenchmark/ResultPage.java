@@ -39,7 +39,10 @@ import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 public class ResultPage extends AppCompatActivity {
 
@@ -70,11 +73,13 @@ public class ResultPage extends AppCompatActivity {
         }
 
         TextView softView = (TextView) findViewById(R.id.softAvg);
-        String softText = "Software score : " + TestInfo.getSoftScore(results) + " / " + (TestInfo.SCORE_TOTAL * results.size());
+        String softText = "Software score : " + format2Dec(TestInfo.getSoftScore(results)) +
+                " / " + format2Dec(TestInfo.SCORE_TOTAL * results.size());
         softView.setText(softText);
 
         TextView hardView = (TextView) findViewById(R.id.hardAvg);
-        String hardText = "Hardware score : " + TestInfo.getHardScore(results) + " / " + (TestInfo.SCORE_TOTAL * results.size());
+        String hardText = "Hardware score : " + format2Dec(TestInfo.getHardScore(results)) +
+                " / " + format2Dec(TestInfo.SCORE_TOTAL * results.size());
         hardView.setText(hardText);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.test_result_list);
@@ -180,7 +185,7 @@ public class ResultPage extends AppCompatActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.title.setText(mData.get(position).getName());
             holder.mResult.setText("Result: " +
-                    ((mData.get(position).getHardware() + mData.get(position).getSoftware() + " / " + (TestInfo.SCORE_TOTAL * 2))));
+                    (format2Dec(mData.get(position).getHardware() + mData.get(position).getSoftware()) + " / " + format2Dec(TestInfo.SCORE_TOTAL * 2)));
         }
 
         @Override
