@@ -35,6 +35,7 @@ public class BenchGLActivity extends AppCompatActivity {
                     retIntent.putExtra("gl_renderer", mSurfaceView.getGlRenderer());
                     retIntent.putExtra("gl_vendor", mSurfaceView.getGlVendor());
                     retIntent.putExtra("gl_version", mSurfaceView.getGlVersion());
+                    retIntent.putExtra("gl_extensions", mSurfaceView.getGlExtension());
                     setResult(RESULT_OK, retIntent);
                     finish();
                 }

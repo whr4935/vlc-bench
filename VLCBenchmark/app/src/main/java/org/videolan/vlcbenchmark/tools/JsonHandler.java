@@ -284,6 +284,7 @@ public class JsonHandler {
         properties.put("gpu_model", gpuData.getStringExtra("gl_renderer"));
         properties.put("gpu_vendor", gpuData.getStringExtra("gl_vendor"));
         properties.put("opengl_version", gpuData.getStringExtra("gl_version"));
+        properties.put("opengl_extensions", gpuData.getStringExtra("gl_extensions"));
 
         Log.e("VLCBench", "json: " + properties.toString(4));
 

@@ -17,6 +17,7 @@ public class BenchGLSurfaceView extends GLSurfaceView {
     private String glRenderer;
     private String glVendor;
     private String glVersion;
+    private String glExtension;
 
     public BenchGLSurfaceView(Context context) {
         super(context);
@@ -34,6 +35,7 @@ public class BenchGLSurfaceView extends GLSurfaceView {
             glRenderer = gl.glGetString(GL10.GL_RENDERER);
             glVendor = gl.glGetString(GL10.GL_VENDOR);
             glVersion = gl.glGetString(GL10.GL_VERSION);
+            glExtension = gl.glGetString(GL10.GL_EXTENSIONS);
         }
 
         @Override
@@ -56,4 +58,6 @@ public class BenchGLSurfaceView extends GLSurfaceView {
     public String getGlVendor() {
         return glVendor;
     }
+
+    public String getGlExtension() { return glExtension; }
 }
