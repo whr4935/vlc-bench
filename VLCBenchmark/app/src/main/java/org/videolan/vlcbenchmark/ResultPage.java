@@ -36,6 +36,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.videolan.vlcbenchmark.service.BenchService;
+import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
@@ -50,6 +51,10 @@ public class ResultPage extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
     ArrayList<TestInfo> results;
+
+    private final static String TAG = "VLCBench";
+
+    private GoogleConnectionHandler mGoogleConnectionHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,8 +126,7 @@ public class ResultPage extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /* Starts the BenchGLActivity to get gpu information */
-                startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class), 48);
+                mGoogleConnectionHandler.signIn();
             }
         });
     }
@@ -134,6 +138,11 @@ public class ResultPage extends AppCompatActivity {
             JSONObject res;
             try {
                 res = JsonHandler.dumpResults(results, data);
+                if (res == null) {
+                    Log.e("VLCBench", "onActivityResult: res is null");
+                    return;
+                }
+                res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
             } catch (JSONException e) {
                 Log.e("VLCBench", e.toString());
                 return;
@@ -143,7 +152,25 @@ public class ResultPage extends AppCompatActivity {
             intent.putExtra("action", ServiceActions.SERVICE_POST);
             intent.putExtra("json", res.toString());
             startService(intent);
+        } else if (requestCode == getResources().getInteger(R.integer.requestGoogleConnection)) {
+            /* Starts the BenchGLActivity to get gpu information */
+            startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class), 48);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume: called");
+        mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
+        mGoogleConnectionHandler.setGoogleApiClient(this, this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause: called");
+        mGoogleConnectionHandler.unsetGoogleApiClient();
     }
 
     @Override

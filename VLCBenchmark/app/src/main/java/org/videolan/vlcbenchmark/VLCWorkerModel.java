@@ -43,6 +43,7 @@ import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
+import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
@@ -249,6 +250,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+
+        GoogleConnectionHandler.getInstance();
     }
 
     /**
@@ -397,7 +400,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                     fillCurrentTestInfo(data, true, ResultCodes.RESULT_VLC_CRASH);
                 }
             });
-        }
+        } else if (requestCode == getResources().getInteger(R.integer.requestGoogleConnection)) {
+             GoogleConnectionHandler.getInstance().handleSignInResult(data);
+         }
     }
 
     /**

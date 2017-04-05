@@ -31,6 +31,12 @@
     <string name="misc_pref_category">Misc</string>
     <string name="about_pref">About</string>
     <string name="delete_saves_pref">Delete saved results</string>
+    <string name="delete_saves_key">delete_saves_key</string>
     <string name="delete_samples_pref">Delete video samples</string>
+    <string name="delete_samples_key">delete_samples_key</string>
+    <string name="connect_pref">Connect to Google account</string>
+    <string name="connect_key">connect_key</string>
+    <string name="disconnect_pref">Disconnect from Google account</string>
+    <string name="disconnect_key">disconnect_key</string>
 
 </resources>

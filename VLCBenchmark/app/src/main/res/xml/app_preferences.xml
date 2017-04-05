@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/general_pref_category">
+    <PreferenceCategory android:title="@string/general_pref_category"
+        android:key="category_general">
 
         <Preference
             android:title="@string/delete_saves_pref"
-            android:key="delete_key"/>
+            android:key="@string/delete_saves_key"/>
 
         <Preference
             android:title="@string/delete_samples_pref"
-            android:key="delete_samples"/>
+            android:key="@string/delete_samples_key"/>
+
+        <Preference
+            android:title="@string/connect_pref"
+            android:key="@string/connect_key"/>
+
+        <Preference
+            android:title="@string/disconnect_pref"
+            android:key="@string/disconnect_key"/>
 
     </PreferenceCategory>
 

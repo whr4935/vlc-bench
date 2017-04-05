@@ -4,21 +4,35 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 
 import java.util.ArrayList;
+
+import static android.content.ContentValues.TAG;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     final String FILE_DELETION = "File deletion";
     final String FILE_DELETION_MESSAGE_FAILURE = "Failed to delete all test results";
     final String FILE_DELETION_MESSAGE_SUCCESS = "Deleted all test results";
+
+    GoogleConnectionHandler mGoogleConnectionHandler;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
+        mGoogleConnectionHandler.setGoogleApiClient(getContext(), getActivity());
+        mGoogleConnectionHandler.checkConnection(this);
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -43,7 +57,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
                 dialog.show();
                 break;
-            case "delete_samples":
+            case "connect_key":
+                mGoogleConnectionHandler.signIn();
+                mGoogleConnectionHandler.checkConnection(this);
+                break;
+            case "disconnect_key":
+                mGoogleConnectionHandler.signOut();
+                mGoogleConnectionHandler.checkConnection(this);
+                break;
+            case "delete_samples_key":
                 break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
@@ -56,12 +78,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onPause() {
+        mGoogleConnectionHandler.unsetGoogleApiClient();
+        super.onPause();
     }
 }
