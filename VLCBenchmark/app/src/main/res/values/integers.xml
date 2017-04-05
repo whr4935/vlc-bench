@@ -2,4 +2,5 @@
 <resources>
     <integer name="requestResults">0</integer>
     <integer name="requestVLC">42</integer>
+    <integer name="requestGoogleConnection">33</integer>
 </resources>
