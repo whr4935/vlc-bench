@@ -7,18 +7,13 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-import java.lang.reflect.Array;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,27 +21,6 @@ import org.json.JSONObject;
 import org.videolan.vlcbenchmark.SystemPropertiesProxy;
 
 public class JsonHandler {
-
-    private static String getName() {
-        String str_date = new Date().toLocaleString();
-        str_date = str_date.replaceAll(",", "");
-        str_date = str_date.replaceAll(" ", "_");
-        str_date = str_date.replaceAll(":", "_");
-        return str_date;
-    }
-
-    private static String getFolder() {
-        return Environment.getExternalStorageDirectory() + File.separator + "jsonFolder" + File.separator;
-    }
-
-    private static boolean secureJsonLocation() {
-        File folder = new File(getFolder());
-        boolean ret = true;
-        if (!folder.exists()) {
-            ret = folder.mkdir();
-        }
-        return ret;
-    }
 
     public static String toDatePrettyPrint(String name) {
         char[] array;
@@ -96,12 +70,13 @@ public class JsonHandler {
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList);
         FileOutputStream fileOutputStream;
-        if (!secureJsonLocation()) {
+        String folderName = FileHandler.getFolderStr("jsonFolder");
+        if (!FileHandler.checkFolderLocation(folderName)) {
             Log.e("VLCBench", "Failed to created json folder");
             return null;
         }
-        String name = getName();
-        File jsonFile = new File(getFolder() + name + ".txt");
+        String fileName = FormatStr.getDateStr();
+        File jsonFile = new File(folderName + fileName + ".txt");
         try {
             fileOutputStream = new FileOutputStream(jsonFile);
             fileOutputStream.write(testInformation.toString(4).getBytes());
@@ -109,11 +84,11 @@ public class JsonHandler {
             Log.e("VLC Benchmark", "Failed to save json test results");
             //TODO handle fail to write to file
         }
-        return name;
+        return fileName;
     }
 
     public static ArrayList<TestInfo> load(String fileName) {
-        File jsonFile = new File(getFolder() + fileName);
+        File jsonFile = new File(FileHandler.getFolderStr("jsonFolder") + fileName);
         ArrayList<TestInfo> testInfoList = new ArrayList<TestInfo>();
         try {
             StringBuilder text = new StringBuilder();
@@ -142,7 +117,7 @@ public class JsonHandler {
     }
 
     public static ArrayList<String> getFileNames() {
-        File dir = new File(getFolder());
+        File dir = new File(FileHandler.getFolderStr("jsonFolder"));
         File[] files = dir.listFiles();
         ArrayList<String> fileNames = new ArrayList<String>();
         if (files != null) {
@@ -156,7 +131,7 @@ public class JsonHandler {
     }
 
     public static boolean deleteFiles(){
-        File dir = new File(getFolder());
+        File dir = new File(FileHandler.getFolderStr("jsonFolder"));
         File[] files = dir.listFiles();
         for (File file : files) {
             if (!file.delete()) {
@@ -196,6 +171,9 @@ public class JsonHandler {
         results.put("score_software", score_software);
         results.put("score_hardware", score_hardware);
         results.put("score", score_software + score_hardware);
+
+        Log.e("VLCBench", "data: " + results.toString());
+
         return results;
     }
 
@@ -214,33 +192,6 @@ public class JsonHandler {
             testInfoArray.put(testInfo);
         }
         return testInfoArray;
-    }
-
-    public static void displayDeviceInfo() {
-        Log.e("VLCBench", "board = " + Build.BOARD);
-        Log.e("VLCBench", "bootloader = " + Build.BOOTLOADER);
-        Log.e("VLCBench", "brand = " + Build.BRAND);
-        Log.e("VLCBench", "device = " + Build.DEVICE);
-        Log.e("VLCBench", "display = " + Build.DISPLAY);
-        Log.e("VLCBench", "fingerprint = " + Build.FINGERPRINT);
-        Log.e("VLCBench", "host = " + Build.HOST);
-        Log.e("VLCBench", "id = " + Build.ID);
-        Log.e("VLCBench", "manufacturer = " + Build.MANUFACTURER);
-        Log.e("VLCBench", "model = " + Build.MODEL);
-        Log.e("VLCBench", "product = " + Build.PRODUCT);
-        Log.e("VLCBench", "serial = " + Build.SERIAL);
-
-        /* Min version API 21 */
-//        properties.put("supported_32_bit_abi", Build.SUPPORTED_32_BIT_ABIS);
-//        properties.put("supported_64_bit_abi", Build.SUPPORTED_64_BIT_ABIS);
-//        properties.put("supported_abi", Build.SUPPORTED_ABIS);
-
-        Log.e("VLCBench", "tags = " + Build.TAGS);
-        Log.e("VLCBench", "time = " + Build.TIME);
-        Log.e("VLCBench", "type = " + Build.TYPE);
-        Log.e("VLCBench", "user = " + Build.USER);
-
-        Log.e("VLCBench", "os_arch = " + System.getProperty("os.arch"));
     }
 
     /**
@@ -285,8 +236,6 @@ public class JsonHandler {
         properties.put("gpu_vendor", gpuData.getStringExtra("gl_vendor"));
         properties.put("opengl_version", gpuData.getStringExtra("gl_version"));
         properties.put("opengl_extensions", gpuData.getStringExtra("gl_extensions"));
-
-        Log.e("VLCBench", "json: " + properties.toString(4));
 
         return properties;
     }
