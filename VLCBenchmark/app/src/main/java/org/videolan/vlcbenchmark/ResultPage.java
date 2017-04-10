@@ -142,7 +142,12 @@ public class ResultPage extends AppCompatActivity {
                     Log.e("VLCBench", "onActivityResult: res is null");
                     return;
                 }
-                res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
+                if (mGoogleConnectionHandler != null) {
+                    res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
+                } else {
+                    Log.d("VLCBench", "ResultPage: onActivityResult: mGoogleConnectionHandler is null");
+                    return; //TODO add dialog
+                }
             } catch (JSONException e) {
                 Log.e("VLCBench", e.toString());
                 return;
@@ -161,7 +166,6 @@ public class ResultPage extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume: called");
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
         mGoogleConnectionHandler.setGoogleApiClient(this, this);
     }
@@ -169,7 +173,6 @@ public class ResultPage extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.e(TAG, "onPause: called");
         mGoogleConnectionHandler.unsetGoogleApiClient();
     }
 
