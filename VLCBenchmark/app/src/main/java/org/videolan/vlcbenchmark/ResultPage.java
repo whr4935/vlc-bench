@@ -159,6 +159,7 @@ public class ResultPage extends AppCompatActivity {
             startService(intent);
         } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
+            mGoogleConnectionHandler.handleSignInResult(data);
             startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
                     RequestCodes.OPENGL);
         }
