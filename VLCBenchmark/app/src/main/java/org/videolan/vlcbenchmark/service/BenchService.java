@@ -78,6 +78,12 @@ public class BenchService extends IntentService {
     public static final int STEP_FINISHED = 4;
     public static final int FILE_CHECK = 5;
     public static final int DONE_DOWNLOAD = 6;
+    public static final int NO_INTERNET = 7;
+
+    public static final class FileCheckContext {
+        public static final int check = 1;
+        public static final int download = 2;
+    }
 
     //Percent tools
     private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
@@ -144,7 +150,7 @@ public class BenchService extends IntentService {
             int action = intent.getIntExtra("action", ServiceActions.SERVICE_UNKNOWN);
             switch (action) {
                 case ServiceActions.SERVICE_CHECKFILES:
-                    checkFiles();
+                    checkFiles(intent.getIntExtra("context", FileCheckContext.check));
                     break;
                 case ServiceActions.SERVICE_DOWNLOAD:
                     downloadFiles();
@@ -156,6 +162,8 @@ public class BenchService extends IntentService {
                     Log.e("VLCBench", "Unknown service action requested");
                     break;
             }
+            // TODO if IOexception is only related to no internet
+            // remove it and handle at local level
         } catch (IOException e) {
             sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
         } catch (GeneralSecurityException e) {
@@ -353,8 +361,15 @@ public class BenchService extends IntentService {
 
     //TODO add file deletion or take it out of download files
     //TODO create new download list as to loop only on files to download
-    //TODO what happens when no internet ?
-    private void checkFiles() {
+    private void checkFiles(int context) {
+        if (!hasWifiAndLan(this)) {
+            Log.e("VLCBench", "There is no wifi.");
+            sendMessage(FILE_CHECK, false);
+            if (context == FileCheckContext.download) {
+                sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED,
+                        new IOException("Cannot download the videos without WIFI, please connect to wifi and retry"));
+            }
+        }
         try {
             filesInfo = JSonParser.getMediaInfos();
             File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "media_folder");
@@ -380,17 +395,22 @@ public class BenchService extends IntentService {
                     filesToDownload.add(mediaFile);
                 }
             }
-        } catch (IOException e) {
-            Log.e("VLCBench", "Failed to get Json configuration file: " + e.toString());
-            //TODO alert dialog
-        } catch (GeneralSecurityException e) {
-            //TODO alert dialog
-            Log.e("VLCBench", "Failed to generate File checksum: " + e.toString());
+        } catch (IOException | GeneralSecurityException e) {
+            Log.e("VLCBench", "Failed to check files: " + e.toString());
+            sendMessage(BenchService.FILE_CHECK, false);
+            return;
         }
-        if (filesToDownload.size() > 0) {
-            sendMessage(FILE_CHECK, false);
-        } else {
+        sendMessage(FILE_CHECK, true);
+        if (filesToDownload.size() == 0) {
             sendMessage(DONE_STATUS, filesInfo);
+        } else if (context == FileCheckContext.download) {
+            try { //TODO handle exceptions on local level -> this is a duplicate from handleIntent
+                downloadFiles();
+            } catch (IOException e) {
+                sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED, e);
+            } catch (GeneralSecurityException e) {
+                sendMessage(FAILURE, FAILURE_STATES.CHECKSUM_FAILED, e);
+            }
         }
     }
 
@@ -438,7 +458,7 @@ public class BenchService extends IntentService {
         }
         for (File toRemove : unusedFiles)
             toRemove.delete();
-        sendMessage(DONE_DOWNLOAD, null); //TODO fix this ugly part
+        sendMessage(DONE_DOWNLOAD, true);
         sendMessage(DONE_STATUS, filesInfo);
     }
 

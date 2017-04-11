@@ -142,6 +142,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     private String vlcPackageName;
 
+    public abstract void setFilesChecked(boolean hasChecked);
+
     public abstract void doneDownload();
 
     /**
@@ -327,7 +329,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     final public void doneReceived(List<MediaInfo> files) {
         testFiles = files;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        setDownloaded(true);
+        setFilesDownloaded(true);
     }
 
     /**

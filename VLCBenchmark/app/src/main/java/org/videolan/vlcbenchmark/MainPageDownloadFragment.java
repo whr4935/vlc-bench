@@ -20,6 +20,7 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.videolan.vlcbenchmark.service.BenchService;
+import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 
 
 /**
@@ -36,6 +38,8 @@ import org.videolan.vlcbenchmark.service.BenchService;
  */
 
 public class MainPageDownloadFragment extends Fragment {
+
+    IMainPageDownloadFragment mListener;
 
     public MainPageDownloadFragment() {}
 
@@ -47,14 +51,36 @@ public class MainPageDownloadFragment extends Fragment {
         dlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), BenchService.class);
-                intent.putExtra("action", 1);
-                getActivity().startService(intent);
-                CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
-                fragment.setCancelable(false);
-                fragment.show(getFragmentManager(), "Download dialog");
+                if (mListener.getHasChecked()) {
+                    Intent intent = new Intent(getActivity(), BenchService.class);
+                    intent.putExtra("action", 1);
+                    getActivity().startService(intent);
+                    CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
+                    fragment.setCancelable(false);
+                    fragment.show(getFragmentManager(), "Download dialog");
+                } else {
+                    Intent intent = new Intent(getActivity(), BenchService.class);
+                    intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
+                    intent.putExtra("context",BenchService.FileCheckContext.download);
+                    getActivity().startService(intent);
+                }
             }
         });
         return view;
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof IMainPageDownloadFragment) {
+            mListener = (IMainPageDownloadFragment) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
+    }
+
+    public interface IMainPageDownloadFragment {
+        boolean getHasChecked();
+    }
+
 }

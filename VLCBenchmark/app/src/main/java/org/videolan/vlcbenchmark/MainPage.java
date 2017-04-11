@@ -47,8 +47,10 @@ import java.util.List;
 /**
  * Created by noeldu_b on 7/11/16.
  */
-public class MainPage extends VLCWorkerModel
-        implements CurrentTestFragment.TestView, MainPageFragment.IMainPageFragment {
+public class MainPage extends VLCWorkerModel implements
+        CurrentTestFragment.TestView,
+        MainPageFragment.IMainPageFragment,
+        MainPageDownloadFragment.IMainPageDownloadFragment {
 
     private TextView percentText = null;
     private TextView textLog = null;
@@ -61,6 +63,7 @@ public class MainPage extends VLCWorkerModel
     private static final String PROGRESS_TEXT_FORMAT_LOOPS = PROGRESS_TEXT_FORMAT + " | loop %d/%d";
 
     private boolean hasDownloaded = false;
+    private boolean hasChecked = false;
     private CurrentTestFragment currentTestFragment = null;
 
     @Override
@@ -70,8 +73,18 @@ public class MainPage extends VLCWorkerModel
         return true;
     }
 
-    public void setDownloaded(boolean hasDownloaded) {
+    public void setFilesChecked(boolean hasChecked) {
+        this.hasChecked = hasChecked;
+        if (!hasChecked) {
+            setFilesDownloaded(false);
+        }
+    }
+
+    public void setFilesDownloaded(boolean hasDownloaded) {
         this.hasDownloaded = hasDownloaded;
+        if (currentTestFragment != null) {
+            currentTestFragment.dismiss();
+        }
         if (hasDownloaded) {
             Fragment fragment = new MainPageFragment();
             getSupportFragmentManager().beginTransaction()
@@ -104,6 +117,10 @@ public class MainPage extends VLCWorkerModel
             textLog = null;
             percentText = null;
         }
+    }
+
+    public boolean getHasChecked() {
+        return hasChecked;
     }
 
     @Override
@@ -209,7 +226,9 @@ public class MainPage extends VLCWorkerModel
 
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
-        currentTestFragment.dismiss(); //todo find some way not to spawn the dialog if no wifi
+        if (currentTestFragment != null ) {
+            currentTestFragment.dismiss();
+        }//todo find some way not to spawn the dialog if no wifi
         new AlertDialog.Builder(this).setTitle("Error during download").setMessage(exception.getMessage()).setNeutralButton("ok", null).show();
     }
 
