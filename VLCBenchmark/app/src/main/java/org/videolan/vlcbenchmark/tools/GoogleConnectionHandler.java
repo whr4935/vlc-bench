@@ -103,11 +103,11 @@ public class GoogleConnectionHandler {
     private void getUser(GoogleSignInResult googleSignInResult) {
         if (!googleSignInResult.isSuccess()) {
             Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-            mFragmentActivity.startActivityForResult(signInIntent, RequestCodes.GOOGLE_CONNECTION);
+            mFragmentActivity.startActivityForResult(signInIntent, RequestCodes.OPENGL);
         } else {
             handleSignInResult(googleSignInResult);
             if (mFragmentActivity instanceof org.videolan.vlcbenchmark.ResultPage) {
-                mFragmentActivity.startActivityForResult(new Intent(mFragmentActivity, BenchGLActivity.class), 48);
+                mFragmentActivity.startActivityForResult(new Intent(mFragmentActivity, BenchGLActivity.class), RequestCodes.OPENGL);
             }
         }
     }
