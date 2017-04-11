@@ -70,7 +70,11 @@ public class MainPageFragment extends Fragment {
             fragment.show(getFragmentManager(), "Current test");
         } else {
             Log.e("VLCBench", "Failed to start the benchmark");
-            //TODO add dialog
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Oups ...")
+                    .setMessage("There was an unexpected problem when starting the benchmark")
+                    .setNeutralButton("Ok", null)
+                    .show();
         }
     }
 
