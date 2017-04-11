@@ -229,7 +229,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         boolean hasWarned = sharedPref.getBoolean(SHARED_PREFERENCE_WARNING, false);
 
         Intent intent = new Intent(this, BenchService.class);
-        intent.putExtra("action", 0);
+        intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
         dispatcher.startService(this, intent);
 
         setupUiMembers(savedInstanceState);
