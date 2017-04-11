@@ -29,6 +29,7 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,10 +45,18 @@ public class MainPageFragment extends Fragment {
     public MainPageFragment() {}
 
     private void startTestDialog(int testNumber) {
-        CurrentTestFragment fragment = new CurrentTestFragment();
-        fragment.setCancelable(false);
-        fragment.show(getFragmentManager(), "Current test");
-        mListener.launchTests(testNumber);
+        if (!mListener.checkSignature()) {
+            Log.e("VLCBench", "Could not find VLC Media Player");
+            return;
+        }
+        if (mListener.launchTests(testNumber)) {
+            CurrentTestFragment fragment = new CurrentTestFragment();
+            fragment.setCancelable(false);
+            fragment.show(getFragmentManager(), "Current test");
+        } else {
+            Log.e("VLCBench", "Failed to start the benchmark");
+            //TODO add dialog
+        }
     }
 
     private void checkForTestStart(final int testNumber) {
@@ -113,7 +122,8 @@ public class MainPageFragment extends Fragment {
     }
 
     public interface IMainPageFragment {
-        void launchTests(int number);
+        boolean launchTests(int number);
+        boolean checkSignature();
     }
 
 }

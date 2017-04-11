@@ -294,15 +294,17 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param numberOfTests number of repetition of all the tests. must be 1 or 3 other values are ignored.
      */
     @UiThread
-    final public void launchTests(int numberOfTests) {
-            if (numberOfTests == 1) {
+    final public boolean launchTests(int numberOfTests) {
+        if (numberOfTests == 1) {
             this.numberOfTests = 1;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
         } else if (numberOfTests == 3) {
             this.numberOfTests = 3;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
-        } else
-            return;
+        } else {
+            Log.e("VLCBench", "Wrong number of tests to start: " + numberOfTests);
+            return false;
+        }
 
         fileIndex = 0;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
@@ -316,7 +318,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         } catch (ActivityNotFoundException e) {
             Log.e("VLCBench", "Failed to start VLC");
             //TODO or not, should be taken care of beforehand
+            return false;
         }
+        return true;
     }
 
     /**
@@ -529,7 +533,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      *
      * @return true if VLC's signature matches our else false
      */
-    private boolean checkSignature() {
+    public boolean checkSignature() {
         String benchPackageName = this.getPackageName();
         Signature[] sigs_vlc = null;
         Signature[] sigs = null;
