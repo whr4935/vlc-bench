@@ -256,7 +256,7 @@ public class MainPage extends VLCWorkerModel
             name = JsonHandler.save((testResult));
             Intent intent = new Intent(MainPage.this, ResultPage.class);
             intent.putExtra("name", name);
-            startActivityForResult(intent, getResources().getInteger(R.integer.requestResults));
+            startActivityForResult(intent, RequestCodes.RESULTS);
         } catch (JSONException e) {
             Log.e("VLCBenchmark", "Failed to save test : " + e.toString());
         }
@@ -272,7 +272,7 @@ public class MainPage extends VLCWorkerModel
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == getResources().getInteger(R.integer.requestResults)) {
+        if (requestCode == RequestCodes.RESULTS) {
             resetUiToDefault();
         }
     }

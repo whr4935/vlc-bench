@@ -310,7 +310,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         MediaInfo currentFile = testFiles.get(0);
         updateUiOnServiceDone();
         try {
-            startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
+            startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
         } catch (ActivityNotFoundException e) {
             Log.e("VLCBench", "Failed to start VLC");
             //TODO or not, should be taken care of beforehand
@@ -363,7 +363,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-         if (requestCode == getResources().getInteger(R.integer.requestVLC)) {
+         if (requestCode == RequestCodes.VLC) {
             if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
                 initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
             }
@@ -403,7 +403,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                     fillCurrentTestInfo(data, true, ResultCodes.RESULT_VLC_CRASH);
                 }
             });
-        } else if (requestCode == getResources().getInteger(R.integer.requestGoogleConnection)) {
+        } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
              GoogleConnectionHandler.getInstance().handleSignInResult(data);
          }
     }
@@ -519,7 +519,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         }
         testIndex = testIndex.next();
         MediaInfo currentFile = testFiles.get(fileIndex);
-        startActivityForResult(createIntentForVlc(currentFile), getResources().getInteger(R.integer.requestVLC));
+        startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
     }
 
     /**

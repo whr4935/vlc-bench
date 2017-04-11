@@ -20,6 +20,7 @@ import com.google.android.gms.common.api.Status;
 
 import org.videolan.vlcbenchmark.BenchGLActivity;
 import org.videolan.vlcbenchmark.R;
+import org.videolan.vlcbenchmark.RequestCodes;
 
 
 /**
@@ -102,8 +103,7 @@ public class GoogleConnectionHandler {
     private void getUser(GoogleSignInResult googleSignInResult) {
         if (!googleSignInResult.isSuccess()) {
             Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-            mFragmentActivity.startActivityForResult(signInIntent,
-                    mContext.getResources().getInteger(R.integer.requestGoogleConnection));
+            mFragmentActivity.startActivityForResult(signInIntent, RequestCodes.GOOGLE_CONNECTION);
         } else {
             handleSignInResult(googleSignInResult);
             if (mFragmentActivity instanceof org.videolan.vlcbenchmark.ResultPage) {
