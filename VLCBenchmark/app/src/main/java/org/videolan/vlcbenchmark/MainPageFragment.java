@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -47,6 +48,20 @@ public class MainPageFragment extends Fragment {
     private void startTestDialog(int testNumber) {
         if (!mListener.checkSignature()) {
             Log.e("VLCBench", "Could not find VLC Media Player");
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Missing VLC")
+                    .setMessage("You need the VLC Media Player to start a benchmark\nPlease install it to continue")
+                    .setNeutralButton("Cancel", null)
+                    .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent viewIntent;
+                            viewIntent = new Intent("android.intent.action.VIEW",
+                                    Uri.parse("https://play.google.com/store/apps/details?id=org.videolan.vlc&hl=en"));
+                            startActivity(viewIntent);
+                        }
+                    })
+                    .show();
             return;
         }
         if (mListener.launchTests(testNumber)) {
