@@ -528,6 +528,18 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
     }
 
+    public boolean checkVlcVersion() {
+        if (!BuildConfig.DEBUG) {
+            try {
+                if (!this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName.equals("2.1.2"))
+                    return false;
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Tool method to check if VLC's signature and ours match.
      *
@@ -569,13 +581,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         /* Checking to see if the signatures correspond */
         if (benchSignature != vlcSignature)
             return false;
-
-        try {
-            if (this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName.equals("2.0.5"))
-                return false;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
 
         return true;
     }

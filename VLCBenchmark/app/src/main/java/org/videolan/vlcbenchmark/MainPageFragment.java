@@ -45,6 +45,13 @@ public class MainPageFragment extends Fragment {
 
     public MainPageFragment() {}
 
+    private void redirectToVlcStore() {
+        Intent viewIntent;
+        viewIntent = new Intent("android.intent.action.VIEW",
+                Uri.parse("https://play.google.com/store/apps/details?id=org.videolan.vlc&hl=en"));
+        startActivity(viewIntent);
+    }
+
     private void startTestDialog(int testNumber) {
         if (!mListener.checkSignature()) {
             Log.e("VLCBench", "Could not find VLC Media Player");
@@ -55,10 +62,22 @@ public class MainPageFragment extends Fragment {
                     .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent viewIntent;
-                            viewIntent = new Intent("android.intent.action.VIEW",
-                                    Uri.parse("https://play.google.com/store/apps/details?id=org.videolan.vlc&hl=en"));
-                            startActivity(viewIntent);
+                            redirectToVlcStore();
+                        }
+                    })
+                    .show();
+            return;
+        }
+        if (!mListener.checkVlcVersion()) {
+            Log.e("VLCBench", "Outdated version of VLC Media Player detected");
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Outdated VLC")
+                    .setMessage("You need the latest version of VLC Media Player to start a benchmark\nPlease update it to continue")
+                    .setNeutralButton("Cancel", null)
+                    .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            redirectToVlcStore();
                         }
                     })
                     .show();
@@ -143,6 +162,7 @@ public class MainPageFragment extends Fragment {
     public interface IMainPageFragment {
         boolean launchTests(int number);
         boolean checkSignature();
+        boolean checkVlcVersion();
     }
 
 }
