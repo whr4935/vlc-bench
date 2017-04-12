@@ -19,7 +19,8 @@
                 android:id="@+id/fab_test_x1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_menu_start_test"
+                android:src="@drawable/ic_fab_start_test"
+                android:tint="@color/white"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/default_margin"
                 />
@@ -28,7 +29,8 @@
                 android:id="@+id/fab_test_x3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_menu_start_testx3"
+                android:src="@drawable/ic_fab_start_test3x"
+                android:tint="@color/white"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/default_margin"/>
 
