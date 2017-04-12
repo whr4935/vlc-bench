@@ -38,7 +38,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         dialog.setNeutralButton(android.R.string.ok, null);
 
         switch (preference.getKey()) {
-            case "delete_key":
+            case "delete_saves_key":
                 ret = JsonHandler.deleteFiles();
                 dialog.setTitle(FILE_DELETION);
                 if (ret) {
