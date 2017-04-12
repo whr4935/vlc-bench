@@ -7,6 +7,9 @@
     <color name="black">#000001</color>
     <color name="white">#fafafa</color>
 
+    <color name="bottom_navigation_view_selected">@color/white</color>
+    <color name="bottom_navigation_view_default">@color/orange200</color>
+
 <!--
     Material color swatches
     The main color is always xxx500

@@ -22,9 +22,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        app:itemIconTint="@drawable/bottom_navigation_view_selector"
+        app:itemTextColor="@drawable/bottom_navigation_view_selector"
         app:itemBackground="@color/colorAccent"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
         app:menu="@menu/bottom_navigation_bar"
         />
 

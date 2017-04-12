@@ -172,11 +172,10 @@ public class MainPage extends VLCWorkerModel implements
                                 }
                                 break;
                         }
-                        return false;
+                        return true;
                     }
                 }
         );
-
     }
 
     @Override
