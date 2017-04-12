@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   id="svg4682"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="ic_menu_home_normal.svg"
+   inkscape:export-filename="/home/corbax/Dev/android/Icons/Test 1/ic_play_normal.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4684" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.4"
+     inkscape:cx="-2.7140794"
+     inkscape:cy="9.1843418"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:object-nodes="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-midpoints="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2983" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4687">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1028.3622)">
+    <path
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
+       d="m 11.864541,1034.3622 a 8.002133,8.002133 0 0 0 -5.7007393,2.5183 l 0.002,0.01 a 8.002133,8.002133 0 0 0 -1.5629167,2.4166 8.002133,8.002133 0 0 0 1.639107,8.6019 1.0002666,1.0002666 0 0 0 0.1015871,0.1192 1.0002666,1.0002666 0 0 0 1.414437,0 1.0002666,1.0002666 0 0 0 0,-1.4145 l 0.004,0 a 6.0015997,6.0015997 0 0 1 -1.3089489,-6.5427 6.0015997,6.0015997 0 0 1 7.8438908,-3.2489 1.0002666,1.0002666 0 0 0 1.306989,-0.5412 1.0002666,1.0002666 0 0 0 -0.541155,-1.307 l -0.008,0 a 1.0002666,1.0002666 0 0 0 -0.06452,-0.027 8.002133,8.002133 0 0 0 -3.125833,-0.5802 z m 5.138091,2.5847 c -0.123303,0.01 -0.250847,0.054 -0.367288,0.1289 l -5.612827,3.5849 c -0.142298,0.091 -0.280465,0.188 -0.400497,0.3067 -0.7812688,0.7812 -0.7812588,2.0476 0,2.8289 0.781258,0.7812 2.049596,0.7811 2.830835,0 0.119091,-0.1194 0.215967,-0.2583 0.306721,-0.4005 l 3.582986,-5.6128 c 0.14849,-0.2328 0.195322,-0.5119 0,-0.7072 -0.09763,-0.098 -0.216627,-0.1348 -0.33993,-0.1289 z m 1.445695,1.7406 a 1.0002666,1.0002666 0 0 0 -0.359466,0.076 1.0002666,1.0002666 0 0 0 -0.541164,1.3069 6.0015997,6.0015997 0 0 1 -1.306988,6.5349 l 0.008,0 a 1.0002666,1.0002666 0 0 0 0,1.4145 1.0002666,1.0002666 0 0 0 1.414447,0 1.0002666,1.0002666 0 0 0 0.117211,-0.1426 8.002133,8.002133 0 0 0 1.617621,-8.5765 1.0002666,1.0002666 0 0 0 -0.222709,-0.3302 l -0.002,0 a 1.0002666,1.0002666 0 0 0 -0.724803,-0.2872 z"
+       id="path8564"
+       inkscape:connector-curvature="0"
+       inkscape:transform-center-x="0.0014131289"
+       inkscape:transform-center-y="-1.0280893" />
+  </g>
+</svg>
