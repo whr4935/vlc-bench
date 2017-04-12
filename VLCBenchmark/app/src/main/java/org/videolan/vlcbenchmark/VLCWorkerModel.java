@@ -531,7 +531,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     public boolean checkVlcVersion() {
         if (!BuildConfig.DEBUG) {
             try {
-                if (!this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName.equals("2.1.2"))
+                if (!this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName.equals(BuildConfig.VLC_VERSION))
                     return false;
             } catch (PackageManager.NameNotFoundException e) {
                 return false;
