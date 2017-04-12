@@ -18,6 +18,7 @@ import java.util.Collections;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.videolan.vlcbenchmark.BuildConfig;
 import org.videolan.vlcbenchmark.SystemPropertiesProxy;
 
 public class JsonHandler {
@@ -171,6 +172,7 @@ public class JsonHandler {
         results.put("score_software", score_software);
         results.put("score_hardware", score_hardware);
         results.put("score", score_software + score_hardware);
+        results.put("vlc_version", BuildConfig.VLC_VERSION);
 
         Log.e("VLCBench", "data: " + results.toString());
 
