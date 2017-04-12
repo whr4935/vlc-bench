@@ -32,7 +32,7 @@ import org.videolan.vlcbenchmark.RequestCodes;
  */
 public class GoogleConnectionHandler {
 
-    final static private String TAG = "VLCBench";
+    final static private String TAG = GoogleConnectionHandler.class.getName();
 
     static private GoogleConnectionHandler instance;
 
@@ -40,7 +40,6 @@ public class GoogleConnectionHandler {
     private GoogleSignInOptions mGoogleSignInOptions;
     private GoogleApiClient.OnConnectionFailedListener mFailedListener;
     private GoogleApiClient mGoogleApiClient;
-    private Context mContext;
     private FragmentActivity mFragmentActivity;
     private GoogleSignInAccount mAccount;
 
@@ -51,7 +50,7 @@ public class GoogleConnectionHandler {
         mFailedListener = new GoogleApiClient.OnConnectionFailedListener() {
             @Override
             public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                Log.e("VLCBench", "Google authentification failed");
+                Log.e(TAG, "Google authentification failed");
             }
         };
     }
@@ -67,13 +66,12 @@ public class GoogleConnectionHandler {
     /**
      * Sets the calling context and instanciates the GoogleApiClient
      * To be called when resuming an activity
-     * @param context
-     * @param fragmentActivity
+     * @param context calling context
+     * @param fragmentActivity calling fragment
      */
     /* */
     public void setGoogleApiClient(Context context, FragmentActivity fragmentActivity) {
         if (mGoogleApiClient == null) {
-            mContext = context;
             mFragmentActivity = fragmentActivity;
             mGoogleApiClient = new GoogleApiClient.Builder(context)
                     .enableAutoManage(fragmentActivity, mFailedListener)
@@ -89,7 +87,6 @@ public class GoogleConnectionHandler {
     public void unsetGoogleApiClient() {
         if (mGoogleApiClient != null && mFragmentActivity != null) {
             mGoogleApiClient.stopAutoManage(mFragmentActivity);
-            mContext = null;
             mFragmentActivity = null;
             mGoogleApiClient = null;
         }
@@ -143,7 +140,7 @@ public class GoogleConnectionHandler {
                     new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
-                            Log.e("VLCBench", "Google signOut status: " + status.toString());
+                            Log.e(TAG, "Google signOut status: " + status.toString());
                         }
                     }
             );
@@ -204,9 +201,9 @@ public class GoogleConnectionHandler {
 
     /**
      * Handles the data from a connection
-     * @param result
+     * @param result date from google connection activity
      */
-    public void handleSignInResult(GoogleSignInResult result) {
+    private void handleSignInResult(GoogleSignInResult result) {
         mAccount = result.getSignInAccount();
     }
 
