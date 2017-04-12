@@ -15,10 +15,6 @@
             android:title="@string/connect_pref"
             android:key="@string/connect_key"/>
 
-        <Preference
-            android:title="@string/disconnect_pref"
-            android:key="@string/disconnect_key"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/misc_pref_category">

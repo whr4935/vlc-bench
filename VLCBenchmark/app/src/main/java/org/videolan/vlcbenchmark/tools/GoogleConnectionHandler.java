@@ -153,17 +153,22 @@ public class GoogleConnectionHandler {
     /**
      * Updates the connect and disconnect button from SettingsFragment
      * according to the connection success status
-     * @param pConnect Preference "connect_key"
-     * @param pDisconnect Preference "disconnect_key"
+     * @param fragment SettingsFragment
      * @param googleSignInResult Sign in results
      */
-    private void updateGoogleButton(Preference pConnect, Preference pDisconnect, GoogleSignInResult googleSignInResult) {
+    private void updateGoogleButton(PreferenceFragmentCompat fragment, GoogleSignInResult googleSignInResult) {
         if (!googleSignInResult.isSuccess()) {
-            pDisconnect.setVisible(false);
-            pConnect.setVisible(true);
+            if (fragment.findPreference("connect_key") == null) {
+                Preference preference = fragment.findPreference("disconnect_key");
+                preference.setTitle(fragment.getResources().getString(R.string.connect_pref));
+                preference.setKey("connect_key");
+            }
         } else {
-            pConnect.setVisible(false);
-            pDisconnect.setVisible(true);
+            if (fragment.findPreference("disconnect_key") == null) {
+                Preference preference = fragment.findPreference("connect_key");
+                preference.setTitle(fragment.getResources().getString(R.string.disconnect_pref));
+                preference.setKey("disconnect_key");
+            }
         }
     }
 
@@ -174,16 +179,14 @@ public class GoogleConnectionHandler {
      */
     public void checkConnection(final PreferenceFragmentCompat fragment) {
         if (mGoogleApiClient != null) {
-            final Preference pConnect = fragment.findPreference("connect_key");
-            final Preference pDisconnect = fragment.findPreference("disconnect_key");
             OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
             if (pendingResult.isDone()) {
-                updateGoogleButton(pConnect, pDisconnect, pendingResult.get());
+                updateGoogleButton(fragment, pendingResult.get());
             } else {
                 pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                     @Override
                     public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
-                        updateGoogleButton(pConnect, pDisconnect, googleSignInResult);
+                        updateGoogleButton(fragment, googleSignInResult);
                     }
                 });
             }
