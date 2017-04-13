@@ -6,14 +6,21 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.util.Log;
 
+import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
+
+import java.io.File;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     final String FILE_DELETION = "File deletion";
     final String FILE_DELETION_MESSAGE_FAILURE = "Failed to delete all test results";
     final String FILE_DELETION_MESSAGE_SUCCESS = "Deleted all test results";
+
+    final String SAMPLE_DELETION = "Sample deletion";
+    final String SAMPLE_DELETION_MESSAGE_FAILURE = "Failed to delete all samples";
+    final String SAMPLE_DELETION_MESSAGE_SUCCESS = "Deleted all samples";
 
     GoogleConnectionHandler mGoogleConnectionHandler;
 
@@ -57,6 +64,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 mGoogleConnectionHandler.checkConnection(this);
                 break;
             case "delete_samples_key":
+                dialog.setTitle(SAMPLE_DELETION);
+                dialog.setMessage(SAMPLE_DELETION_MESSAGE_SUCCESS);
+                File dir = new File(FileHandler.getFolderStr("media_folder"));
+                File[] files = dir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (!file.delete()) {
+                            Log.e("VLCBench", "Failed to delete sample " + file.getName());
+                            dialog.setMessage(SAMPLE_DELETION_MESSAGE_FAILURE);
+                            break;
+                        }
+                    }
+                }
+                dialog.show();
                 break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
