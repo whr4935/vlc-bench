@@ -16,7 +16,8 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
             android:layout_margin="@dimen/default_margin"
-            android:src="@drawable/ic_download_white"
+            android:src="@drawable/ic_fab_download_normal"
+            android:tint="@color/white"
             android:clickable="true"/>
 
         <ScrollView
