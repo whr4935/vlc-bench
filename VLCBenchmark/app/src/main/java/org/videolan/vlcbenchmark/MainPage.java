@@ -50,7 +50,8 @@ import java.util.List;
 public class MainPage extends VLCWorkerModel implements
         CurrentTestFragment.TestView,
         MainPageFragment.IMainPageFragment,
-        MainPageDownloadFragment.IMainPageDownloadFragment {
+        MainPageDownloadFragment.IMainPageDownloadFragment,
+        SettingsFragment.ISettingsFragment {
 
     private TextView percentText = null;
     private TextView textLog = null;
@@ -137,19 +138,7 @@ public class MainPage extends VLCWorkerModel implements
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.home_nav:
-                                if (findViewById(R.id.main_page_fragment_holder) != null) {
-                                    Fragment fragment;
-                                    if (hasDownloaded) {
-                                        fragment = new MainPageFragment();
-                                    } else {
-                                        fragment = new MainPageDownloadFragment();
-                                    }
-                                    getSupportActionBar().setTitle("VLC Benchmark");
-                                    getSupportFragmentManager().beginTransaction()
-                                            .replace(R.id.main_page_fragment_holder, fragment)
-                                            .addToBackStack(null)
-                                            .commit();
-                                }
+                                setUpHomeFragment();
                                 break;
                             case R.id.results_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
@@ -176,6 +165,23 @@ public class MainPage extends VLCWorkerModel implements
                     }
                 }
         );
+        setUpHomeFragment();
+    }
+
+    private void setUpHomeFragment() {
+        if (findViewById(R.id.main_page_fragment_holder) != null) {
+            Fragment fragment;
+            if (hasDownloaded) {
+                fragment = new MainPageFragment();
+            } else {
+                fragment = new MainPageDownloadFragment();
+            }
+            getSupportActionBar().setTitle("VLC Benchmark");
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_page_fragment_holder, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     @Override
@@ -206,6 +212,15 @@ public class MainPage extends VLCWorkerModel implements
             else
                 percentText.setText(String.format("%.2f %% (%s)", percent, bitRateToString(bitRate)));
         }
+    }
+
+    public void displayDialog(DialogInstance dialog) {
+        dialog.display(this);
+    }
+
+    public void resetDownload() {
+        hasDownloaded = false;
+        hasChecked = false;
     }
 
     private String bitRateToString(long bitRate) {

@@ -1,5 +1,6 @@
 package org.videolan.vlcbenchmark;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
@@ -23,6 +24,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     final String SAMPLE_DELETION_MESSAGE_SUCCESS = "Deleted all samples";
 
     GoogleConnectionHandler mGoogleConnectionHandler;
+
+    ISettingsFragment mListener;
 
     @Override
     public void onResume() {
@@ -78,6 +81,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     }
                 }
                 dialog.show();
+                mListener.resetDownload();
                 break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
@@ -94,4 +98,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         mGoogleConnectionHandler.unsetGoogleApiClient();
         super.onPause();
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof ISettingsFragment) {
+            mListener = (ISettingsFragment) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
+    }
+
+    public interface ISettingsFragment {
+        void resetDownload();
+    }
+
 }
