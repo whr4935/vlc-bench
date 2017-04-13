@@ -102,7 +102,6 @@ public class BenchServiceDispatcher extends Handler {
                     listener.failure(FAILURE_STATES.values()[msg.arg1], (Exception) msg.obj);
                 break;
             case BenchService.DONE_STATUS:
-                stopService();
                 for (BenchServiceListener listener : listeners)
                     listener.doneReceived((List<MediaInfo>) msg.obj);
                 break;

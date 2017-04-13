@@ -234,15 +234,13 @@ public class BenchService extends IntentService {
         synchronized (this) {
             if (dispatcher == null)
                 try {
+                    Log.e("BenchService", "dispatcher is null: Waiting");
                     wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
         }
         dispatcher.sendMessage(dispatcher.obtainMessage(what, failure.ordinal(), 0, obj));
-        if (what == DONE_STATUS)// || what == FAILURE)
-            dispatcher = null; //todo check if not better to leave dispatcher for all bench life cycle
-        //it is probably better to keep dispatcher, in case of second launch
     }
 
     /**
@@ -265,17 +263,14 @@ public class BenchService extends IntentService {
      */
     private static boolean hasWifiAndLan(Context context) {
         boolean networkEnabled = false;
-        Log.e("VLCBench", "called hasWifiAndLan");
         ConnectivityManager connectivity = (ConnectivityManager) (context.getSystemService(Context.CONNECTIVITY_SERVICE));
         if (connectivity != null) {
             NetworkInfo networkInfo = connectivity.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected() &&
                     (networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
-                Log.e("VLCBench", "network enabled = true");
                 networkEnabled = true;
             }
         }
-        Log.e("VLCBench", "network enabled = false;");
         return networkEnabled;
     }
 
