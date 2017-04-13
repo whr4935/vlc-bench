@@ -33,7 +33,9 @@ import android.util.Pair;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.videolan.vlcbenchmark.R;
 import org.videolan.vlcbenchmark.ServiceActions;
+import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 
 import java.io.File;
@@ -79,6 +81,7 @@ public class BenchService extends IntentService {
     public static final int FILE_CHECK = 5;
     public static final int DONE_DOWNLOAD = 6;
     public static final int NO_INTERNET = 7;
+    public static final int FAILURE_DIALOG = 8;
 
     public static final class FileCheckContext {
         public static final int check = 1;
@@ -295,6 +298,7 @@ public class BenchService extends IntentService {
             // TODO use response to send message to UI
         } catch (IOException e) {
             Log.e("VLCBench", e.toString());
+            sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
         }
     }
 

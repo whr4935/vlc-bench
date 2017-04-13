@@ -37,6 +37,7 @@ import android.support.v7.widget.Toolbar;
 import org.json.JSONException;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
+import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 

@@ -20,6 +20,8 @@
 
 package org.videolan.vlcbenchmark.service;
 
+import org.videolan.vlcbenchmark.tools.DialogInstance;
+
 import java.util.List;
 
 /**
@@ -34,4 +36,5 @@ public interface BenchServiceListener {
     void setFilesDownloaded(boolean hasDownloaded);
     void doneDownload();
     void setFilesChecked(boolean hasChecked);
+    void displayDialog(DialogInstance dialog);
 }

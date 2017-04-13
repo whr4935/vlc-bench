@@ -39,4 +39,10 @@
     <string name="disconnect_pref">Disconnect from Google account</string>
     <string name="disconnect_key">disconnect_key</string>
 
+    <!-- dialog titles -->
+    <string name="dialog_title_error">Error</string>
+
+    <!-- dialog texts -->
+    <string name="dialog_text_no_internet">"Cannot download the videos without WIFI, please connect to wifi and retry. YOLO"</string>
+
 </resources>

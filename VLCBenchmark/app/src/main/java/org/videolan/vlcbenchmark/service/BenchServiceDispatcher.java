@@ -31,6 +31,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Pair;
 
+import org.videolan.vlcbenchmark.tools.DialogInstance;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +128,12 @@ public class BenchServiceDispatcher extends Handler {
                 for (BenchServiceListener listener : listeners) {
                     listener.setFilesDownloaded((boolean)msg.obj);
                 }
+                break;
+            case BenchService.FAILURE_DIALOG:
+                for (BenchServiceListener listener : listeners) {
+                    listener.displayDialog((DialogInstance)msg.obj);
+                }
+                break;
             default:
                 break;
         }
