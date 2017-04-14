@@ -36,16 +36,22 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.videolan.vlcbenchmark.service.BenchService;
+import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
+import org.videolan.vlcbenchmark.service.BenchServiceListener;
+import org.videolan.vlcbenchmark.service.FAILURE_STATES;
+import org.videolan.vlcbenchmark.service.MediaInfo;
+import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
-public class ResultPage extends AppCompatActivity {
+public class ResultPage extends AppCompatActivity implements BenchServiceListener{
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -159,6 +165,7 @@ public class ResultPage extends AppCompatActivity {
             startService(intent);
         } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
+            Log.d("ResultPage", "resultCode: " + resultCode);
             mGoogleConnectionHandler.handleSignInResult(data);
             startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
                     RequestCodes.OPENGL);
@@ -170,12 +177,14 @@ public class ResultPage extends AppCompatActivity {
         super.onResume();
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
         mGoogleConnectionHandler.setGoogleApiClient(this, this);
+        BenchServiceDispatcher.getInstance().startService(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mGoogleConnectionHandler.unsetGoogleApiClient();
+        BenchServiceDispatcher.getInstance().stopService();
     }
 
     @Override
@@ -225,4 +234,28 @@ public class ResultPage extends AppCompatActivity {
             return mData.size();
         }
     }
+
+    /* BenchServiceListener Implementation */
+
+    @Override
+    public void displayDialog(DialogInstance dialog) {
+        dialog.display(this);
+    }
+
+    /* BenchServiceListener Unused methods */
+
+    @Override
+    public void failure(FAILURE_STATES reason, Exception exception) {}
+    @Override
+    public void doneReceived(List<MediaInfo> files) {}
+    @Override
+    public void updatePercent(double percent, long bitRate) {}
+    @Override
+    public void stepFinished(String message) {}
+    @Override
+    public void setFilesDownloaded(boolean hasDownloaded) {}
+    @Override
+    public void doneDownload() {}
+    @Override
+    public void setFilesChecked(boolean hasChecked) {}
 }
