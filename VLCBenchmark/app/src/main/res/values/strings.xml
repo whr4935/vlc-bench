@@ -43,6 +43,6 @@
     <string name="dialog_title_error">Error</string>
 
     <!-- dialog texts -->
-    <string name="dialog_text_no_internet">"Cannot download the videos without WIFI, please connect to wifi and retry. YOLO"</string>
+    <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
 
 </resources>
