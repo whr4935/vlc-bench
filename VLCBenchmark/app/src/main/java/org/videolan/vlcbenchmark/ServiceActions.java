@@ -21,8 +21,9 @@
 package org.videolan.vlcbenchmark;
 
 public class ServiceActions {
-    public static final int SERVICE_CHECKFILES = 0;
-    public static final int SERVICE_DOWNLOAD = 1;
-    public static final int SERVICE_POST = 2;
-    public static final int SERVICE_UNKNOWN = 3;
+    public static final int SERVICE_CONNECT = 0;
+    public static final int SERVICE_CHECKFILES = 1;
+    public static final int SERVICE_DOWNLOAD = 2;
+    public static final int SERVICE_POST = 3;
+    public static final int SERVICE_UNKNOWN = 4;
 }

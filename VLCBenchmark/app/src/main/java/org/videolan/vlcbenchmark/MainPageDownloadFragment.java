@@ -53,7 +53,7 @@ public class MainPageDownloadFragment extends Fragment {
             public void onClick(View view) {
                 if (mListener.getHasChecked()) {
                     Intent intent = new Intent(getActivity(), BenchService.class);
-                    intent.putExtra("action", 1);
+                    intent.putExtra("action", ServiceActions.SERVICE_DOWNLOAD);
                     getActivity().startService(intent);
                     CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
                     fragment.setCancelable(false);

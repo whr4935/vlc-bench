@@ -152,6 +152,9 @@ public class BenchService extends IntentService {
         try {
             int action = intent.getIntExtra("action", ServiceActions.SERVICE_UNKNOWN);
             switch (action) {
+                case ServiceActions.SERVICE_CONNECT:
+                    Log.i("BenchService", "Connected");
+                    break;
                 case ServiceActions.SERVICE_CHECKFILES:
                     checkFiles(intent.getIntExtra("context", FileCheckContext.check));
                     break;

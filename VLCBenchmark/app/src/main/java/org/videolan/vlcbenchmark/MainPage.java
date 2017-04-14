@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
 import org.json.JSONException;
+import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
@@ -128,6 +129,10 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
+
+        Intent intent = new Intent(this, BenchService.class);
+        intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
+        this.startService(intent);
 
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);

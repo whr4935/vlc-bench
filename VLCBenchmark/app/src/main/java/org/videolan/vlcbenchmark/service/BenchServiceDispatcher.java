@@ -29,11 +29,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.util.Pair;
 
+import org.videolan.vlcbenchmark.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,35 +42,36 @@ import java.util.List;
  */
 public class BenchServiceDispatcher extends Handler {
 
-    private List<BenchServiceListener> listeners = new ArrayList<BenchServiceListener>(1);
     private Activity initContext = null;
-
-    public BenchServiceDispatcher(BenchServiceListener listener) {
-        super(Looper.getMainLooper());
-        listeners.add(listener);
-    }
+    private BenchServiceListener listener;
+    private ServiceConnection serviceConnection;
+    private static BenchServiceDispatcher instance;
 
     public BenchServiceDispatcher() {
         super(Looper.getMainLooper());
     }
 
-    public void add(BenchServiceListener listener) {
-        listeners.add(listener);
+    public static BenchServiceDispatcher getInstance() {
+        if (instance == null) {
+            instance = new BenchServiceDispatcher();
+        }
+        return instance;
     }
 
-    public void remove(BenchServiceListener listener) {
-        listeners.remove(listener);
+    public boolean isStarted() {
+        return (instance != null && initContext != null);
     }
 
-    private ServiceConnection serviceConnection;
-
-    public void startService(Activity context, Intent intent) {
-        if (initContext != null)
-            throw new RuntimeException("Can't create two BenchService from the same BenchServiceDispatcher, stop the previous one first");
+    public void startService(Activity context) {
+        if (initContext != null) {
+            Log.w("BenchServiceDispatcher", "Can't create two BenchService from the same BenchServiceDispatcher, stop the previous one first");
+            return;
+        }
         initContext = context;
+        listener = (BenchServiceListener) context;
+        Intent intent = new Intent(context, BenchService.class);
+        intent.putExtra("action", ServiceActions.SERVICE_CONNECT);
         context.startService(intent);
-        if (serviceConnection != null)
-            return ;
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder binder) {
@@ -100,39 +102,29 @@ public class BenchServiceDispatcher extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case BenchService.FAILURE:
-                for (BenchServiceListener listener : listeners)
-                    listener.failure(FAILURE_STATES.values()[msg.arg1], (Exception) msg.obj);
+                listener.failure(FAILURE_STATES.values()[msg.arg1], (Exception) msg.obj);
                 break;
             case BenchService.DONE_STATUS:
-                for (BenchServiceListener listener : listeners)
-                    listener.doneReceived((List<MediaInfo>) msg.obj);
+                listener.doneReceived((List<MediaInfo>) msg.obj);
                 break;
             case BenchService.PERCENT_STATUS:
-                for (BenchServiceListener listener : listeners)
-                    listener.updatePercent((double) msg.obj, NO_BITRATE);
+                listener.updatePercent((double) msg.obj, NO_BITRATE);
                 break;
             case BenchService.PERCENT_STATUS_BITRATE:
                 Pair<Double, Long> percentAndBitRate = (Pair<Double, Long>) msg.obj;
-                for (BenchServiceListener listener : listeners)
-                    listener.updatePercent(percentAndBitRate.first, percentAndBitRate.second);
+                listener.updatePercent(percentAndBitRate.first, percentAndBitRate.second);
                 break;
             case BenchService.STEP_FINISHED:
-                for (BenchServiceListener listener : listeners)
-                    listener.stepFinished((String)msg.obj);
+                listener.stepFinished((String)msg.obj);
                 break;
             case BenchService.FILE_CHECK:
-                for (BenchServiceListener listener : listeners)
-                    listener.setFilesChecked((boolean)msg.obj);
+                listener.setFilesChecked((boolean)msg.obj);
                 break;
             case BenchService.DONE_DOWNLOAD:
-                for (BenchServiceListener listener : listeners) {
-                    listener.setFilesDownloaded((boolean)msg.obj);
-                }
+                listener.setFilesDownloaded((boolean)msg.obj);
                 break;
             case BenchService.FAILURE_DIALOG:
-                for (BenchServiceListener listener : listeners) {
-                    listener.displayDialog((DialogInstance)msg.obj);
-                }
+                listener.displayDialog((DialogInstance)msg.obj);
                 break;
             default:
                 break;

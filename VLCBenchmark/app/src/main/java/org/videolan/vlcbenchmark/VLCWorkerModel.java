@@ -225,14 +225,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
         CrashHandler.setCrashHandler();
 
-        dispatcher = new BenchServiceDispatcher(this);
-
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         boolean hasWarned = sharedPref.getBoolean(SHARED_PREFERENCE_WARNING, false);
 
-        Intent intent = new Intent(this, BenchService.class);
-        intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
-        dispatcher.startService(this, intent);
+        BenchServiceDispatcher.getInstance().startService(this);
 
         setupUiMembers(savedInstanceState);
 
@@ -618,6 +614,21 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
         resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
         onRestoreUiData(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        if (!BenchServiceDispatcher.getInstance().isStarted()) {
+            BenchServiceDispatcher.getInstance().startService(this);
+        }
+
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        BenchServiceDispatcher.getInstance().stopService();
+        super.onPause();
     }
 
     /**
