@@ -31,12 +31,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.util.Pair;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.videolan.vlcbenchmark.R;
-import org.videolan.vlcbenchmark.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.JsonHandler;
 
 import java.io.File;
 import java.io.FileInputStream;

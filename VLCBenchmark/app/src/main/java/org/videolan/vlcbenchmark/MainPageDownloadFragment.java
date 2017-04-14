@@ -30,7 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.videolan.vlcbenchmark.service.BenchService;
-import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
+import org.videolan.vlcbenchmark.service.ServiceActions;
 
 
 /**

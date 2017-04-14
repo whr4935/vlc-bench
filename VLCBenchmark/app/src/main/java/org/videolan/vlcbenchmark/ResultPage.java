@@ -40,12 +40,12 @@ import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.MediaInfo;
+import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 

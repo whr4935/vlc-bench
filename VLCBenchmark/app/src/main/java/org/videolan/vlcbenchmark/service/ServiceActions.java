@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-package org.videolan.vlcbenchmark;
+package org.videolan.vlcbenchmark.service;
 
 public class ServiceActions {
     public static final int SERVICE_CONNECT = 0;

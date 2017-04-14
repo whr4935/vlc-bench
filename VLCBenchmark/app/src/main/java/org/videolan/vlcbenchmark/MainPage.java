@@ -38,6 +38,7 @@ import org.json.JSONException;
 import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
+import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;

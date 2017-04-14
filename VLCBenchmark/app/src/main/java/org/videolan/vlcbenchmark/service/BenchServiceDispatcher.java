@@ -32,7 +32,6 @@ import android.os.Message;
 import android.util.Log;
 import android.util.Pair;
 
-import org.videolan.vlcbenchmark.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 
 import java.util.List;
