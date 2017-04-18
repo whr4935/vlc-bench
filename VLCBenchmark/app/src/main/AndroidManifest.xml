@@ -31,7 +31,7 @@
             android:name=".ResultPage"
             android:configChanges="orientation|screenSize"
             android:theme="@style/SubPageTheme" />
-        <activity android:name=".tools.AddFileToJson"></activity>
+        <activity android:name=".tools.AddFileToJson" />
 
         <service
             android:name=".service.BenchService"
@@ -40,8 +40,11 @@
 
         <activity
             android:name=".ResultDetailPage"
-            android:theme="@style/SubPageTheme"></activity>
-        <activity android:name=".BenchGLActivity"></activity>
+            android:theme="@style/SubPageTheme" />
+        <activity android:name=".BenchGLActivity" />
+        <activity
+            android:name=".AboutActivity"
+            android:theme="@style/SubPageTheme"/>
     </application>
 
 </manifest>

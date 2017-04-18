@@ -1,6 +1,7 @@
 package org.videolan.vlcbenchmark;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
@@ -85,6 +86,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
+                startActivity(new Intent(getActivity(), AboutActivity.class));
                 break;
             default:
                 Log.e("VLCBench", "Unknown preference selected");
