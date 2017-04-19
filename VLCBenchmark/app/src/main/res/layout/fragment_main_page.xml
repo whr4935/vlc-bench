@@ -47,12 +47,9 @@
             android:background="@color/white"
             android:elevation="1dp">
 
-            <TextView
-                android:id="@+id/specs_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="BLABLABLA"
-                />
+            <include
+                layout="@layout/device_layout"
+                android:id="@+id/device_layout"/>
 
         </ScrollView>
 

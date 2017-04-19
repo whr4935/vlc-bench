@@ -28,5 +28,6 @@ dependencies {
     compile 'com.android.support:preference-v7:25.2.0'
     compile 'com.android.support:preference-v14:25.2.0'
     compile 'com.google.android.gms:play-services-auth:10.2.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }

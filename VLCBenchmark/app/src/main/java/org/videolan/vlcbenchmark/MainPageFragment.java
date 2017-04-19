@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -125,6 +127,20 @@ public class MainPageFragment extends Fragment {
         }
     }
 
+    private void fillDeviceLayout(View view) {
+        TextView model = (TextView) view.findViewById(R.id.specs_model_text);
+        TextView android = (TextView) view.findViewById(R.id.specs_android_text);
+        TextView cpu = (TextView) view.findViewById(R.id.specs_cpu_text);
+        TextView cpuspeed = (TextView) view.findViewById(R.id.specs_cpuspeed_text);
+        TextView memory = (TextView) view.findViewById(R.id.specs_memory_text);
+
+        model.setText(Build.MODEL);
+        android.setText(Build.VERSION.RELEASE);
+        cpu.setText(SystemPropertiesProxy.getCpuModel());
+        cpuspeed.setText(SystemPropertiesProxy.getCpuMinFreq() + " - " + SystemPropertiesProxy.getCpuMaxFreq());
+        memory.setText(SystemPropertiesProxy.getRamTotal());
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -146,6 +162,9 @@ public class MainPageFragment extends Fragment {
                 checkForTestStart(3);
             }
         });
+
+        fillDeviceLayout(view);
+
         return view;
     }
 
