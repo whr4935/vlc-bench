@@ -15,6 +15,7 @@
         android:id="@+id/main_toolbar"
         android:background="@color/colorAccent"
         android:title="@string/title_home"
+        android:elevation="4dp"
         />
 
     <android.support.design.widget.BottomNavigationView
