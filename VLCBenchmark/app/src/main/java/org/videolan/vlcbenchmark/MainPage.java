@@ -201,6 +201,10 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    public void cancelBench() {
+        running = false;
+    }
+
     @Override
     protected void updateUiOnServiceDone() {
     }
@@ -296,6 +300,7 @@ public class MainPage extends VLCWorkerModel implements
             name = JsonHandler.save((testResult));
             Intent intent = new Intent(MainPage.this, ResultPage.class);
             intent.putExtra("name", name);
+            running = false;
             startActivityForResult(intent, RequestCodes.RESULTS);
         } catch (JSONException e) {
             Log.e("VLCBenchmark", "Failed to save test : " + e.toString());

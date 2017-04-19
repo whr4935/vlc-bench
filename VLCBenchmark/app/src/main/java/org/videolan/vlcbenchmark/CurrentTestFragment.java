@@ -49,6 +49,7 @@ public class CurrentTestFragment extends DialogFragment {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mListener.cancelBench();
                 dismiss();
             }
         });
@@ -85,5 +86,6 @@ public class CurrentTestFragment extends DialogFragment {
 
     public interface TestView {
         void setDialogFragment(CurrentTestFragment fragment);
+        void cancelBench();
     }
 }
