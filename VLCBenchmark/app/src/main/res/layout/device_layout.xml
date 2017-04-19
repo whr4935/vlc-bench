@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/half_default_margin">
 
     <TextView
-        android:text="DEVICE"
+        android:text="@string/specs_title"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:textSize="@dimen/text_imp_size"
@@ -19,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
-        android:text="Model"
+        android:text="@string/specs_model"
         android:id="@+id/specs_model"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +28,6 @@
         app:layout_constraintTop_toBottomOf="@+id/specs_title"/>
 
     <TextView
-        android:text="HTC One M8"
         android:id="@+id/specs_model_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
 
     <TextView
         android:id="@+id/specs_android"
-        android:text="Android"
+        android:text="@string/specs_android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,6 @@
 
     <TextView
         android:id="@+id/specs_android_text"
-        android:text="6.0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +51,7 @@
 
     <TextView
         android:id="@+id/specs_cpu"
-        android:text="CPU"
+        android:text="@string/specs_cpu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +59,6 @@
 
     <TextView
         android:id="@+id/specs_cpu_text"
-        android:text="Bla\nBla\nBla"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="@+id/specs_cpu"
@@ -68,7 +66,7 @@
 
     <TextView
         android:id="@+id/specs_cpuspeed"
-        android:text="CPU Speed"
+        android:text="@string/specs_cpuspeed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/specs_cpu_text"
@@ -76,7 +74,6 @@
 
     <TextView
         android:id="@+id/specs_cpuspeed_text"
-        android:text="3.0 Ghz"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -84,7 +81,7 @@
 
     <TextView
         android:id="@+id/specs_memory"
-        android:text="Memory"
+        android:text="@string/specs_memory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/specs_cpuspeed_text"
@@ -92,7 +89,6 @@
 
     <TextView
         android:id="@+id/specs_memory_text"
-        android:text="2.0 GB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

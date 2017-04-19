@@ -53,4 +53,11 @@
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
 
+    <!-- main page -->
+    <string name="specs_title">DEVICE</string>
+    <string name="specs_model">Model</string>
+    <string name="specs_android">Android</string>
+    <string name="specs_cpu">CPU</string>
+    <string name="specs_cpuspeed">CPU Speed</string>
+    <string name="specs_memory">Memory</string>
 </resources>
