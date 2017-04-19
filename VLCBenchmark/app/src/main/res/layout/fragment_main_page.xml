@@ -36,43 +36,77 @@
 
         </LinearLayout>
 
-        <ScrollView
-            android:id="@+id/specs_scrollview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/main_toolbar"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginTop="@dimen/default_margin"
-            android:background="@color/white"
-            android:elevation="1dp">
-
-            <include
-                layout="@layout/device_layout"
-                android:id="@+id/device_layout"/>
-
-        </ScrollView>
-
-        <ScrollView
-            android:id="@+id/test_explanation_scrollview"
+        <LinearLayout
+            android:id="@+id/main_page_text_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/specs_scrollview"
-            android:layout_above="@id/launch_test_layout"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginTop="@dimen/default_margin"
-            android:background="@color/white"
-            android:elevation="1dp">
+            android:orientation="vertical"
+            android:layout_below="@id/main_toolbar"
+            android:layout_above="@id/launch_test_layout">
 
-            <TextView
-                android:id="@+id/test_explanation_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Please press one the button below to start the benchmark"/>
+            <ScrollView
+                android:id="@+id/specs_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/default_margin"
+                android:layout_marginStart="@dimen/default_margin"
+                android:layout_marginTop="@dimen/half_default_margin"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:elevation="0dp"
+                android:layout_gravity="center">
 
-        </ScrollView>
-        <!--android:layout_above="@id/launch_test_layout"-->
+                <include
+                    layout="@layout/device_layout"
+                    android:id="@+id/device_layout"/>
+
+            </ScrollView>
+
+            <View
+                android:id="@+id/separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/double_margin"
+                android:layout_marginEnd="@dimen/double_margin"
+                android:background="@android:color/darker_gray" />
+
+            <ScrollView
+                android:id="@+id/test_explanation_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/default_margin"
+                android:layout_marginStart="@dimen/default_margin"
+                android:layout_marginTop="@dimen/half_default_margin"
+                android:background="@color/white"
+                android:elevation="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="@string/explanation_title"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/text_imp_size"
+                        android:textStyle="bold"
+                        android:paddingBottom="@dimen/default_margin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/test_explanation_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/explanation_text"/>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </LinearLayout>
 
     </RelativeLayout>
 
