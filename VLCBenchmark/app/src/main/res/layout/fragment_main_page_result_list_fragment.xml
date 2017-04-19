@@ -12,21 +12,29 @@
             android:paddingStart="@dimen/default_margin"
             android:paddingEnd="@dimen/default_margin"/>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/no_results"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/header"
-            android:layout_centerInParent="true"
-            android:layout_margin="@dimen/default_margin"
-            android:drawableBottom="@drawable/ic_no_results"
-            android:drawablePadding="@dimen/double_margin"
-            android:gravity="center"
+            android:visibility="gone"
             android:layout_gravity="center_horizontal|center_vertical"
-            android:maxWidth="600dp"
-            android:text="@string/no_results"
-            android:textSize="20sp"
-            android:visibility="gone" />
+            android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/default_margin"
+                    android:gravity="center"
+                    android:text="@string/no_results"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:src="@drawable/ic_cone"
+                    android:layout_marginTop="@dimen/default_margin"
+                    android:layout_gravity="center_horizontal" />
+
+        </LinearLayout>
 
 </FrameLayout>
