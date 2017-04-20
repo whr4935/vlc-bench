@@ -396,6 +396,7 @@ public class BenchService extends IntentService {
         } catch (IOException | GeneralSecurityException e) {
             Log.e("VLCBench", "Failed to check files: " + e.toString());
             sendMessage(BenchService.FILE_CHECK, false);
+            sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_sample));
             return;
         }
         sendMessage(FILE_CHECK, true);

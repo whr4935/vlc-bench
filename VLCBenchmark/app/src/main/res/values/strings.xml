@@ -49,9 +49,11 @@
 
     <!-- dialog titles -->
     <string name="dialog_title_error">Error</string>
+    <string name="dialog_title_oups">Oups &#8230;</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
+    <string name="dialog_text_sample">There was a problem while checking samples</string>
 
     <!-- main page -->
     <string name="specs_title">DEVICE</string>
