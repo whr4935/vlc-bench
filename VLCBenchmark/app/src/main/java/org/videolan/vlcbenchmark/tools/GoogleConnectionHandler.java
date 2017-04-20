@@ -100,7 +100,7 @@ public class GoogleConnectionHandler {
     private void getUser(GoogleSignInResult googleSignInResult) {
         if (!googleSignInResult.isSuccess()) {
             Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-            mFragmentActivity.startActivityForResult(signInIntent, RequestCodes.OPENGL);
+            mFragmentActivity.startActivityForResult(signInIntent, RequestCodes.GOOGLE_CONNECTION);
         } else {
             handleSignInResult(googleSignInResult);
             if (mFragmentActivity instanceof org.videolan.vlcbenchmark.ResultPage) {
