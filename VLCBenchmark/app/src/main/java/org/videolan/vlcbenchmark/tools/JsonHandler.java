@@ -23,6 +23,8 @@ import org.videolan.vlcbenchmark.SystemPropertiesProxy;
 
 public class JsonHandler {
 
+    private final static String TAG = JsonHandler.class.getName();
+
     public static String toDatePrettyPrint(String name) {
         char[] array;
         int count = 0;
@@ -174,7 +176,11 @@ public class JsonHandler {
         results.put("score", score_software + score_hardware);
         results.put("vlc_version", BuildConfig.VLC_VERSION);
 
-        Log.e("VLCBench", "data: " + results.toString());
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "openGL_extensions size: " + results.getJSONObject("device_information").getString("opengl_extensions").length());
+            Log.d(TAG, "device_information: " + results.getJSONObject("device_information").toString(4));
+            Log.d(TAG, "test_information: " + results.getJSONArray("test_information").toString(4));
+        }
 
         return results;
     }
