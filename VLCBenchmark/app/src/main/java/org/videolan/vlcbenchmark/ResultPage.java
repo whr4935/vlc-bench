@@ -58,7 +58,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     private RecyclerView.Adapter mAdapter;
     ArrayList<TestInfo> results;
 
-    private final static String TAG = "VLCBench";
+    private final static String TAG = "ResultPage";
 
     private GoogleConnectionHandler mGoogleConnectionHandler;
 
