@@ -148,11 +148,17 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                     Log.e("VLCBench", "onActivityResult: res is null");
                     return;
                 }
-                if (mGoogleConnectionHandler != null) {
-                    res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
+                if (mGoogleConnectionHandler != null && mGoogleConnectionHandler.getAccount() != null) {
+                        res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
                 } else {
-                    Log.d("VLCBench", "ResultPage: onActivityResult: mGoogleConnectionHandler is null");
-                    return; //TODO add dialog
+                    if (mGoogleConnectionHandler == null) {
+                        Log.d("VLCBench", "ResultPage: onActivityResult: mGoogleConnectionHandler is null");
+                    } else {
+                        Log.e(TAG, "Failed to get google email");
+                    }
+                    DialogInstance dialogInstance = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_google);
+                    dialogInstance.display(this);
+                    return;
                 }
             } catch (JSONException e) {
                 Log.e("VLCBench", e.toString());
