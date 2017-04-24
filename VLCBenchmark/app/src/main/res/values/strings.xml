@@ -75,10 +75,15 @@
         This benchmark will test your smartphone\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 and get the average results with the right button below.
     </string>
     
-    <string name="progress_text_format">%f %% | file %d/%d | test %d</string>
-    <string name="progress_text_format_loop">%f %% | file %d/%d | test %d | loop %d/%d</string>
+    <string name="progress_text_format">%1$d %% | file %2$d/%3$d | test %4$d</string>
+    <string name="progress_text_format_loop">%1$d %% | file %2$d/%3$d | test %4$d | loop %5$d/%6$d</string>
 
     <!-- result detail -->
     <string name="detail_software">Software</string>
     <string name="detail_hardware">Hardware</string>
+    <string name="detail_score">Score: %1$s</string>
+    <string name="detail_bad_screenshots">Percent of bad screenshots: %1$s %%</string>
+    <string name="detail_frames_dropped">Frames dropped: %1$i</string>
+    <string name="detail_warning_number">Number of warnings: %1$i</string>
+
 </resources>

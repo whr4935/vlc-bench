@@ -282,7 +282,7 @@ public class BenchService extends IntentService {
      * @param json json string from JsonObject.toString()
      */
     private void UploadJson(String json) {
-        String url = "http://192.168.1.190:8080/result"; //tmp url
+        String url = "http://192.168.1.22:8080/benchmarks"; //tmp url
         HttpURLConnection connection;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
