@@ -248,10 +248,7 @@ public class TestInfo implements Serializable {
     }
 
     public boolean hasCrashed(int decoding) {
-        if (crashed[decoding][QUALITY] != "" || crashed[decoding][PLAYBACK] != "") {
-            return true;
-        }
-        return false;
+        return !crashed[decoding][QUALITY].equals("") || !crashed[decoding][PLAYBACK].equals("");
     }
 
     public static ArrayList<TestInfo> mergeTests(List<TestInfo>[] results) {
@@ -275,10 +272,11 @@ public class TestInfo implements Serializable {
                 percentOfBadScreenshots[TestInfo.PLAYBACK] += results[inc].get(i).getBadScreenshots(TestInfo.PLAYBACK);
                 numberOfWarnings[TestInfo.QUALITY] += results[inc].get(i).getNumberOfWarnings(TestInfo.QUALITY);
                 numberOfWarnings[TestInfo.PLAYBACK] += results[inc].get(i).getNumberOfWarnings(TestInfo.PLAYBACK);
-                crashed[TestInfo.SOFT][TestInfo.QUALITY] += results[inc].get(i).getCrashes(TestInfo.SOFT, TestInfo.QUALITY) + "\n";
-                crashed[TestInfo.SOFT][TestInfo.PLAYBACK] += results[inc].get(i).getCrashes(TestInfo.SOFT, TestInfo.PLAYBACK) + "\n";
-                crashed[TestInfo.HARD][TestInfo.QUALITY] += results[inc].get(i).getCrashes(TestInfo.HARD, TestInfo.QUALITY) + "\n";
-                crashed[TestInfo.HARD][TestInfo.PLAYBACK] += results[inc].get(i).getCrashes(TestInfo.HARD, TestInfo.PLAYBACK) + "\n";
+                //TODO add method to handle several crash
+                crashed[TestInfo.SOFT][TestInfo.QUALITY] += results[inc].get(i).getCrashes(TestInfo.SOFT, TestInfo.QUALITY);
+                crashed[TestInfo.SOFT][TestInfo.PLAYBACK] += results[inc].get(i).getCrashes(TestInfo.SOFT, TestInfo.PLAYBACK);
+                crashed[TestInfo.HARD][TestInfo.QUALITY] += results[inc].get(i).getCrashes(TestInfo.HARD, TestInfo.QUALITY);
+                crashed[TestInfo.HARD][TestInfo.PLAYBACK] += results[inc].get(i).getCrashes(TestInfo.HARD, TestInfo.PLAYBACK);
             }
 
             software[TestInfo.QUALITY] /= results.length;

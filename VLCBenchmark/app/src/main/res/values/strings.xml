@@ -67,4 +67,8 @@
     <string name="explanation_text">
         This benchmark will test your smartphone\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 and get the average results with the right button below.
     </string>
+
+    <!-- result detail -->
+    <string name="detail_software">Software</string>
+    <string name="detail_hardware">Hardware</string>
 </resources>
