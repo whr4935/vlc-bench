@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,31 +41,26 @@ import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * Created by noeldu_b on 7/11/16.
- */
 public class MainPage extends VLCWorkerModel implements
         CurrentTestFragment.TestView,
         MainPageFragment.IMainPageFragment,
         MainPageDownloadFragment.IMainPageDownloadFragment,
         SettingsFragment.ISettingsFragment {
 
+    private static final String TAG = MainPage.class.getName();
+
     private TextView percentText = null;
     private TextView textLog = null;
     private ProgressBar progressBar = null;
 
     private Toolbar toolbar = null;
-    private BottomNavigationView bottomNavigationView = null;
-
-    private static final String PROGRESS_TEXT_FORMAT = "%.2f %% | file %d/%d | test %d";
-    private static final String PROGRESS_TEXT_FORMAT_LOOPS = PROGRESS_TEXT_FORMAT + " | loop %d/%d";
 
     private boolean hasDownloaded = false;
     private boolean hasChecked = false;
@@ -106,15 +102,15 @@ public class MainPage extends VLCWorkerModel implements
 
     public void setDialogFragment(CurrentTestFragment fragment) {
         currentTestFragment = fragment;
-        if (fragment != null) {
+        if (currentTestFragment != null && currentTestFragment.getView() != null) {
             View view = currentTestFragment.getView();
             progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             textLog = (TextView) view.findViewById(R.id.current_sample);
             percentText = (TextView) view.findViewById(R.id.percentText);
             if (currentTestFragment.getTag().equals("Download dialog")) {
-                textLog.setText("Downloading ...");
+                textLog.setText(getResources().getString(R.string.dialog_text_downloading));
             } else if (currentTestFragment.getTag().equals("Current test")) {
-                textLog.setText("Testing ...");
+                textLog.setText(getResources().getString(R.string.dialog_text_testing));
             }
         } else {
             progressBar = null;
@@ -135,9 +131,10 @@ public class MainPage extends VLCWorkerModel implements
         intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
         this.startService(intent);
 
+        BottomNavigationView bottomNavigationView;
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -150,7 +147,7 @@ public class MainPage extends VLCWorkerModel implements
                             case R.id.results_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
                                     MainPageResultListFragment fragment = new MainPageResultListFragment();
-                                    getSupportActionBar().setTitle("Results");
+                                    toolbar.setTitle(getResources().getString(R.string.results_page));
                                     getSupportFragmentManager().beginTransaction()
                                             .replace(R.id.main_page_fragment_holder, fragment)
                                             .addToBackStack(null)
@@ -160,7 +157,7 @@ public class MainPage extends VLCWorkerModel implements
                             case R.id.settings_nav:
                                 if (findViewById(R.id.main_page_fragment_holder) != null) {
                                     SettingsFragment fragment = new SettingsFragment();
-                                    getSupportActionBar().setTitle("Settings");
+                                    toolbar.setTitle(getResources().getString(R.string.settings_page));
                                     getSupportFragmentManager().beginTransaction()
                                             .replace(R.id.main_page_fragment_holder, fragment)
                                             .addToBackStack(null)
@@ -183,7 +180,7 @@ public class MainPage extends VLCWorkerModel implements
             } else {
                 fragment = new MainPageDownloadFragment();
             }
-            getSupportActionBar().setTitle("VLC Benchmark");
+            toolbar.setTitle(getResources().getString(R.string.app_name));
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_page_fragment_holder, fragment)
                     .addToBackStack(null)
@@ -217,11 +214,16 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
+            String strPercent;
             progressBar.setProgress((int) Math.round(percent));
-            if (bitRate == BenchServiceDispatcher.NO_BITRATE)
-                percentText.setText(String.format("%.2f %%", percent));
-            else
-                percentText.setText(String.format("%.2f %% (%s)", percent, bitRateToString(bitRate)));
+            if (bitRate == BenchServiceDispatcher.NO_BITRATE) {
+                strPercent = FormatStr.format2Dec(percent) + "%%";
+                percentText.setText(strPercent);
+            }
+            else {
+                strPercent = FormatStr.format2Dec(percent) + "%% (" + bitRateToString(bitRate) + ")";
+                percentText.setText(strPercent);
+            }
         }
     }
 
@@ -241,19 +243,19 @@ public class MainPage extends VLCWorkerModel implements
         double powOf10 = Math.round(Math.log10(bitRate));
 
         if (powOf10 < 3)
-            return String.format("%l bps", bitRate);
+            return FormatStr.format2Dec(bitRate) + "bps";
         else if (powOf10 >= 3 && powOf10 < 6)
-            return String.format("%.2f kbps", bitRate / 1_000d);
+            return FormatStr.format2Dec(bitRate / 1_000d) + "kbps";
         else if (powOf10 >= 6 && powOf10 < 9)
-            return String.format("%.2f mbps", bitRate / 1_000_000d);
-        return String.format("%.2f gbps", bitRate / 1_000_000_000d);
+            return FormatStr.format2Dec(bitRate / 1_000_000d) + "mbps";
+        return FormatStr.format2Dec(bitRate / 1_000_000_000d) + "gbps";
     }
 
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
         if (currentTestFragment != null ) {
             currentTestFragment.dismiss();
-        }//todo find some way not to spawn the dialog if no wifi
+        }
         new AlertDialog.Builder(this).setTitle("Error during download").setMessage(exception.getMessage()).setNeutralButton("ok", null).show();
     }
 
@@ -278,10 +280,15 @@ public class MainPage extends VLCWorkerModel implements
         if (currentTestFragment != null) {
             progressBar.incrementProgressBy(1);
             if (numberOfLoops != 1)
-                percentText.setText(String.format(PROGRESS_TEXT_FORMAT_LOOPS, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber,
-                        loopNumber, numberOfLoops));
+                percentText.setText(String.format(
+                        getResources().getString(R.string.progress_text_format_loop),
+                        progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex,
+                        numberOfFiles, testNumber, loopNumber, numberOfLoops));
             else
-                percentText.setText(String.format(PROGRESS_TEXT_FORMAT, progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex, numberOfFiles, testNumber));
+                percentText.setText(
+                        String.format(getResources().getString(R.string.progress_text_format),
+                                progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex,
+                                numberOfFiles, testNumber));
         }
     }
 
@@ -303,7 +310,7 @@ public class MainPage extends VLCWorkerModel implements
             running = false;
             startActivityForResult(intent, RequestCodes.RESULTS);
         } catch (JSONException e) {
-            Log.e("VLCBenchmark", "Failed to save test : " + e.toString());
+            Log.e(TAG, "Failed to save test : " + e.toString());
         }
     }
 

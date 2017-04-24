@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VLC Benchmark</string>
+    <string name="app_name" translatable="false">VLC Benchmark</string>
     <string name="bench_x1">Test x1</string>
     <string name="bench_x3">Test x3</string>
     <string name="send_results">Send results</string>
@@ -12,6 +12,10 @@
     <string name="software">software</string>
     <string name="hardware">hardware</string>
     <string name="no_results">No result found, please run a test.</string>
+
+    <!-- page names -->
+    <string name="settings_page">Settings</string>
+    <string name="results_page">Results</string>
 
     <!-- bottom_navigation_bar -->
     <string name="home_nav">Home</string>
@@ -55,6 +59,9 @@
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
     <string name="dialog_text_sample">There was a problem while checking samples</string>
     <string name="dialog_text_err_google">There was a problem while connecting to Google</string>
+    <string name="dialog_text_downloading">Downloading &#8230;</string>
+    <string name="dialog_text_testing">Testing &#8230;</string>
+
 
     <!-- main page -->
     <string name="specs_title">DEVICE</string>
@@ -67,6 +74,9 @@
     <string name="explanation_text">
         This benchmark will test your smartphone\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 and get the average results with the right button below.
     </string>
+    
+    <string name="progress_text_format">%f %% | file %d/%d | test %d</string>
+    <string name="progress_text_format_loop">%f %% | file %d/%d | test %d | loop %d/%d</string>
 
     <!-- result detail -->
     <string name="detail_software">Software</string>
