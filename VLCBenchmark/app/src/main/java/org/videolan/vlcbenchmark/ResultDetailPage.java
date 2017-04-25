@@ -33,7 +33,8 @@ import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 public class ResultDetailPage extends AppCompatActivity {
 
-    TestInfo result;
+    private final static String TAG = ResultDetailPage.class.getName();
+    private TestInfo result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,9 @@ public class ResultDetailPage extends AppCompatActivity {
         setContentView(R.layout.activity_result_detail_page);
 
         if (!getIntent().hasExtra("result")) {
-            Log.e("VLCBench", "no extra result");
+            Log.e(TAG, "no extra result");
+            onBackPressed();
+            return;
         }
         result = (TestInfo) getIntent().getSerializableExtra("result");
 
@@ -49,8 +52,10 @@ public class ResultDetailPage extends AppCompatActivity {
     }
 
     private void setupUi() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //TODO handle the null pointer
-        getSupportActionBar().setTitle(result.getName());
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(result.getName());
+        }
         setupText();
     }
 
@@ -77,14 +82,14 @@ public class ResultDetailPage extends AppCompatActivity {
         mHardwareWarningNumber = (TextView) findViewById(R.id.hardware_warning_number);
         mHardwareCrash = (TextView) findViewById(R.id.hardware_crash);
 
-        mSoftwareScore.setText("Score: " + format2Dec(result.getSoftware()));
-        mSoftwareBadScreenshot.setText("Percent of bad screenshots: " + format2Dec(result.getBadScreenshots(0)) + " %");
-        mSoftwareFramesDropped.setText("Frames dropped: " + result.getFrameDropped(0));
-        mSoftwareWarningNumber.setText("Number of warnings: " + result.getNumberOfWarnings(0));
-        mHardwareScore.setText("Score: " + format2Dec(result.getHardware()));
-        mHardwareBadScreenshot.setText("Percent of bad screenshots: " + format2Dec(result.getBadScreenshots(1)) + " %");
-        mHardwareFramesDropped.setText("Frames dropped: " + result.getFrameDropped(1));
-        mHardwareWarningNumber.setText("Number of warnings: " + result.getNumberOfWarnings(1));
+        mSoftwareScore.setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getSoftware())));
+        mSoftwareBadScreenshot.setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(0))));
+        mSoftwareFramesDropped.setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(0)));
+        mSoftwareWarningNumber.setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(0)));
+        mHardwareScore.setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getHardware())));
+        mHardwareBadScreenshot.setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(1))));
+        mHardwareFramesDropped.setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(1)));
+        mHardwareWarningNumber.setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(1)));
 
         setCrashText(mHardwareCrash, TestInfo.QUALITY);
         setCrashText(mSoftwareCrash, TestInfo.PLAYBACK);

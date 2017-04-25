@@ -83,7 +83,7 @@
     <string name="detail_hardware">Hardware</string>
     <string name="detail_score">Score: %1$s</string>
     <string name="detail_bad_screenshots">Percent of bad screenshots: %1$s %%</string>
-    <string name="detail_frames_dropped">Frames dropped: %1$i</string>
-    <string name="detail_warning_number">Number of warnings: %1$i</string>
+    <string name="detail_frames_dropped">Frames dropped: %1$d</string>
+    <string name="detail_warning_number">Number of warnings: %1$d</string>
 
 </resources>
