@@ -42,16 +42,15 @@ import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
  */
 public class MainPageResultListFragment extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     public MainPageResultListFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ArrayList<String> data;
+        RecyclerView mRecyclerView;
+        RecyclerView.Adapter mAdapter;
+        RecyclerView.LayoutManager mLayoutManager;
 
         View view = inflater.inflate(R.layout.fragment_main_page_result_list_fragment, container, false);
 
@@ -95,11 +94,11 @@ public class MainPageResultListFragment extends Fragment {
 
         ArrayList<String> mData;
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView mTitle;
-            public TextView mResult;
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView mTitle;
+            TextView mResult;
 
-            public ViewHolder(View view) {
+            ViewHolder(View view) {
                 super(view);
                 mTitle = (TextView) view.findViewById(R.id.test_name);
                 mResult = (TextView) view.findViewById(R.id.test_result);
@@ -107,7 +106,7 @@ public class MainPageResultListFragment extends Fragment {
 
         }
 
-        public TestListAdapter(ArrayList<String> data) {
+        TestListAdapter(ArrayList<String> data) {
             mData = data;
         }
 
@@ -120,9 +119,12 @@ public class MainPageResultListFragment extends Fragment {
         @Override
         public void onBindViewHolder(TestListAdapter.ViewHolder holder, int position) {
             ArrayList<TestInfo> test = JsonHandler.load(mData.get(position) + ".txt");
-            holder.mTitle.setText(JsonHandler.toDatePrettyPrint(mData.get(position)));
-            TestInfo.getGlobalScore(test);
-            holder.mResult.setText("Result: " + format2Dec(TestInfo.getGlobalScore(test)) + " / " + format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
+            if (test != null) {
+                holder.mTitle.setText(JsonHandler.toDatePrettyPrint(mData.get(position)));
+                TestInfo.getGlobalScore(test);
+                holder.mResult.setText(String.format(getResources().getString(R.string.result_score),
+                        format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL)));
+            }
         }
 
         @Override
