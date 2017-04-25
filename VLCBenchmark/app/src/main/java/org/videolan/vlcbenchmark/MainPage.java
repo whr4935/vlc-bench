@@ -282,12 +282,12 @@ public class MainPage extends VLCWorkerModel implements
             if (numberOfLoops != 1)
                 percentText.setText(String.format(
                         getResources().getString(R.string.progress_text_format_loop),
-                        progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex,
+                        FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
                         numberOfFiles, testNumber, loopNumber, numberOfLoops));
             else
                 percentText.setText(
                         String.format(getResources().getString(R.string.progress_text_format),
-                                progressBar.getProgress() * 100.0 / progressBar.getMax(), fileIndex,
+                                FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
                                 numberOfFiles, testNumber));
         }
     }

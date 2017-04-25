@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 class DividerItemDecoration extends RecyclerView.ItemDecoration {
@@ -44,6 +45,7 @@ class DividerItemDecoration extends RecyclerView.ItemDecoration {
     private int mOrientation;
 
     DividerItemDecoration(Context context, int orientation) {
+        Log.d("VLCBench", "DividerItemDecoration constructor");
         final TypedArray array = context.obtainStyledAttributes(ATTRS);
         mDivider = array.getDrawable(0);
         array.recycle();
@@ -67,8 +69,15 @@ class DividerItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     private void drawVertical(Canvas c, RecyclerView parent) {
-        final int left = parent.getPaddingLeft();
-        final int right = parent.getWidth() - parent.getPaddingRight();
+        Log.d("VLCBench", "draw vertical called");
+        final int left = parent.getPaddingLeft() + Math.round(parent.getResources().getDimension(R.dimen.default_margin));
+        final int right = parent.getWidth() - (parent.getPaddingRight() + Math.round(parent.getResources().getDimension(R.dimen.default_margin)));
+        Log.d("VLCBench", "left = " + left);
+        Log.d("VLCBench", "right = " + right);
+        Log.d("VLCBench", "n2 left = " + parent.getPaddingLeft());
+        Log.d("VLCBench", "n2 right = " + (parent.getWidth() - parent.getPaddingRight()));
+//        final int left = parent.getPaddingLeft();
+//        final int right = parent.getWidth() - parent.getPaddingRight();
         final int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = parent.getChildAt(i);
@@ -81,8 +90,9 @@ class DividerItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
     private void drawHorizontal(Canvas c, RecyclerView parent) {
-        final int top = parent.getPaddingTop();
-        final int bottom = parent.getHeight() - parent.getPaddingBottom();
+        Log.d("VLCBench", "draw horizontal called");
+        final int top = parent.getPaddingTop() + Math.round(parent.getResources().getDimension(R.dimen.default_margin));
+        final int bottom = parent.getHeight() - (parent.getPaddingBottom() + Math.round(parent.getResources().getDimension(R.dimen.default_margin)));
         final int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = parent.getChildAt(i);

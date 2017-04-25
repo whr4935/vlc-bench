@@ -224,14 +224,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
         @Override
         public TestResultListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.test_list_rows, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.test_sample_rows, parent, false);
             return new TestResultListAdapter.ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.title.setText(mData.get(position).getName());
-            holder.mResult.setText("Result: " +
+            holder.mResult.setText(
                     (format2Dec(mData.get(position).getHardware() + mData.get(position).getSoftware()) + " / " + format2Dec(TestInfo.SCORE_TOTAL * 2)));
         }
 
