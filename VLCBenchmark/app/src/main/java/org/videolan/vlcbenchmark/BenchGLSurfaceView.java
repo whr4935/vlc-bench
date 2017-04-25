@@ -11,8 +11,7 @@ import javax.microedition.khronos.opengles.GL10;
  * and get gpu information
  */
 public class BenchGLSurfaceView extends GLSurfaceView {
-    private final BenchGLRenderer mRenderer;
-
+    
     /* Gpu information*/
     private String glRenderer;
     private String glVendor;
@@ -24,7 +23,7 @@ public class BenchGLSurfaceView extends GLSurfaceView {
 
         setEGLContextClientVersion(2);
 
-        mRenderer = new BenchGLRenderer();
+        BenchGLRenderer mRenderer = new BenchGLRenderer();
 
         setRenderer(mRenderer);
     }
