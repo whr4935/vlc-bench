@@ -1,6 +1,5 @@
 package org.videolan.vlcbenchmark;
 
-import android.graphics.pdf.PdfDocument;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -29,7 +28,8 @@ public class AboutActivity extends AppCompatActivity {
             getSupportActionBar().setElevation(0);
         } else {
             Log.e(TAG, "onCreate: getSupportActionBar is null");
-            //TODO handle failure
+            onBackPressed();
+            return;
         }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
