@@ -53,7 +53,10 @@
 
     <!-- dialog titles -->
     <string name="dialog_title_error">Error</string>
+    <string name="dialog_title_warning">Warning</string>
     <string name="dialog_title_oups">Oups &#8230;</string>
+    <string name="dialog_title_missing_vlc">Missing VLC</string>
+    <string name="dialog_title_outdated_vlc">Outdated VLC</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
@@ -61,7 +64,15 @@
     <string name="dialog_text_err_google">There was a problem while connecting to Google</string>
     <string name="dialog_text_downloading">Downloading &#8230;</string>
     <string name="dialog_text_testing">Testing &#8230;</string>
+    <string name="dialog_text_missing_vlc">You need the VLC Media Player to start a benchmark.\nPlease install it to continue.</string>
+    <string name="dialog_text_outdated_vlc">You need the latest version of VLC Media Player to start a benchmark.\nPlease update it to continue.</string>
+    <string name="dialog_text_oups">There was an unexpected problem</string>
+    <string name="dialog_text_battery_warning">You only have %1$d %% of battery charge left, you should plug your phone</string>
 
+    <!-- dialog buttons -->
+    <string name="dialog_btn_continue">Continue</string>
+    <string name="dialog_btn_cancel">Cancel</string>
+    <string name="dialog_btn_ok">OK</string>
 
     <!-- main page -->
     <string name="specs_title">DEVICE</string>

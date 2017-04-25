@@ -40,11 +40,15 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.videolan.vlcbenchmark.tools.DialogInstance;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class MainPageFragment extends Fragment {
+
+    private final static String TAG = MainPageFragment.class.getName();
 
     IMainPageFragment mListener;
 
@@ -59,12 +63,12 @@ public class MainPageFragment extends Fragment {
 
     private void startTestDialog(int testNumber) {
         if (!mListener.checkSignature()) {
-            Log.e("VLCBench", "Could not find VLC Media Player");
+            Log.e(TAG, "Could not find VLC Media Player");
             new AlertDialog.Builder(getContext())
-                    .setTitle("Missing VLC")
-                    .setMessage("You need the VLC Media Player to start a benchmark\nPlease install it to continue")
-                    .setNeutralButton("Cancel", null)
-                    .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                    .setTitle(getResources().getString(R.string.dialog_title_missing_vlc))
+                    .setMessage(getResources().getString(R.string.dialog_text_missing_vlc))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             redirectToVlcStore();
@@ -74,12 +78,12 @@ public class MainPageFragment extends Fragment {
             return;
         }
         if (!mListener.checkVlcVersion()) {
-            Log.e("VLCBench", "Outdated version of VLC Media Player detected");
+            Log.e(TAG, "Outdated version of VLC Media Player detected");
             new AlertDialog.Builder(getContext())
-                    .setTitle("Outdated VLC")
-                    .setMessage("You need the latest version of VLC Media Player to start a benchmark\nPlease update it to continue")
-                    .setNeutralButton("Cancel", null)
-                    .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                    .setTitle(getResources().getString(R.string.dialog_title_outdated_vlc))
+                    .setMessage(getResources().getString(R.string.dialog_text_outdated_vlc))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             redirectToVlcStore();
@@ -93,11 +97,11 @@ public class MainPageFragment extends Fragment {
             fragment.setCancelable(false);
             fragment.show(getFragmentManager(), "Current test");
         } else {
-            Log.e("VLCBench", "Failed to start the benchmark");
+            Log.e(TAG, "Failed to start the benchmark");
             new AlertDialog.Builder(getContext())
-                    .setTitle("Oups ...")
-                    .setMessage("There was an unexpected problem when starting the benchmark")
-                    .setNeutralButton("Ok", null)
+                    .setTitle(getResources().getString(R.string.dialog_title_oups))
+                    .setMessage(getResources().getString(R.string.dialog_text_oups))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_ok), null)
                     .show();
         }
     }
@@ -105,6 +109,11 @@ public class MainPageFragment extends Fragment {
     private void checkForTestStart(final int testNumber) {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = getContext().registerReceiver(null, ifilter);
+        if (batteryStatus == null) {
+            Log.e(TAG, "checkForTestStart: battery intent is null");
+            new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_oups).display(getActivity());
+            return;
+        }
         int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL;
@@ -115,10 +124,10 @@ public class MainPageFragment extends Fragment {
 
         if (batteryPct <= 50f && !isCharging) {
             new AlertDialog.Builder(getContext())
-                    .setTitle("WARNING")
-                    .setMessage("You only have " + batteryPct + " % of battery charge left, you should plug your phone")
-                    .setNeutralButton("Cancel", null)
-                    .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                    .setTitle(getResources().getString(R.string.dialog_title_warning))
+                    .setMessage(String.format(getResources().getString(R.string.dialog_text_battery_warning), batteryPct))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             startTestDialog(testNumber);
