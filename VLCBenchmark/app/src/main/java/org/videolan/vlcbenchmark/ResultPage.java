@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.*;
-import android.support.v7.widget.DividerItemDecoration;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -98,7 +97,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView .setLayoutManager(mLayoutManager);
-
+        Log.d("VLCBench", "Before addItemDecoration");
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         mAdapter = new TestResultListAdapter(results);
