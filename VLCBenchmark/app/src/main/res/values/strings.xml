@@ -44,6 +44,7 @@
     <string name="disconnect_key">disconnect_key</string>
 
     <!-- About content -->
+    <string name="about_description">Bla&#8230;VLCBenchmark&#8230;BlaBla</string>
     <string name="about_copyright" translatable="false">Copyleft &#169; 2016&#8211;2017 by VideoLAN.\n</string>
     <string name="authors" translatable="false">Jean-Baptiste&#160;Kempf, Geoffrey&#160;Métais, Alexandre&#160;Perraud, Thomas&#160;Guillem, Benoit&#160;Du&#160;Payrat, Bastien&#160;Penavayre, Duncan&#160;McNamara</string>
 
@@ -57,6 +58,7 @@
     <string name="dialog_title_oups">Oups &#8230;</string>
     <string name="dialog_title_missing_vlc">Missing VLC</string>
     <string name="dialog_title_outdated_vlc">Outdated VLC</string>
+    <string name="dialog_title_testing">Testing &#8230;</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
@@ -85,7 +87,12 @@
     <string name="explanation_text">
         This benchmark will test your smartphone\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 and get the average results with the right button below.
     </string>
-    
+
+    <string name="missing_samples">Missing test samples.</string>
+    <string name="download_warning">
+        To perform a benchmark, some test samples need to be downloaded.\nYou need to be connected to the wifi in order to download them.\nPlease note it could take some time and storage space, as there may be many.\nFurthermore, the said list is likely to evolve.
+    </string>
+
     <string name="progress_text_format">%1$s %% | file %2$d/%3$d | test %4$d</string>
     <string name="progress_text_format_loop">%1$s %% | file %2$d/%3$d | test %4$d | loop %5$d/%6$d</string>
 

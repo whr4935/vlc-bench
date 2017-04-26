@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:layout_marginTop="@dimen/default_margin"
-            android:text="Bla...VLCBenchmark...BlaBla"
+            android:text="@string/about_description"
             android:textSize="@dimen/text_imp_size"/>
 
         <TextView

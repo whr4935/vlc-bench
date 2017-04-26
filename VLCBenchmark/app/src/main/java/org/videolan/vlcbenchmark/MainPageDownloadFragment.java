@@ -20,7 +20,9 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -43,6 +45,22 @@ public class MainPageDownloadFragment extends Fragment {
 
     public MainPageDownloadFragment() {}
 
+    private void startDownload() {
+        if (mListener.getHasChecked()) {
+            Intent intent = new Intent(getActivity(), BenchService.class);
+            intent.putExtra("action", ServiceActions.SERVICE_DOWNLOAD);
+            getActivity().startService(intent);
+            CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
+            fragment.setCancelable(false);
+            fragment.show(getFragmentManager(), "Download dialog");
+        } else {
+            Intent intent = new Intent(getActivity(), BenchService.class);
+            intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
+            intent.putExtra("context",BenchService.FileCheckContext.download);
+            getActivity().startService(intent);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -51,19 +69,17 @@ public class MainPageDownloadFragment extends Fragment {
         dlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mListener.getHasChecked()) {
-                    Intent intent = new Intent(getActivity(), BenchService.class);
-                    intent.putExtra("action", ServiceActions.SERVICE_DOWNLOAD);
-                    getActivity().startService(intent);
-                    CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
-                    fragment.setCancelable(false);
-                    fragment.show(getFragmentManager(), "Download dialog");
-                } else {
-                    Intent intent = new Intent(getActivity(), BenchService.class);
-                    intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
-                    intent.putExtra("context",BenchService.FileCheckContext.download);
-                    getActivity().startService(intent);
-                }
+                new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.dialog_title_warning))
+                    .setMessage(getResources().getString(R.string.download_warning))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startDownload();
+                        }
+                    })
+                    .show();
             }
         });
         return view;

@@ -20,33 +20,31 @@
             android:tint="@color/white"
             android:clickable="true"/>
 
-        <ScrollView
-            android:id="@+id/scrollView_download"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_above="@id/fab_download"
-            android:background="@color/white"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginTop="@dimen/default_margin"
-            android:elevation="2dp">
+        <LinearLayout
+            android:id="@+id/no_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical"
+            android:layout_above="@id/fab_download">
+
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:src="@drawable/ic_cone"
+                android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:layout_gravity="center_horizontal" />
 
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:freezesText="true"
-                android:textColor="@android:color/black"
-                android:id="@+id/text_download"
-                android:enabled="true"
-                android:clickable="true"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:paddingTop="5dp"
-                android:background="@color/white"
-                android:text="There are some files to download."/>
-        </ScrollView>
+                android:layout_margin="@dimen/default_margin"
+                android:gravity="center"
+                android:text="@string/missing_samples"
+                android:textSize="20sp" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 
