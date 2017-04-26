@@ -589,6 +589,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     final public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean("RUNNING", running);
         if (running) {
             savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
             savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
@@ -608,7 +609,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     final public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+        running = savedInstanceState.getBoolean("RUNNING");
         if (running) {
             testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
             testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];

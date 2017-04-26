@@ -335,7 +335,6 @@ public class MainPage extends VLCWorkerModel implements
 
     @Override
     protected void onRestoreUiData(Bundle saveInstanceState) {
-        super.onRestoreInstanceState(saveInstanceState);
     }
 
     @Override
