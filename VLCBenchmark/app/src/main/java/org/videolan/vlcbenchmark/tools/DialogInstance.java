@@ -3,6 +3,8 @@ package org.videolan.vlcbenchmark.tools;
 import android.app.AlertDialog;
 import android.content.Context;
 
+import org.videolan.vlcbenchmark.R;
+
 public class DialogInstance {
 
     private int titleResId;
@@ -17,7 +19,7 @@ public class DialogInstance {
         new AlertDialog.Builder(context)
                 .setTitle(context.getResources().getString(titleResId))
                 .setMessage(context.getResources().getString(textResId))
-                .setNeutralButton("Ok", null)
+                .setNeutralButton(context.getResources().getString(R.string.dialog_btn_ok), null)
                 .show();
     }
 }
