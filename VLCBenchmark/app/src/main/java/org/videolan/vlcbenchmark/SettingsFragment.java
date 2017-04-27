@@ -1,6 +1,8 @@
 package org.videolan.vlcbenchmark;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -8,6 +10,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.util.Log;
 
+import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
@@ -33,22 +36,50 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.app_preferences);
     }
 
+    private void deleteSamples() {
+        DialogInstance dialog = new DialogInstance(
+                R.string.dialog_title_sample_deletion, R.string.dialog_text_file_deletion_success);
+        File dir = new File(FileHandler.getFolderStr("media_folder"));
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (!file.delete()) {
+                    Log.e("VLCBench", "Failed to delete sample " + file.getName());
+                    dialog.setMessage(R.string.dialog_text_sample_deletion_failure);
+                    break;
+                }
+            }
+        }
+        dialog.display(getActivity());
+        mListener.resetDownload();
+    }
+
+    private void deleteResults() {
+        boolean ret = JsonHandler.deleteFiles();
+        DialogInstance dialog;
+        if (ret) {
+            dialog = new DialogInstance(R.string.dialog_title_file_deletion, R.string.dialog_text_file_deletion_success);
+        } else {
+            dialog = new DialogInstance(R.string.dialog_title_file_deletion, R.string.dialog_text_file_deletion_failure);
+        }
+        dialog.display(getActivity());
+    }
+
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
-        boolean ret;
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setNeutralButton(android.R.string.ok, null);
-
+        AlertDialog.Builder dialog;
+        dialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.dialog_title_warning)
+                .setMessage(R.string.dialog_text_deletion_confirmation)
+                .setNeutralButton(R.string.dialog_btn_cancel, null);
         switch (preference.getKey()) {
             case "delete_saves_key":
-                ret = JsonHandler.deleteFiles();
-                dialog.setTitle(getResources().getString(R.string.dialog_title_file_deletion));
-                if (ret) {
-                    dialog.setMessage(getResources().getString(R.string.dialog_text_file_deletion_success));
-                } else {
-                    dialog.setMessage(getResources().getString(R.string.dialog_text_file_deletion_failure));
-                }
+                dialog.setNegativeButton(R.string.dialog_btn_continue, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteResults();
+                    }
+                });
                 dialog.show();
                 break;
             case "connect_key":
@@ -60,21 +91,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 mGoogleConnectionHandler.checkConnection(this);
                 break;
             case "delete_samples_key":
-                dialog.setTitle(getResources().getString(R.string.dialog_title_sample_deletion));
-                dialog.setMessage(getResources().getString(R.string.dialog_text_sample_deletion_success));
-                File dir = new File(FileHandler.getFolderStr("media_folder"));
-                File[] files = dir.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (!file.delete()) {
-                            Log.e("VLCBench", "Failed to delete sample " + file.getName());
-                            dialog.setMessage(getResources().getString(R.string.dialog_text_sample_deletion_failure));
-                            break;
-                        }
+                dialog.setNegativeButton(R.string.dialog_btn_continue, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteSamples();
                     }
-                }
+                });
                 dialog.show();
-                mListener.resetDownload();
                 break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
