@@ -50,15 +50,15 @@ public class MainPageDownloadFragment extends Fragment {
             Intent intent = new Intent(getActivity(), BenchService.class);
             intent.putExtra("action", ServiceActions.SERVICE_DOWNLOAD);
             getActivity().startService(intent);
-            CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
-            fragment.setCancelable(false);
-            fragment.show(getFragmentManager(), "Download dialog");
         } else {
             Intent intent = new Intent(getActivity(), BenchService.class);
             intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
             intent.putExtra("context",BenchService.FileCheckContext.download);
             getActivity().startService(intent);
         }
+        CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
+        fragment.setCancelable(false);
+        fragment.show(getFragmentManager(), "Download dialog");
     }
 
     @Override
