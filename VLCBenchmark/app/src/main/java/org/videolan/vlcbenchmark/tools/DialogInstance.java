@@ -22,4 +22,8 @@ public class DialogInstance {
                 .setNeutralButton(context.getResources().getString(R.string.dialog_btn_ok), null)
                 .show();
     }
+
+    public void setMessage(int textResId) {
+        this.textResId = textResId;
+    }
 }
