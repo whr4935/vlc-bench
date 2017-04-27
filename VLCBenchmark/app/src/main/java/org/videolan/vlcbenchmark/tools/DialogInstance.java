@@ -19,7 +19,7 @@ public class DialogInstance {
         new AlertDialog.Builder(context)
                 .setTitle(context.getResources().getString(titleResId))
                 .setMessage(context.getResources().getString(textResId))
-                .setNeutralButton(context.getResources().getString(R.string.dialog_btn_ok), null)
+                .setNegativeButton(context.getResources().getString(R.string.dialog_btn_ok), null)
                 .show();
     }
 
