@@ -16,14 +16,6 @@ import java.io.File;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    final String FILE_DELETION = "File deletion";
-    final String FILE_DELETION_MESSAGE_FAILURE = "Failed to delete all test results";
-    final String FILE_DELETION_MESSAGE_SUCCESS = "Deleted all test results";
-
-    final String SAMPLE_DELETION = "Sample deletion";
-    final String SAMPLE_DELETION_MESSAGE_FAILURE = "Failed to delete all samples";
-    final String SAMPLE_DELETION_MESSAGE_SUCCESS = "Deleted all samples";
-
     GoogleConnectionHandler mGoogleConnectionHandler;
 
     ISettingsFragment mListener;
@@ -51,11 +43,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         switch (preference.getKey()) {
             case "delete_saves_key":
                 ret = JsonHandler.deleteFiles();
-                dialog.setTitle(FILE_DELETION);
+                dialog.setTitle(getResources().getString(R.string.dialog_title_file_deletion));
                 if (ret) {
-                    dialog.setMessage(FILE_DELETION_MESSAGE_SUCCESS);
+                    dialog.setMessage(getResources().getString(R.string.dialog_text_file_deletion_success));
                 } else {
-                    dialog.setMessage(FILE_DELETION_MESSAGE_FAILURE);
+                    dialog.setMessage(getResources().getString(R.string.dialog_text_file_deletion_failure));
                 }
                 dialog.show();
                 break;
@@ -68,15 +60,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 mGoogleConnectionHandler.checkConnection(this);
                 break;
             case "delete_samples_key":
-                dialog.setTitle(SAMPLE_DELETION);
-                dialog.setMessage(SAMPLE_DELETION_MESSAGE_SUCCESS);
+                dialog.setTitle(getResources().getString(R.string.dialog_title_sample_deletion));
+                dialog.setMessage(getResources().getString(R.string.dialog_text_sample_deletion_success));
                 File dir = new File(FileHandler.getFolderStr("media_folder"));
                 File[] files = dir.listFiles();
                 if (files != null) {
                     for (File file : files) {
                         if (!file.delete()) {
                             Log.e("VLCBench", "Failed to delete sample " + file.getName());
-                            dialog.setMessage(SAMPLE_DELETION_MESSAGE_FAILURE);
+                            dialog.setMessage(getResources().getString(R.string.dialog_text_sample_deletion_failure));
                             break;
                         }
                     }
