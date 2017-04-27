@@ -34,7 +34,7 @@
     <string name="general_pref_category">General</string>
     <string name="misc_pref_category">Misc</string>
     <string name="about_pref">About</string>
-    <string name="delete_saves_pref">Delete saved results</string>
+    <string name="delete_saves_pref">Delete benchmarks</string>
     <string name="delete_saves_key">delete_saves_key</string>
     <string name="delete_samples_pref">Delete video samples</string>
     <string name="delete_samples_key">delete_samples_key</string>
