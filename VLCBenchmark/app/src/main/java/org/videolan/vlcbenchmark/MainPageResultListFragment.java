@@ -22,7 +22,9 @@ package org.videolan.vlcbenchmark;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,10 +32,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
@@ -62,7 +67,7 @@ public class MainPageResultListFragment extends Fragment {
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
 
-        data = JsonHandler.getFileNames();
+        data = orderBenchmarks(JsonHandler.getFileNames());
         mAdapter = new MainPageResultListFragment.TestListAdapter(data);
 
         if (data.isEmpty()) {
@@ -87,8 +92,6 @@ public class MainPageResultListFragment extends Fragment {
                 ));
         return view;
     }
-
-
 
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
 
@@ -133,5 +136,35 @@ public class MainPageResultListFragment extends Fragment {
         }
     }
 
+    private ArrayList<String> orderBenchmarks(ArrayList<String> str_dates) {
+        ArrayList<PairDateStr> data = new ArrayList<>();
+        for (String str_date : str_dates) {
+            PairDateStr pair = new PairDateStr(FormatStr.strDateToDate(JsonHandler.toDatePrettyPrint(str_date)), str_date);
+            if (pair.pair.first != null) {
+                data.add(pair);
+            }
+        }
+        Collections.sort(data);
+        Collections.reverse(data);
+        ArrayList<String> orderedDates = new ArrayList<>();
+        for (PairDateStr element : data) {
+            orderedDates.add(element.pair.second);
+        }
+        return orderedDates;
+    }
+
+    class PairDateStr implements Comparable<PairDateStr> {
+
+        Pair<Date, String> pair;
+
+        PairDateStr(Date date, String str) {
+            pair = new Pair<>(date, str);
+        }
+
+        @Override
+        public int compareTo(@NonNull PairDateStr o) {
+            return pair.first.compareTo(o.pair.first);
+        }
+    }
 
 }

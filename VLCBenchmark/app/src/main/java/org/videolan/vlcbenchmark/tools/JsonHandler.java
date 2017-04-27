@@ -30,16 +30,15 @@ public class JsonHandler {
         int count = 0;
         int i = 0;
         array = name.toCharArray();
-        while (i < array.length && count < 3) {
+        while (i < array.length && count < 6) {
             if (array[i] == '_') {
-                array[i] = ' ';
-                ++count;
-            }
-            ++i;
-        }
-        while (i < array.length && count < 5) {
-            if (array[i] == '_') {
-                array[i] = ':';
+                if (count == 1) {
+                    array[i] = ',';
+                } else if (count >= 4) {
+                    array[i] = ':';
+                } else {
+                    array[i] = ' ';
+                }
                 ++count;
             }
             ++i;
@@ -52,15 +51,8 @@ public class JsonHandler {
         int count = 0;
         int i = 0;
         array = name.toCharArray();
-        while (i < array.length && count < 3) {
-            if (array[i] == ' ') {
-                array[i] = '_';
-                ++count;
-            }
-            ++i;
-        }
         while (i < array.length && count < 5) {
-            if (array[i] == ':') {
+            if (array[i] == ' ' || array[i] == ',' || array[i] == ':') {
                 array[i] = '_';
                 ++count;
             }
@@ -127,8 +119,6 @@ public class JsonHandler {
             for (File file : files) {
                 fileNames.add(file.getName().replaceAll(".txt", ""));
             }
-            Collections.sort(fileNames);
-            Collections.reverse(fileNames);
         }
         return fileNames;
     }
