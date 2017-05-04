@@ -1,0 +1,11 @@
+VLCBenchmark/*.iml
+VLCBenchmark/app/*.iml
+VLCBenchmark/.gradle
+VLCBenchmark/local.properties
+VLCBenchmark/.idea/workspace.xml
+VLCBenchmark/.idea/libraries
+VLCBenchmark/.DS_Store
+VLCBenchmark/build
+VLCBenchmark/captures
+samples
+screenshot.png
