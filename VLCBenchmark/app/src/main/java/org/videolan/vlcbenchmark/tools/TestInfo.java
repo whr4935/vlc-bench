@@ -184,20 +184,24 @@ public class TestInfo implements Serializable {
         return numberOfWarnings[testType == SOFT ? SOFT : HARD];
     }
 
-    public void badScreenshot(double percent, boolean isSoftware) {
+    public void setBadScreenshot(double percent, boolean isSoftware) {
         double[] tmp = (isSoftware ? software : hardware);
 
         percentOfBadScreenshots[isSoftware ? SOFT : HARD] = percent;
         tmp[QUALITY] = (1.0 - (percent / 100.0)) * tmp[QUALITY];
     }
 
-    public void badFrames(int number_of_dropped_frames, boolean isSoftware) {
+    public void setBadFrames(int number_of_dropped_frames, boolean isSoftware) {
         double[] tmp = (isSoftware ? software : hardware);
 
         framesDropped[isSoftware ? SOFT : HARD] += number_of_dropped_frames;
         tmp[PLAYBACK] -= 5 * number_of_dropped_frames;
         if (tmp[PLAYBACK] <= 0)
             tmp[PLAYBACK] = 0;
+    }
+
+    public void setWarningNumber(int number, boolean isSoftware) {
+        this.numberOfWarnings[isSoftware ? SOFT : HARD] += number;
     }
 
     private String getSfx(boolean isScreenshot) {

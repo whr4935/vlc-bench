@@ -448,7 +448,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             testScreenshot(data);
             return;
         } else {
-            lastTestInfo.badFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
+            lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
+            lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), testIndex.isSoftware());
         }
         launchNextTest();
     }
@@ -459,7 +460,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * and check their existence and validity.
      * <p>
      * Every time said conditions are not met a counter is incremented.
-     * At the end of the Thread we update call {@link TestInfo#badScreenshot(double, boolean)} with said number
+     * At the end of the Thread we update call {@link TestInfo#setBadScreenshot(double, boolean)} with said number
      * and call {@link VLCWorkerModel#launchTests(int)} on the UI thread.
      *
      * @param data the Intent from which we get in which folder the screenshots are located.
@@ -484,7 +485,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                     if (exists)
                         file.delete();
                 }
-                lastTestInfo.badScreenshot(100.0 * badScreenshots / numberOfScreenshot, testIndex.isSoftware());
+                lastTestInfo.setBadScreenshot(100.0 * badScreenshots / numberOfScreenshot, testIndex.isSoftware());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
