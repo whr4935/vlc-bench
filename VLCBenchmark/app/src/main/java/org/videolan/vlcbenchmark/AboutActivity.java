@@ -9,6 +9,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+
+import org.videolan.vlcbenchmark.tools.Util;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -37,9 +40,11 @@ public class AboutActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText(tab_licence));
 
         View aboutLayout = findViewById(R.id.layout_about);
-        View licenceLayout = findViewById(R.id.layout_licence);
+        WebView licenceWebView = (WebView) findViewById(R.id.licence_webview);
 
-        View[] views = new View[]{aboutLayout, licenceLayout};
+        licenceWebView.loadData(Util.readAsset("licence.htm", getResources().getAssets()), "text/html", "UTF8");
+
+        View[] views = new View[]{aboutLayout, licenceWebView};
         String[] titles = new String[]{tab_about, tab_licence};
 
         ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
