@@ -23,88 +23,191 @@ package org.videolan.vlcbenchmark.tools;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.support.annotation.Size;
-import android.support.v4.graphics.ColorUtils;
+import android.util.Log;
 
 /**
- * Created by penava_b on 02/08/16.
+ * ScreenshotValidator compares the screenshots taken during the benchmark
+ * with the reference for the sample.
+ * Each screenshot is divided into wbNumber blocks in width and hbNumber blocks in height
+ * On each blocks the average color is computed and compared to the reference to
+ * get a percentage of difference
+ * Depending on that error margin percentage, the screenshot is validated or not
  */
 public class ScreenshotValidator {
 
+    private final static String TAG = ScreenshotValidator.class.getName();
+
+    /* Error margin on color difference percentage */
+    /* It is set quite high for now to balance differences between devices */
+    //TODO find source of differences / better algorithm
+    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 20.0;
+
+    /* number of blocks in image width */
+    private final static int wbNumber = 6;
+    /* number of blocks in image height */
+    private final static int hbNumber = 5;
+
     /**
-     * Implementation of the CIE94 algorithm to find the difference between two color.
-     *
-     * @param leftLab  a color converted to the <a href="https://en.wikipedia.org/wiki/Lab_color_space">Lab color space</a> format.
-     * @param rightLab an other color converted to the <a href="https://en.wikipedia.org/wiki/Lab_color_space">Lab color space</a>  format.
-     * @return a value between 0 and 255.
-     * 0 when the two given colors are identical.
-     * The higher the value, the bigger the difference between the two given colors
-     * @see <a href="https://en.wikipedia.org/wiki/Color_difference#CIE94">wikipedia CIE94</a>
+     * Takes an int with RGB values encoded int and decodes it
+     * @param rgbInt int encoded with RGB values
+     * @return arrat with RGB values decoded
      */
-    public static double CIE94ColorDifference(@Size(min = 3) double[] leftLab, @Size(min = 3) double[] rightLab) {
-        if (leftLab == null || rightLab == null)
-            return 255f;
-        double deltaLStar = leftLab[0] - rightLab[0];
-        double cOneStar = sqrt(pow2(leftLab[1]) + pow2(rightLab[2]));
-        double cTwoStar = sqrt(pow2(leftLab[2]) + pow2(rightLab[1]));
-        double deltaCStar = cOneStar - cTwoStar;
-        double deltaA = leftLab[1] - rightLab[1];
-        double deltaB = leftLab[2] - rightLab[2];
-        double deltaHStarAb = sqrt(pow2(deltaA) + pow2(deltaB) - pow2(deltaCStar));
-        double Sl = 1;
-        double Sc = 1 + 0.045 * cOneStar;
-        double Sh = 1 + 0.015 * cTwoStar;
-        return sqrt(pow2(deltaLStar) + pow2(deltaCStar / Sc) + pow2(deltaHStarAb / Sh));
+    private static int[] getRGB(int rgbInt) {
+        int rgb[] = new int[3];
+
+        rgb[0] = (rgbInt >> 16) & 0xFF;
+        rgb[1] = (rgbInt >>  8) & 0xFF;
+        rgb[2] = (rgbInt      ) & 0xFF;
+
+        return rgb;
     }
 
-    private static double pow2(double val) {
-        return val * val;
+    /**
+     * Calculates the averages RGB for a block
+     * @param pix image pixel two dimensional array
+     * @param width image width
+     * @param height image height
+     * @param iWidth block index in width
+     * @param iHeight block index in height
+     * @return RGB array for the average color of the block
+     */
+    private static int[] getBlockColorValue(int[][] pix, int width, int height, int iWidth, int iHeight) {
+        int wbSize = width / wbNumber;
+        int hbSize = height / hbNumber;
+
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+
+        for (int inc = iHeight * hbSize ; inc < (iHeight + 1) * hbSize ; inc++) {
+            for (int i = iWidth * wbSize ; i < (iWidth + 1) * wbSize ; i++) {
+                red += Color.red(pix[inc][i]);
+                green += Color.green(pix[inc][i]);
+                blue += Color.blue(pix[inc][i]);
+            }
+        }
+
+        red /= wbSize * hbSize;
+        green /= wbSize * hbSize;
+        blue /= wbSize * hbSize;
+
+        return new int[]{red, green, blue};
     }
 
-    private static double sqrt(double val) {
-        return Math.sqrt(val);
+    /**
+     * Converts each RGB encoded ints in the array to an RGB array
+     * @param array of RGB encoded int
+     * @return array of RGB decoded array
+     */
+    private static int[][] convertRGBintArray(int[] array) {
+        int[][] refArray = new int[array.length][3];
+
+        for (int i = 0 ; i < array.length ; i++) {
+            refArray[i] = getRGB(array[i]);
+        }
+
+        return refArray;
     }
 
-    public static double[] rgbToLab(int red, int green, int blue) {
-        double[] lab = new double[3];
-        ColorUtils.RGBToLAB(red, green, blue, lab);
-        return lab;
+    /**
+     * Computes the color (R, G, or B) difference between the screenshot block and the reference block
+     * @param colorValue screenshot block color average
+     * @param reference reference block color average
+     * @return color difference percentage
+     */
+    private static double getDiffPercentage(int colorValue, int reference) {
+        double valuePercent = colorValue / 255d * 100d;
+        double refPercent = reference / 255d * 100d;
+        double color = Math.abs(valuePercent / refPercent * 100d);
+        return Math.abs(100d - color);
     }
 
-    public static double[] rgbToLab(int color) {
-        double[] lab = new double[3];
-        ColorUtils.RGBToLAB(Color.red(color), Color.green(color), Color.blue(color), lab);
-        return lab;
+    /**
+     * Computes the RGB difference between the screenshot block and the reference block
+     * @param colorValue screenshot block RGB array
+     * @param reference reference block RGB array
+     * @return RGB block average difference
+     */
+    private static double compareBlockColorValues(int[] colorValue, int[] reference) {
+        double red = getDiffPercentage(colorValue[0], reference[0]);
+        double green = getDiffPercentage(colorValue[1], reference[1]);
+        double blue = getDiffPercentage(colorValue[2], reference[2]);
+        return (red + green + blue) / 3d;
     }
 
-    public static int averageColorForImage(String filePath) {
+    /**
+     * Compares screenshot blocks and reference blocks and computes the average difference
+     * @param colorValues screenshot array of block's RGB arrays
+     * @param reference reference array block's RGB arrays
+     * @return average color difference between screenshot and reference
+     */
+    private static double compareImageBlocks(int[][] colorValues, int[][] reference) {
+        if (colorValues.length != reference.length) {
+            Log.e(TAG, "The color arrays are not of the same size");
+            throw new RuntimeException();
+        }
+
+        double diff = 0;
+        for (int i = 0 ; i < colorValues.length ; i++) {
+            diff += compareBlockColorValues(colorValues[i], reference[i]);
+        }
+        diff /= colorValues.length;
+
+        return diff;
+    }
+
+    /**
+     * Opens screenshot and computes color averages for each blocks
+     * @param filepath screenshot filepath
+     * @return screenshot's array of block's RGB array
+     */
+    private static int[][] getColorValues(String filepath) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
-        if (bitmap == null)
+        Bitmap bitmap = BitmapFactory.decodeFile(filepath, options);
+        if (bitmap == null) {
+            Log.e(TAG, "Failed to get bitmap from screenshot");
             throw new RuntimeException();
-        long red = 0;
-        long green = 0;
-        long blue = 0;
-        int[] pixels = new int[bitmap.getHeight() * bitmap.getWidth()];
-        bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-        for (int i = 0; i < pixels.length; i++) {
-            int tmpColor = pixels[i];
-            red += Color.red(tmpColor);
-            green += Color.green(tmpColor);
-            blue += Color.blue(tmpColor);
         }
-        red /= pixels.length;
-        green /= pixels.length;
-        blue /= pixels.length;
-        return Color.rgb((int) red, (int) green, (int) blue);
+
+        int[] pix = new int[bitmap.getWidth() * bitmap.getHeight()];
+        bitmap.getPixels(pix, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+        int[][] pixTab = new int[bitmap.getHeight()][bitmap.getWidth()];
+        for (int i = 0 ; i < bitmap.getHeight() ; i++) {
+            for (int inc = 0 ; inc < bitmap.getWidth() ; inc++) {
+                pixTab[i][inc] = pix[inc + i * bitmap.getWidth()];
+            }
+        }
+
+        int[][] colorValues = new int[wbNumber * hbNumber][3];
+        for (int i = 0 ; i < wbNumber ; i++) {
+            for (int inc = 0 ; inc < hbNumber ; inc++) {
+                colorValues[i * hbNumber + inc] =
+                        getBlockColorValue(pixTab, bitmap.getWidth(), bitmap.getHeight(), i, inc);
+            }
+        }
+
+        return colorValues;
     }
 
-    public static double getValidityPercent(String filePath, Integer color) {
+    /**
+     * Computes the percentage of color difference between screenshot and reference
+     * and validates screenshot or not
+     * @param filepath screenshot filepath
+     * @param reference RGB encoded int array of reference from the sample
+     * @return color difference percentage between screenshot and reference
+     */
+    public static boolean validateScreenshot(String filepath, int[] reference) {
         try {
-            return CIE94ColorDifference(rgbToLab(averageColorForImage(filePath)), rgbToLab(color)) * 100f / 255f;
+            int[][] colorValues = getColorValues(filepath);
+            int[][] colorReference = convertRGBintArray(reference);
+            double diff = compareImageBlocks(colorValues, colorReference);
+            return diff < MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT;
         } catch (RuntimeException e) {
-            return 100.0;
+            Log.e(TAG, "getValidityPercent has failed: ");
+            e.printStackTrace();
+            return false;
         }
     }
+
 }

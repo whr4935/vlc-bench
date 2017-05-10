@@ -51,7 +51,7 @@ public class JsonHandler {
         int count = 0;
         int i = 0;
         array = name.toCharArray();
-        while (i < array.length && count < 5) {
+        while (i < array.length && count < 6) {
             if (array[i] == ' ' || array[i] == ',' || array[i] == ':') {
                 array[i] = '_';
                 ++count;

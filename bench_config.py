@@ -45,7 +45,7 @@ class KeyHandler:
 
 #function for starting vlc in other thread.
 def startVlc():
-    os.popen("vlc")
+    os.popen("vlc --fullscreen")
 
 class VlcDbus:
 
@@ -60,10 +60,10 @@ class VlcDbus:
         self.vlcPlayer = dbus.Interface(self.vlcHandle, "org.mpris.MediaPlayer2.Player")
         self.vlcProp = dbus.Interface(self.vlcHandle, "org.freedesktop.DBus.Properties")
         self.vlc = dbus.Interface(self.vlcHandle, "org.mpris.MediaPlayer2")
-        
+
     def quit(self):
         self.vlc.Quit()
-        
+
     def play(self):
         self.vlcPlayer.Play()
 
@@ -80,7 +80,7 @@ class VlcDbus:
     def getPlaybackStatus(self):
         property = self.vlcProp.Get("org.mpris.MediaPlayer2.Player", "PlaybackStatus")
         return property
-    
+
     def open(self, uri):
         self.vlcPlayer.OpenUri(uri)
 
@@ -126,28 +126,16 @@ class JsonHandler:
         self.jsonfile.close()
 
 
-def binprint(intvalue):
-    binstr = "{0:b}".format(intvalue)
-    #print("binstr = " + binstr)
-    print("len binstr = " + str(len(binstr)))
-    tab = []
-    for i in range (0, len(binstr)):
-        #print("binstr[" + str(i) + "] = " + str(binstr[i]))
-        tab.append(binstr[i])
-        if (i > 0 and i % 8 == 7):
-            print tab
-            tab = []
+#number of blocks in width
+wb_number = 6
+#number of blocks in height
+hb_number = 5
 
 def getIntFromRGB(rgb):
     red = rgb[0]
     green = rgb[1]
     blue = rgb[2]
-    RGBint = int(255 << 24) | int(red << 16) | int(green << 8) | int(blue)
-    #RGBint = (red<<16) + (green<<8) + blue
-    #RGBint = int(blue << 16) | int(green << 8) | int(red)
-    binprint(RGBint)
-    RGBint = int(RGBint - pow(2, 32))
-    print ("RBG = {0:b}".format(RGBint))
+    RGBint = int(red << 16) | int(green << 8) | int(blue)
     return RGBint
 
 def getColorValue(i):
@@ -159,7 +147,7 @@ def getColorValue(i):
     red = 0
     green = 0
     blue = 0
-        
+
     if (pixelBuf != None):
         filename = "screenshot.png"
         pixelBuf.save(filename, "png")
@@ -173,20 +161,63 @@ def getColorValue(i):
                 blue += pix[i, inc][2]
         red /= imageSize[0] * imageSize[1]
         green /= imageSize[0] * imageSize[1]
-        blue /= imageSize[0] * imageSize[1] 
+        blue /= imageSize[0] * imageSize[1]
         rgbcolor = getIntFromRGB([red, green, blue])
 
-        print("red = " + str(red))
-        print("green = " + str(green))
-        print("blue = " + str(blue))
-        print("rgb = " + str(rgbcolor))
-
         os.remove(filename)
-        return rgbcolor    
+        return rgbcolor
     else:
         print("Failed to get screenshot")
     return 0
-        
+
+def getBlockColorValue(pix, imageSize, iWidth, iHeight):
+    wb_size = imageSize[0] / wb_number
+    hb_size = imageSize[1] / hb_number
+
+    red = 0
+    green = 0
+    blue = 0
+
+    for i in range (iWidth * wb_size, (iWidth + 1) * wb_size):
+        for inc in range (iHeight * hb_size, (iHeight + 1) * hb_size):
+            red += pix[i, inc][0]
+            green += pix[i, inc][1]
+            blue += pix[i, inc][2]
+    red /= wb_size * hb_size
+    green /= wb_size * hb_size
+    blue /= wb_size * hb_size
+    return (getIntFromRGB([red, green, blue]))
+
+
+def getColorValues():
+    window = gtk.gdk.get_default_root_window()
+    size = window.get_size()
+    pixelBuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, size[0], size[1])
+    pixelBuf = pixelBuf.get_from_drawable(window, window.get_colormap(),
+                                          0, 0, 0, 0, size[0], size[1])
+
+    if (pixelBuf != None):
+        filename = "screenshot.png"
+        pixelBuf.save(filename, "png")
+        image = Image.open(filename) #Can be many different formats.
+        pix = image.load()
+        imageSize = image.size
+
+        colorValues = []
+
+        for i in range(0, wb_number):
+            for inc in range(0, hb_number):
+                colorValues.append(getBlockColorValue(pix, imageSize, i, inc))
+
+
+        for i in range (0, len(colorValues)):
+            print(str(i) + " - " + str(colorValues[i]))
+        os.remove(filename)
+        return colorValues
+    else:
+        print("Failed to get screenshot")
+    return 0
+
 def selectionLoop(filepath):
     vlc = VlcDbus()
     vlc.open("file://" + filepath)
@@ -198,12 +229,12 @@ def selectionLoop(filepath):
         if (state_changed and pressed == "<enter>"):
             vlc.pause()
             position = vlc.getPosition()
-            colorValue = getColorValue(i)
-            print ("position: " + str(vlc.getPosition()) + " ms")
+            colorValue = getColorValues()
             tab.append(list([position, colorValue]))
             i += 1
             vlc.play()
-        if (state_changed and pressed == "<esc>" and len(tab) >= 2):
+            #TODO change back min len to 2
+        if (state_changed and pressed == "<esc>" and len(tab) >= 1):
             break
     vlc.quit()
     return tab
@@ -211,7 +242,6 @@ def selectionLoop(filepath):
 def getChecksum(filepath):
     filestr = open(filepath, "r")
     hexhash = hashlib.sha512(filestr.read()).hexdigest()
-    print ("Checksum = " + hexhash)
     return hexhash
 
 #gets the name at the end of the given path
@@ -221,7 +251,7 @@ def getFileName(filepath):
 
 def edit(filepath):
     print ("edit option was not yet implemented")
-    
+
 def add(filepath):
     if (not os.path.exists(filepath)):
         print ("File not found")
@@ -235,7 +265,7 @@ def add(filepath):
         sample["name"] = name
         sample["url"] = name
         sample["checksum"] = getChecksum(filepath)
-        
+
         jHandler = JsonHandler()
         jsonData = jHandler.getJsonObject()
         jsonData.append(sample)
@@ -269,7 +299,7 @@ def find(filepath):
         if (element["name"] == getFileName(filepath)):
             return True
     return False
-    
+
 def show():
     jHandle = JsonHandler()
     jsonData = jHandle.getJsonObject()
@@ -295,17 +325,17 @@ def updateFileName(filename):
 def reminders():
 # reminders
     c = 0
-    while (c != 'y' and c != 'n' and c != '\n'): 
+    while (c != 'y' and c != 'n' and c != '\n'):
         c = raw_input("Have you activated the vlc option " +
                   "Tools/Preferences/Video/Display/Fullscreen ? [y/N]: ")
     if (c != 'y'):
         exit(1)
     c = 0
-    while (c != 'y' and c != 'n' and c != '\n'): 
+    while (c != 'y' and c != 'n' and c != '\n'):
         c = raw_input("Have you synchronised the folder with the rsync folder ? [y/N]: ")
     if (c != 'y'):
         exit(1)
-    
+
 
 usage = "Usage: ./bench_config.py --[add | del | edit | list | json] [filepath]"
 # option selection

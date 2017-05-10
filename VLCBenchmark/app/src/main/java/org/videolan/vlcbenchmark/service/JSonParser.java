@@ -71,7 +71,7 @@ public class JSonParser {
 
     static MediaInfo readMediaInfo(JsonReader reader) throws IOException {
         String url = null, name = null, checksum = null;
-        Pair<ArrayList<Long>, ArrayList<Integer>> snapshot = null;
+        Pair<ArrayList<Long>, ArrayList<int[]>> snapshot = null;
 
         try {
             reader.beginObject();
@@ -96,19 +96,28 @@ public class JSonParser {
             }
             reader.endObject();
         } catch (IllegalStateException e) {
-            throw new IOException("VLCBenchmark is using a too old version. Update the application to fix");
+            throw new IOException("VLCBenchmark is using a too old version. Update the application to fix: " + e.toString());
         }
         return new MediaInfo(url, name, checksum, snapshot.first, snapshot.second);
     }
 
-    static Pair<ArrayList<Long>, ArrayList<Integer>> readLongArray(JsonReader reader) throws IOException {
-        Pair<ArrayList<Long>, ArrayList<Integer>> result = new Pair<>(new ArrayList<Long>(), new ArrayList<Integer>());
-
+    static Pair<ArrayList<Long>, ArrayList<int[]>> readLongArray(JsonReader reader) throws IOException {
+        Pair<ArrayList<Long>, ArrayList<int[]>> result = new Pair<>(new ArrayList<Long>(), new ArrayList<int[]>());
+        int[] colorValues;
         reader.beginArray();
         while (reader.hasNext()) {
             reader.beginArray();
             result.first.add(reader.hasNext() ? reader.nextLong() : 0L);
-            result.second.add(reader.hasNext() ? reader.nextInt() : 0);
+            reader.beginArray();
+            colorValues = new int[30];
+            int i = 0;
+            while (reader.hasNext()) {
+                colorValues[i] = reader.nextInt();
+                i += 1;
+            }
+            result.second.add(colorValues);
+            reader.endArray();
+//            result.second.add(reader.hasNext() ? reader.nextInt() : 0);
             reader.endArray();
         }
         reader.endArray();

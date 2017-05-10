@@ -23,19 +23,16 @@ package org.videolan.vlcbenchmark.service;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by penava_b on 12/07/16.
- */
 public class MediaInfo implements Serializable {
 
     String url;
     String name;
     List<Long> timestamps;
-    List<Integer> colors;
+    List<int[]> colors;
     String checksum;
     String localUrl;
 
-    public MediaInfo(String url, String name, String checksum, List<Long> timestamps, List<Integer> colors) {
+    public MediaInfo(String url, String name, String checksum, List<Long> timestamps, List<int[]> colors) {
         this.url = url;
         this.name = name;
         this.checksum = checksum;
@@ -54,7 +51,7 @@ public class MediaInfo implements Serializable {
 
     public List<Long> getSnapshot() { return timestamps; }
 
-    public List<Integer> getColors() {
+    public List<int[]> getColors() {
         return colors;
     }
 

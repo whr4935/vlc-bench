@@ -133,7 +133,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
     private static final String PLAYBACK_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_PLAYBACK";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
-    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 2.5;
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
     private static final String SHARED_PREFERENCE_WARNING = "org.videolan.vlc.gui.video.benchmark.WARNING";
@@ -468,7 +467,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private void testScreenshot(Intent data) {
         final String screenshotFolder = data.getStringExtra("screenshot_folder"); //TODO replace with SharedPreference
         final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
-        final List<Integer> colors = testFiles.get(fileIndex).getColors();
+        final List<int[]> colors = testFiles.get(fileIndex).getColors();
 
         new Thread() {
             @Override
@@ -479,7 +478,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                     File file = new File(filePath);
                     boolean exists;
                     if (!(exists = file.exists()) ||
-                            ScreenshotValidator.getValidityPercent(filePath, colors.get(i)) >= MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT) {
+                            !ScreenshotValidator.validateScreenshot(filePath, colors.get(i))) {
                         badScreenshots++;
                     }
                     if (exists)
