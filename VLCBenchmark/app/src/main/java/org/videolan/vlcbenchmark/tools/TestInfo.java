@@ -202,6 +202,11 @@ public class TestInfo implements Serializable {
 
     public void setWarningNumber(int number, boolean isSoftware) {
         this.numberOfWarnings[isSoftware ? SOFT : HARD] += number;
+        if (isSoftware) {
+            software[PLAYBACK] -= number;
+        } else {
+            hardware[PLAYBACK] -= number;
+        }
     }
 
     private String getSfx(boolean isScreenshot) {
