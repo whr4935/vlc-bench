@@ -39,7 +39,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
@@ -72,6 +71,7 @@ import java.util.List;
  */
 public abstract class VLCWorkerModel extends AppCompatActivity implements BenchServiceListener {
 
+    private final static String TAG = "VLCWorkerModel";
     /**
      * We use this member to start, stop and listene to {@link org.videolan.vlcbenchmark.service.BenchService}
      */
@@ -217,7 +217,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * This calls {@link #setupUiMembers(Bundle savedInstanceState)}, sets up the {@link BenchServiceDispatcher} dispatcher member and request
      * permissions to read on the external storage.
      *
-     * @param savedInstanceState
+     * @param savedInstanceState saved state bundle
      */
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
@@ -383,7 +383,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                 return;
             }
             if (data == null && resultCode != ResultCodes.RESULT_OK) {
-                fillCurrentTestInfo(data, true, resultCode);
+                fillCurrentTestInfo(null, true, resultCode);
                 return;
             }
             String errorMessage;
@@ -482,8 +482,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                             !ScreenshotValidator.validateScreenshot(filePath, colors.get(i))) {
                         badScreenshots++;
                     }
-                    if (exists)
-                        file.delete();
+                    if (exists && !file.delete())
+                        Log.e(TAG, "Failed to delete screenshot");
                 }
                 lastTestInfo.setBadScreenshot(100.0 * badScreenshots / numberOfScreenshot, testIndex.isSoftware());
                 runOnUiThread(new Runnable() {
