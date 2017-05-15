@@ -174,7 +174,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     protected abstract void onFileTestStarted(String fileName);
 
     /**
-     * Is called once a single test is finished.
+     * Called to update the test dialog.
      * @param testName the name of the test (ex : screenshot software, ...)
      * @param succeeded status of the test
      * @param fileIndex the index of the current file
@@ -183,7 +183,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param loopNumber the number of times we've repeated all tests
      * @param numberOfLoops the total number of time we have to repeat
      */
-    protected abstract void onSingleTestFinished(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
+    protected abstract void updateTestProgress(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
 
     /**
      * Is called if VLC stopped due to an uncaught exception while testing.
@@ -314,7 +314,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
         } catch (ActivityNotFoundException e) {
             Log.e("VLCBench", "Failed to start VLC");
-            //TODO or not, should be taken care of beforehand
             return false;
         }
         return true;
@@ -365,6 +364,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        Log.d("VLCWorkerModel", "onActivityResult: ");
          if (requestCode == RequestCodes.VLC) {
             if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
                 initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
@@ -376,7 +376,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                 lastTestInfo = new TestInfo(name, loopNumber);
                 onFileTestStarted(name);
             }
-            onSingleTestFinished(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
+            updateTestProgress(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
 
             if (data != null && resultCode == -1) {
                 fillCurrentTestInfo(data, false, resultCode);
@@ -588,7 +588,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param savedInstanceState Bundle in which we save said data
      */
     @Override
-    final public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean("RUNNING", running);
         if (running) {
             savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
@@ -608,7 +608,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param savedInstanceState Bundle from which we retrieve said data
      */
     @Override
-    final public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d("VLCWorkerModel", "onRestoreInstanceState: ");
         running = savedInstanceState.getBoolean("RUNNING");
         if (running) {
             testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
@@ -619,6 +620,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
             resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
             onRestoreUiData(savedInstanceState);
+//            updateTestProgress(testIndex.toString(), true, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
         }
     }
 

@@ -23,6 +23,7 @@ package org.videolan.vlcbenchmark;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -64,7 +65,9 @@ public class MainPage extends VLCWorkerModel implements
 
     private boolean hasDownloaded = false;
     private boolean hasChecked = false;
+    private int mMenuItemId = 0;
     private CurrentTestFragment currentTestFragment = null;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -119,8 +122,47 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    public void startCurrentTestFragment() {
+        CurrentTestFragment fragment = new CurrentTestFragment();
+        fragment.setCancelable(false);
+        fragment.show(getSupportFragmentManager(), "Current test");
+    }
+
     public boolean getHasChecked() {
         return hasChecked;
+    }
+
+    private boolean setCurrentFragment(int itemId) {
+        Log.d(TAG, "Call to setCurrentFragment: itemId: " + itemId);
+        switch (itemId) {
+            case R.id.home_nav:
+                setUpHomeFragment();
+                break;
+            case R.id.results_nav:
+                if (findViewById(R.id.main_page_fragment_holder) != null) {
+                    MainPageResultListFragment fragment = new MainPageResultListFragment();
+                    toolbar.setTitle(getResources().getString(R.string.results_page));
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.main_page_fragment_holder, fragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+                break;
+            case R.id.settings_nav:
+                if (findViewById(R.id.main_page_fragment_holder) != null) {
+                    SettingsFragment fragment = new SettingsFragment();
+                    toolbar.setTitle(getResources().getString(R.string.settings_page));
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.main_page_fragment_holder, fragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+                break;
+            default:
+                return false;
+        }
+        mMenuItemId = itemId;
+        return true;
     }
 
     @Override
@@ -131,7 +173,6 @@ public class MainPage extends VLCWorkerModel implements
         intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
         this.startService(intent);
 
-        BottomNavigationView bottomNavigationView;
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
@@ -140,32 +181,7 @@ public class MainPage extends VLCWorkerModel implements
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.home_nav:
-                                setUpHomeFragment();
-                                break;
-                            case R.id.results_nav:
-                                if (findViewById(R.id.main_page_fragment_holder) != null) {
-                                    MainPageResultListFragment fragment = new MainPageResultListFragment();
-                                    toolbar.setTitle(getResources().getString(R.string.results_page));
-                                    getSupportFragmentManager().beginTransaction()
-                                            .replace(R.id.main_page_fragment_holder, fragment)
-                                            .addToBackStack(null)
-                                            .commit();
-                                }
-                                break;
-                            case R.id.settings_nav:
-                                if (findViewById(R.id.main_page_fragment_holder) != null) {
-                                    SettingsFragment fragment = new SettingsFragment();
-                                    toolbar.setTitle(getResources().getString(R.string.settings_page));
-                                    getSupportFragmentManager().beginTransaction()
-                                            .replace(R.id.main_page_fragment_holder, fragment)
-                                            .addToBackStack(null)
-                                            .commit();
-                                }
-                                break;
-                        }
-                        return true;
+                        return setCurrentFragment(item.getItemId());
                     }
                 }
         );
@@ -276,7 +292,7 @@ public class MainPage extends VLCWorkerModel implements
     }
 
     @Override
-    protected void onSingleTestFinished(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
+    protected void updateTestProgress(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
         if (currentTestFragment != null) {
             progressBar.incrementProgressBy(1);
             if (numberOfLoops != 1)
@@ -323,18 +339,51 @@ public class MainPage extends VLCWorkerModel implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RequestCodes.RESULTS) {
             resetUiToDefault();
         }
+    //        if (running && currentTestFragment == null) {
+    //            Log.e(TAG, "onActivityResult: running and currentTestFragment is null");
+    //            startCurrentTestFragment();
+    //        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle savedInstanceState) {
+//        savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
+//        savedInstanceState.putBoolean("HAS_DOWNLOADED", hasDownloaded);
+//        savedInstanceState.putBoolean("HAD_CHECKED", hasChecked);
+//        super.onSaveInstanceState(savedInstanceState);
+//    }
+//
+//    @Override
+//    public void onRestoreInstanceState(Bundle savedInstanceState) {
+//        Log.d(TAG, "onRestoreInstanceState: ");
+//        mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
+//        hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
+//        hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
+//        bottomNavigationView.setSelectedItemId(mMenuItemId);
+//        setCurrentFragment(mMenuItemId);
+////        startCurrentTestFragment();
+//        super.onRestoreInstanceState(savedInstanceState);
+//    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        currentTestFragment = null;
     }
 
     @Override
     protected void onSaveUiData(Bundle saveInstanceState) {
+
     }
 
     @Override
     protected void onRestoreUiData(Bundle saveInstanceState) {
+        Log.d(TAG, "onRestoreUiData: ");
+//        startCurrentTestFragment();
     }
 
     @Override

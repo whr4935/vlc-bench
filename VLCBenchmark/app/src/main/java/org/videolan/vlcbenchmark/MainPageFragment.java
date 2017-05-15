@@ -93,9 +93,10 @@ public class MainPageFragment extends Fragment {
             return;
         }
         if (mListener.launchTests(testNumber)) {
-            CurrentTestFragment fragment = new CurrentTestFragment();
-            fragment.setCancelable(false);
-            fragment.show(getFragmentManager(), "Current test");
+            mListener.startCurrentTestFragment();
+//            CurrentTestFragment fragment = new CurrentTestFragment();
+//            fragment.setCancelable(false);
+//            fragment.show(getFragmentManager(), "Current test");
         } else {
             Log.e(TAG, "Failed to start the benchmark");
             new AlertDialog.Builder(getContext())
@@ -180,63 +181,6 @@ public class MainPageFragment extends Fragment {
         return view;
     }
 
-    private void setupOrientation(Configuration config) {
-        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.main_page_text_layout);
-        ScrollView specs = (ScrollView) getActivity().findViewById(R.id.specs_scrollview);
-        ScrollView exp = (ScrollView) getActivity().findViewById(R.id.test_explanation_scrollview);
-        View sep = getActivity().findViewById(R.id.separator);
-
-        int double_margin = Math.round(getResources().getDimension(R.dimen.double_margin));
-        int default_margin = Math.round(getResources().getDimension(R.dimen.default_margin));
-        LinearLayout.LayoutParams ll;
-
-        if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            layout.setOrientation(LinearLayout.HORIZONTAL);
-
-            specs.getLayoutParams().width = 0;
-            specs.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
-
-            exp.getLayoutParams().width = 0;
-            exp.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
-
-            sep.getLayoutParams().width = 1;
-            sep.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
-            ll = new LinearLayout.LayoutParams(sep.getLayoutParams());
-            ll.setMargins(0, default_margin, 0, default_margin);
-            sep.setLayoutParams(ll);
-        } else {
-            layout.setOrientation(LinearLayout.VERTICAL);
-
-            specs.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
-            specs.getLayoutParams().height = 0;
-
-            exp.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
-            exp.getLayoutParams().height = 0;
-
-            sep.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
-            sep.getLayoutParams().height = 1;
-            ll = new LinearLayout.LayoutParams(sep.getLayoutParams());
-            ll.setMargins(double_margin, 0, double_margin, 0);
-            sep.setLayoutParams(ll);
-        }
-        specs.requestLayout();
-        exp.requestLayout();
-        sep.requestLayout();
-        layout.requestLayout();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        setupOrientation(getResources().getConfiguration());
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        setupOrientation(newConfig);
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -248,6 +192,7 @@ public class MainPageFragment extends Fragment {
     }
 
     public interface IMainPageFragment {
+        void startCurrentTestFragment();
         boolean launchTests(int number);
         boolean checkSignature();
         boolean checkVlcVersion();

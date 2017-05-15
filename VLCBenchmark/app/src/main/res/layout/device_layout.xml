@@ -14,7 +14,7 @@
         android:id="@+id/specs_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/default_margin"
+        android:paddingBottom="@dimen/half_default_margin"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
