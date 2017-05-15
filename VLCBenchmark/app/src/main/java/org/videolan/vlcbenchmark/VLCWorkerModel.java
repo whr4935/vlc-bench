@@ -590,16 +590,14 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean("RUNNING", running);
-        if (running) {
-            savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
-            savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
-            savedInstanceState.putInt("FILE_INDEX", fileIndex);
-            savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
-            savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
-            savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
-            savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
-            onSaveUiData(savedInstanceState);
-        }
+        savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
+        savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
+        savedInstanceState.putInt("FILE_INDEX", fileIndex);
+        savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
+        savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
+        savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
+        savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
+        onSaveUiData(savedInstanceState);
     }
 
     /**
@@ -611,17 +609,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d("VLCWorkerModel", "onRestoreInstanceState: ");
         running = savedInstanceState.getBoolean("RUNNING");
-        if (running) {
-            testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
-            testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
-            fileIndex = savedInstanceState.getInt("FILE_INDEX");
-            numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
-            loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
-            lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
-            resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
-            onRestoreUiData(savedInstanceState);
+        testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
+        testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
+        fileIndex = savedInstanceState.getInt("FILE_INDEX");
+        numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
+        loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
+        lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
+        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
+        onRestoreUiData(savedInstanceState);
 //            updateTestProgress(testIndex.toString(), true, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
-        }
     }
 
     @Override

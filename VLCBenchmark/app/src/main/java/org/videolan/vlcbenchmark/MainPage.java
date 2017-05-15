@@ -168,10 +168,15 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
-
-        Intent intent = new Intent(this, BenchService.class);
-        intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
-        this.startService(intent);
+        Log.e(TAG, "Call to setupUiMembers(...)");
+        if (savedInstanceState == null) {
+            Intent intent = new Intent(this, BenchService.class);
+            intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
+            this.startService(intent);
+        } else {
+            hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
+            hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
+        }
 
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -185,7 +190,13 @@ public class MainPage extends VLCWorkerModel implements
                     }
                 }
         );
-        setUpHomeFragment();
+        if (savedInstanceState == null) {
+            setUpHomeFragment();
+        } else {
+            mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
+            bottomNavigationView.setSelectedItemId(mMenuItemId);
+            setCurrentFragment(mMenuItemId);
+        }
     }
 
     private void setUpHomeFragment() {
@@ -349,13 +360,13 @@ public class MainPage extends VLCWorkerModel implements
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle savedInstanceState) {
-//        savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
-//        savedInstanceState.putBoolean("HAS_DOWNLOADED", hasDownloaded);
-//        savedInstanceState.putBoolean("HAD_CHECKED", hasChecked);
-//        super.onSaveInstanceState(savedInstanceState);
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
+        savedInstanceState.putBoolean("HAS_DOWNLOADED", hasDownloaded);
+        savedInstanceState.putBoolean("HAD_CHECKED", hasChecked);
+        super.onSaveInstanceState(savedInstanceState);
+    }
 //
 //    @Override
 //    public void onRestoreInstanceState(Bundle savedInstanceState) {
