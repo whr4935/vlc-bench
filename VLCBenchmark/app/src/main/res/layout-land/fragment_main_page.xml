@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="org.videolan.vlcbenchmark.MainPageFragment">
+
+    <LinearLayout
+        android:id="@+id/main_page_text_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="@dimen/half_default_margin"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <ScrollView
+            android:id="@+id/specs_scrollview"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:elevation="0dp"
+            android:layout_gravity="center">
+
+            <include
+                layout="@layout/device_layout"
+                android:id="@+id/device_layout"/>
+
+        </ScrollView>
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/default_margin"
+            android:layout_marginTop="@dimen/default_margin"
+            android:layout_marginStart="@dimen/half_default_margin"
+            android:layout_marginEnd="@dimen/half_default_margin"
+            android:background="@android:color/darker_gray" />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <ScrollView
+                android:id="@+id/test_explanation_scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/launch_test_layout"
+                android:background="@color/white"
+                android:elevation="0dp"
+                android:layout_gravity="center">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="@string/explanation_title"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/text_imp_size"
+                        android:textStyle="bold"
+                        android:paddingBottom="@dimen/half_default_margin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/test_explanation_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/explanation_text"/>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <LinearLayout
+                android:id="@+id/launch_test_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="end"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/fab_test_x1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_fab_start_test"
+                    android:tint="@color/white"
+                    android:layout_marginTop="@dimen/half_default_margin"
+                    android:layout_marginStart="@dimen/half_default_margin" />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/fab_test_x3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_fab_start_test3x"
+                    android:tint="@color/white"
+                    android:layout_marginTop="@dimen/half_default_margin"
+                    android:layout_marginStart="@dimen/half_default_margin"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
