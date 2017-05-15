@@ -32,7 +32,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
@@ -75,7 +74,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     /**
      * We use this member to start, stop and listene to {@link org.videolan.vlcbenchmark.service.BenchService}
      */
-    private BenchServiceDispatcher dispatcher;
     private List<TestInfo>[] resultsTest;
     private List<MediaInfo> testFiles;
     private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
@@ -625,7 +623,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         if (!BenchServiceDispatcher.getInstance().isStarted()) {
             BenchServiceDispatcher.getInstance().startService(this);
         }
-
         super.onResume();
     }
 
@@ -633,19 +630,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     protected void onPause() {
         BenchServiceDispatcher.getInstance().stopService();
         super.onPause();
-    }
-
-    /**
-     * Make sure that the service was stopped when the Activity is destroyed.
-     */
-    @Override
-    @CallSuper
-    protected void onDestroy() {
-        if (dispatcher != null) {
-            dispatcher.stopService();
-            dispatcher = null;
-        }
-        super.onDestroy();
     }
 
 }
