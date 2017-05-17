@@ -126,14 +126,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             Log.e("VLCBenchmark", e.toString());
         }
 
-//        /* Sending JSON results to server */
-//        Button button = (Button) findViewById(R.id.uploadButton);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                mGoogleConnectionHandler.signIn();
-//            }
-//        });
+        /* Sending JSON results to server */
+        Button button = (Button) findViewById(R.id.uploadButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mGoogleConnectionHandler.signIn();
+            }
+        });
     }
 
     @Override
