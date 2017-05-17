@@ -23,7 +23,6 @@ package org.videolan.vlcbenchmark;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -31,18 +30,13 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
 import org.json.JSONException;
 import org.videolan.vlcbenchmark.service.BenchService;
-import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
@@ -57,17 +51,12 @@ public class MainPage extends VLCWorkerModel implements
 
     private static final String TAG = MainPage.class.getName();
 
-    private TextView percentText = null;
-    private TextView textLog = null;
-    private ProgressBar progressBar = null;
-
     private Toolbar toolbar = null;
 
     private boolean hasDownloaded = false;
     private boolean hasChecked = false;
     private int mMenuItemId = 0;
     private CurrentTestFragment currentTestFragment = null;
-    private BottomNavigationView bottomNavigationView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,44 +77,18 @@ public class MainPage extends VLCWorkerModel implements
         if (currentTestFragment != null) {
             currentTestFragment.dismiss();
         }
-        if (hasDownloaded) {
-            Fragment fragment = new MainPageFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_page_fragment_holder, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        } else {
-            Fragment fragment = new MainPageDownloadFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_page_fragment_holder, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        }
+        setCurrentFragment(R.id.home_nav);
     }
 
     public void setDialogFragment(CurrentTestFragment fragment) {
         currentTestFragment = fragment;
-        if (currentTestFragment != null && currentTestFragment.getView() != null) {
-            View view = currentTestFragment.getView();
-            progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-            textLog = (TextView) view.findViewById(R.id.current_sample);
-            percentText = (TextView) view.findViewById(R.id.percentText);
-            if (currentTestFragment.getTag().equals("Download dialog")) {
-                textLog.setText(getResources().getString(R.string.dialog_text_downloading));
-            } else if (currentTestFragment.getTag().equals("Current test")) {
-                textLog.setText(getResources().getString(R.string.dialog_text_testing));
-            }
-        } else {
-            progressBar = null;
-            textLog = null;
-            percentText = null;
-        }
     }
 
     public void startCurrentTestFragment() {
-        CurrentTestFragment fragment = new CurrentTestFragment();
+        CurrentTestFragment fragment = new CurrentTestFragment( );
         fragment.setCancelable(false);
         fragment.show(getSupportFragmentManager(), "Current test");
+        currentTestFragment = fragment; //TODO redundant with setDialogFragment called from the fragment
     }
 
     public boolean getHasChecked() {
@@ -133,42 +96,40 @@ public class MainPage extends VLCWorkerModel implements
     }
 
     private boolean setCurrentFragment(int itemId) {
-        Log.d(TAG, "Call to setCurrentFragment: itemId: " + itemId);
-        switch (itemId) {
-            case R.id.home_nav:
-                setUpHomeFragment();
-                break;
-            case R.id.results_nav:
-                if (findViewById(R.id.main_page_fragment_holder) != null) {
-                    MainPageResultListFragment fragment = new MainPageResultListFragment();
+        Fragment fragment;
+        if (findViewById(R.id.main_page_fragment_holder) != null) {
+            switch (itemId) {
+                case R.id.home_nav:
+                    if (hasDownloaded) {
+                        fragment = new MainPageFragment();
+                    } else {
+                        fragment = new MainPageDownloadFragment();
+                    }
+                    toolbar.setTitle(getResources().getString(R.string.app_name));
+                    break;
+                case R.id.results_nav:
+                    fragment = new MainPageResultListFragment();
                     toolbar.setTitle(getResources().getString(R.string.results_page));
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.main_page_fragment_holder, fragment)
-                            .addToBackStack(null)
-                            .commit();
-                }
-                break;
-            case R.id.settings_nav:
-                if (findViewById(R.id.main_page_fragment_holder) != null) {
-                    SettingsFragment fragment = new SettingsFragment();
+                    break;
+                case R.id.settings_nav:
+                    fragment = new SettingsFragment();
                     toolbar.setTitle(getResources().getString(R.string.settings_page));
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.main_page_fragment_holder, fragment)
-                            .addToBackStack(null)
-                            .commit();
-                }
-                break;
-            default:
-                return false;
+                    break;
+                default:
+                    return false;
+            }
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_page_fragment_holder, fragment)
+                    .addToBackStack(null)
+                    .commit();
+            mMenuItemId = itemId;
         }
-        mMenuItemId = itemId;
         return true;
     }
 
     @Override
     protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
-        Log.e(TAG, "Call to setupUiMembers(...)");
         if (savedInstanceState == null) {
             Intent intent = new Intent(this, BenchService.class);
             intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
@@ -181,7 +142,7 @@ public class MainPage extends VLCWorkerModel implements
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -191,66 +152,27 @@ public class MainPage extends VLCWorkerModel implements
                 }
         );
         if (savedInstanceState == null) {
-            setUpHomeFragment();
+            setCurrentFragment(R.id.home_nav);
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
             setCurrentFragment(mMenuItemId);
-        }
-    }
-
-    private void setUpHomeFragment() {
-        if (findViewById(R.id.main_page_fragment_holder) != null) {
-            Fragment fragment;
-            if (hasDownloaded) {
-                fragment = new MainPageFragment();
-            } else {
-                fragment = new MainPageDownloadFragment();
+            if (running) {
+                startCurrentTestFragment();
             }
-            toolbar.setTitle(getResources().getString(R.string.app_name));
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_page_fragment_holder, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        }
-    }
-
-    @Override
-    protected void resetUiToDefault() {
-        if (currentTestFragment != null) {
-            progressBar.setProgress(0);
-            progressBar.setMax(100);
-            percentText.setText(R.string.default_percent_value);
-            textLog.setText("");
         }
     }
 
     public void cancelBench() {
         running = false;
-    }
-
-    @Override
-    protected void updateUiOnServiceDone() {
-    }
-
-    @Override
-    public void stepFinished(String message) {
+        Log.i(TAG, "Benchmark was stopped by the user");
     }
 
     //todo percent of bar relative to all test, not just specific loop;
     @Override
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
-            String strPercent;
-            progressBar.setProgress((int) Math.round(percent));
-            if (bitRate == BenchServiceDispatcher.NO_BITRATE) {
-                strPercent = FormatStr.format2Dec(percent) + "%%";
-                percentText.setText(strPercent);
-            }
-            else {
-                strPercent = FormatStr.format2Dec(percent) + "%% (" + bitRateToString(bitRate) + ")";
-                percentText.setText(strPercent);
-            }
+            currentTestFragment.updatePercent(percent, bitRate);
         }
     }
 
@@ -263,21 +185,6 @@ public class MainPage extends VLCWorkerModel implements
         hasChecked = false;
     }
 
-    private String bitRateToString(long bitRate) {
-        if (bitRate <= 0)
-            return "0 bps";
-
-        double powOf10 = Math.round(Math.log10(bitRate));
-
-        if (powOf10 < 3)
-            return FormatStr.format2Dec(bitRate) + "bps";
-        else if (powOf10 >= 3 && powOf10 < 6)
-            return FormatStr.format2Dec(bitRate / 1_000d) + "kbps";
-        else if (powOf10 >= 6 && powOf10 < 9)
-            return FormatStr.format2Dec(bitRate / 1_000_000d) + "mbps";
-        return FormatStr.format2Dec(bitRate / 1_000_000_000d) + "gbps";
-    }
-
     @Override
     public void failure(FAILURE_STATES reason, Exception exception) {
         if (currentTestFragment != null ) {
@@ -287,35 +194,9 @@ public class MainPage extends VLCWorkerModel implements
     }
 
     @Override
-    protected void initVlcProgress(int totalNumberOfElements) {
+    protected void updateTestProgress(String testName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
         if (currentTestFragment != null) {
-            progressBar.setProgress(0);
-            progressBar.setMax(totalNumberOfElements);
-            progressBar.setMax(totalNumberOfElements);
-        }
-    }
-
-    @Override
-    protected void onFileTestStarted(String fileName) {
-        if (currentTestFragment != null) {
-            textLog.setText(fileName);
-        }
-    }
-
-    @Override
-    protected void updateTestProgress(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
-        if (currentTestFragment != null) {
-            progressBar.incrementProgressBy(1);
-            if (numberOfLoops != 1)
-                percentText.setText(String.format(
-                        getResources().getString(R.string.progress_text_format_loop),
-                        FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
-                        numberOfFiles, testNumber, loopNumber, numberOfLoops));
-            else
-                percentText.setText(
-                        String.format(getResources().getString(R.string.progress_text_format),
-                                FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
-                                numberOfFiles, testNumber));
+            currentTestFragment.updateTestProgress(testName, fileIndex, numberOfFiles, testNumber, loopNumber, numberOfLoops);
         }
     }
 
@@ -323,41 +204,11 @@ public class MainPage extends VLCWorkerModel implements
     protected void onVlcCrashed(String errorMessage, final Runnable continueTesting) {
     }
 
-    @Override
-    protected void onTestsFinished(List<TestInfo>[] results) {
-        ArrayList<TestInfo> testResult = TestInfo.mergeTests(results);
-        String name;
-        if(currentTestFragment != null) {
-            currentTestFragment.dismiss();
-        }
-        try {
-            name = JsonHandler.save((testResult));
-            Intent intent = new Intent(MainPage.this, ResultPage.class);
-            intent.putExtra("name", name);
-            running = false;
-            startActivityForResult(intent, RequestCodes.RESULTS);
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to save test : " + e.toString());
-        }
-    }
-
-    @Override
+    @Override //TODO change to dismissDialog
     public void doneDownload() {
         if (currentTestFragment != null) {
             currentTestFragment.dismiss();
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RequestCodes.RESULTS) {
-            resetUiToDefault();
-        }
-    //        if (running && currentTestFragment == null) {
-    //            Log.e(TAG, "onActivityResult: running and currentTestFragment is null");
-    //            startCurrentTestFragment();
-    //        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -367,34 +218,13 @@ public class MainPage extends VLCWorkerModel implements
         savedInstanceState.putBoolean("HAD_CHECKED", hasChecked);
         super.onSaveInstanceState(savedInstanceState);
     }
-//
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        Log.d(TAG, "onRestoreInstanceState: ");
-//        mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
-//        hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
-//        hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
-//        bottomNavigationView.setSelectedItemId(mMenuItemId);
-//        setCurrentFragment(mMenuItemId);
-////        startCurrentTestFragment();
-//        super.onRestoreInstanceState(savedInstanceState);
-//    }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        currentTestFragment = null;
-    }
-
-    @Override
-    protected void onSaveUiData(Bundle saveInstanceState) {
-
-    }
-
-    @Override
-    protected void onRestoreUiData(Bundle saveInstanceState) {
-        Log.d(TAG, "onRestoreUiData: ");
-//        startCurrentTestFragment();
+    protected void onStart() {
+        if (running && currentTestFragment == null) {
+            startCurrentTestFragment();
+        }
+        super.onStart();
     }
 
     @Override
@@ -402,4 +232,9 @@ public class MainPage extends VLCWorkerModel implements
         finish();
     }
 
+    //TO handle
+
+    @Override //BenchService method
+    public void stepFinished(String message) {
+    }
 }

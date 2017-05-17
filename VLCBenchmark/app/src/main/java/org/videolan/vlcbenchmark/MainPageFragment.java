@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -36,8 +35,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
@@ -92,13 +89,10 @@ public class MainPageFragment extends Fragment {
                     .show();
             return;
         }
-        if (mListener.launchTests(testNumber)) {
-            mListener.startCurrentTestFragment();
-//            CurrentTestFragment fragment = new CurrentTestFragment();
-//            fragment.setCancelable(false);
-//            fragment.show(getFragmentManager(), "Current test");
-        } else {
+        mListener.startCurrentTestFragment();
+        if (!mListener.launchTests(testNumber)) {
             Log.e(TAG, "Failed to start the benchmark");
+            mListener.doneDownload();
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_oups))
                     .setMessage(getResources().getString(R.string.dialog_text_oups))
@@ -196,6 +190,7 @@ public class MainPageFragment extends Fragment {
         boolean launchTests(int number);
         boolean checkSignature();
         boolean checkVlcVersion();
+        void doneDownload();
     }
 
 }

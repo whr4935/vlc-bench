@@ -38,4 +38,19 @@ public class FormatStr {
         }
         return date;
     }
+
+    public static String bitRateToString(long bitRate) {
+        if (bitRate <= 0)
+            return "0 bps";
+
+        double powOf10 = Math.round(Math.log10(bitRate));
+
+        if (powOf10 < 3)
+            return format2Dec(bitRate) + "bps";
+        else if (powOf10 >= 3 && powOf10 < 6)
+            return format2Dec(bitRate / 1_000d) + "kbps";
+        else if (powOf10 >= 6 && powOf10 < 9)
+            return format2Dec(bitRate / 1_000_000d) + "mbps";
+        return format2Dec(bitRate / 1_000_000_000d) + "gbps";
+    }
 }

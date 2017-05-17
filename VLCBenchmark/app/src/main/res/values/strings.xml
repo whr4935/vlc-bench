@@ -100,6 +100,7 @@
         To perform a benchmark, some test samples need to be downloaded.\nYou need to be connected to the wifi in order to download them.\nPlease note it could take some time and storage space, as there may be many.\nFurthermore, the said list is likely to evolve.
     </string>
 
+    <string name="dialog_text_starting">Starting benchmark</string>
     <string name="progress_text_format">%1$s %% | file %2$d/%3$d | test %4$d</string>
     <string name="progress_text_format_loop">%1$s %% | file %2$d/%3$d | test %4$d | loop %5$d/%6$d</string>
 

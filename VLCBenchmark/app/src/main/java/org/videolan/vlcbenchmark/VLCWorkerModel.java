@@ -38,11 +38,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
+import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
@@ -138,6 +140,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             "\n\nIt will download a large amount of files and will run for several hours." +
             "\nFurthermore, it will need the permission to access external storage";
 
+    /* State keys */
+    private static final String STATE_RUNNING = "STATE_RUNNING";
+    private static final String STATE_TEST_FILES = "STATE_TEST_FILES";
+    private static final String STATE_TEST_INDEX = "STATE_TEST_INDEX";
+    private static final String STATE_FILE_INDEX = "STATE_FILE_INDEX";
+    private static final String STATE_TEST_NUMBER = "STATE_TEST_NUMBER";
+    private static final String STATE_CUR_LOOP_NUMBER = "STATE_CUR_LOOP_NUMBER";
+    private static final String STATE_RESULT_TEST = "STATE_RESULT_TEST";
+    private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
     private String vlcPackageName;
 
     public abstract void setFilesChecked(boolean hasChecked);
@@ -150,38 +161,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     protected abstract void setupUiMembers(Bundle savedInstanceState);
 
     /**
-     *  Is called in {@link VLCWorkerModel#launchTests(int)}.
-     */
-    protected abstract void resetUiToDefault();
-
-    /**
-     * Is called once that service has finished successfully.
-     */
-    protected abstract void updateUiOnServiceDone();
-
-    /**
-     * Is called before the first launch of VLC.
-     * @param totalNumberOfElements the total number of tests that will occur from then.
-     */
-    protected abstract void initVlcProgress(int totalNumberOfElements);
-
-    /**
-     * Is called when a new file just started to be tested.
-     * @param fileName the name of the file
-     */
-    protected abstract void onFileTestStarted(String fileName);
-
-    /**
      * Called to update the test dialog.
      * @param testName the name of the test (ex : screenshot software, ...)
-     * @param succeeded status of the test
      * @param fileIndex the index of the current file
      * @param numberOfFiles the total number of files
      * @param testNumber the index of the current test ({@link TEST_TYPES#ordinal()}
      * @param loopNumber the number of times we've repeated all tests
      * @param numberOfLoops the total number of time we have to repeat
      */
-    protected abstract void updateTestProgress(String testName, boolean succeeded, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
+    protected abstract void updateTestProgress(String testName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
 
     /**
      * Is called if VLC stopped due to an uncaught exception while testing.
@@ -190,24 +178,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param resume needs to be called if the implementation needs to continue testing other files.
      */
     protected abstract void onVlcCrashed(String errorMessage, Runnable resume);
-
-    /**
-     * Is called when all tests are finished
-     * @param results a array list of {@link TestInfo} where each element of the array represents a loop and each element of the List the results of for a file.
-     */
-    protected abstract void onTestsFinished(List<TestInfo>[] results);
-
-    /**
-     * Is called in {@link VLCWorkerModel#onSaveInstanceState(Bundle)}
-     * @param saveInstanceState the Bundle to use to save UI data states
-     */
-    protected abstract void onSaveUiData(Bundle saveInstanceState);
-
-    /**
-     * Is called in {@link VLCWorkerModel#onRestoreInstanceState(Bundle)}
-     * @param saveInstanceState the Bundle to use to restore UI data states
-     */
-    protected abstract void onRestoreUiData(Bundle saveInstanceState);
 
     /**
      * Initialization of the Activity.
@@ -225,6 +195,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         boolean hasWarned = sharedPref.getBoolean(SHARED_PREFERENCE_WARNING, false);
+
+        if (savedInstanceState != null) {
+            running = savedInstanceState.getBoolean(STATE_RUNNING);
+        }
 
         BenchServiceDispatcher.getInstance().startService(this);
 
@@ -303,10 +277,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         fileIndex = 0;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
         loopNumber = 0;
-        resetUiToDefault();
 
         MediaInfo currentFile = testFiles.get(0);
-        updateUiOnServiceDone();
         try {
             running = true;
             startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
@@ -319,7 +291,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     /**
      * Method called when {@link org.videolan.vlcbenchmark.service.BenchService} has finished his task
-     * It call {@link VLCWorkerModel#updateUiOnServiceDone} and starts for the first time VLC.
      *
      * @param files list of metadata for all the video/media to test.
      */
@@ -361,21 +332,14 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param data an Intent describing additional information and data about the test.
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        Log.d("VLCWorkerModel", "onActivityResult: ");
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) { //TODO refactor all this, lots of useless stuff
          if (requestCode == RequestCodes.VLC) {
-            if (fileIndex == 0 && testIndex == TEST_TYPES.SOFTWARE_SCREENSHOT) {
-                initVlcProgress(TEST_TYPES.values().length * testFiles.size() * numberOfTests);
-            }
             super.onActivityResult(requestCode, resultCode, data);
 
-            if (testIndex.ordinal() == 0) {
-                String name = testFiles.get(fileIndex).getName();
+             if (testIndex.ordinal() == 0) {
+                 String name = testFiles.get(fileIndex).getName();
                 lastTestInfo = new TestInfo(name, loopNumber);
-                onFileTestStarted(name);
             }
-            updateTestProgress(testIndex.toString(), resultCode == RESULT_OK, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
-
             if (data != null && resultCode == -1) {
                 fillCurrentTestInfo(data, false, resultCode);
                 return;
@@ -444,12 +408,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), resultCode);
         } else if (testIndex.isScreenshot()) {
             testScreenshot(data);
-            return;
         } else {
             lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
             lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), testIndex.isSoftware());
         }
-        launchNextTest();
     }
 
     /**
@@ -505,22 +467,41 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * Otherwise we launch VLC's BenchActivity with the counters' new values.
      */
     private void launchNextTest() {
-        if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
-            resultsTest[loopNumber].add(lastTestInfo);
-            lastTestInfo = null;
-            fileIndex++;
-            if (fileIndex >= testFiles.size()) {
-                loopNumber++;
-                fileIndex = 0;
+        if (running) {
+            if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
+                resultsTest[loopNumber].add(lastTestInfo);
+                lastTestInfo = null;
+                fileIndex++;
+                if (fileIndex >= testFiles.size()) {
+                    loopNumber++;
+                    fileIndex = 0;
+                }
+                if (loopNumber >= numberOfTests) {
+                    onTestsFinished(resultsTest);
+                    return;
+                }
             }
-            if (loopNumber >= numberOfTests) {
-                onTestsFinished(resultsTest);
-                return;
-            }
+            testIndex = testIndex.next();
+            MediaInfo currentFile = testFiles.get(fileIndex);
+            startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
+        } else {
+            Log.e(TAG, "launchNextTest was called but running is false.");
         }
-        testIndex = testIndex.next();
-        MediaInfo currentFile = testFiles.get(fileIndex);
-        startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
+    }
+
+    private void onTestsFinished(List<TestInfo>[] results) { //TODO move to VLCWorkerModel
+        ArrayList<TestInfo> testResult = TestInfo.mergeTests(results);
+        String name;
+        doneDownload();
+        try {
+            name = JsonHandler.save((testResult));
+            Intent intent = new Intent(VLCWorkerModel.this, ResultPage.class);
+            intent.putExtra("name", name);
+            running = false;
+            startActivityForResult(intent, RequestCodes.RESULTS);
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to save test : " + e.toString());
+        }
     }
 
     public boolean checkVlcVersion() {
@@ -573,11 +554,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         else
             return false;
 
-        /* Checking to see if the signatures correspond */
-        if (benchSignature != vlcSignature)
-            return false;
-
-        return true;
+        return benchSignature == vlcSignature;
     }
 
     /**
@@ -587,15 +564,14 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean("RUNNING", running);
-        savedInstanceState.putSerializable("TEST_FILES", (Serializable) testFiles);
-        savedInstanceState.putInt("TEST_INDEX", testIndex.ordinal());
-        savedInstanceState.putInt("FILE_INDEX", fileIndex);
-        savedInstanceState.putInt("NUMBER_OF_TEST", numberOfTests);
-        savedInstanceState.putInt("CURRENT_LOOP_NUMBER", loopNumber);
-        savedInstanceState.putSerializable("RESULTS_TEST", (Serializable) resultsTest);
-        savedInstanceState.putSerializable("LAST_TEST_INFO", lastTestInfo);
-        onSaveUiData(savedInstanceState);
+        savedInstanceState.putBoolean(STATE_RUNNING, running);
+        savedInstanceState.putSerializable(STATE_TEST_FILES, (Serializable) testFiles);
+        savedInstanceState.putInt(STATE_TEST_INDEX, testIndex.ordinal());
+        savedInstanceState.putInt(STATE_FILE_INDEX, fileIndex);
+        savedInstanceState.putInt(STATE_TEST_NUMBER, numberOfTests);
+        savedInstanceState.putInt(STATE_CUR_LOOP_NUMBER, loopNumber);
+        savedInstanceState.putSerializable(STATE_RESULT_TEST, (Serializable) resultsTest);
+        savedInstanceState.putSerializable(STATE_LAST_TEST_INFO, lastTestInfo);
     }
 
     /**
@@ -605,23 +581,28 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.d("VLCWorkerModel", "onRestoreInstanceState: ");
-        running = savedInstanceState.getBoolean("RUNNING");
-        testFiles = (List<MediaInfo>) savedInstanceState.getSerializable("TEST_FILES");
-        testIndex = TEST_TYPES.values()[savedInstanceState.getInt("TEST_INDEX")];
-        fileIndex = savedInstanceState.getInt("FILE_INDEX");
-        numberOfTests = savedInstanceState.getInt("NUMBER_OF_TEST");
-        loopNumber = savedInstanceState.getInt("CURRENT_LOOP_NUMBER");
-        lastTestInfo = (TestInfo) savedInstanceState.getSerializable("LAST_TEST_INFO");
-        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable("RESULTS_TEST");
-        onRestoreUiData(savedInstanceState);
-//            updateTestProgress(testIndex.toString(), true, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
+        testFiles = (List<MediaInfo>) savedInstanceState.getSerializable(STATE_TEST_FILES);
+        testIndex = TEST_TYPES.values()[savedInstanceState.getInt(STATE_TEST_INDEX)];
+        fileIndex = savedInstanceState.getInt(STATE_FILE_INDEX);
+        numberOfTests = savedInstanceState.getInt(STATE_TEST_NUMBER);
+        loopNumber = savedInstanceState.getInt(STATE_CUR_LOOP_NUMBER);
+        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable(STATE_RESULT_TEST);
+        lastTestInfo = (TestInfo) savedInstanceState.getSerializable(STATE_LAST_TEST_INFO);
     }
 
     @Override
     protected void onResume() {
         if (!BenchServiceDispatcher.getInstance().isStarted()) {
             BenchServiceDispatcher.getInstance().startService(this);
+        }
+        if (running) {
+            String name = testFiles.get(fileIndex).getName();
+            updateTestProgress(name, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
+            /* case where no screenshots */
+            /* if screenshots, launchNextTest called from Screenshot Validation thread */
+            if (!testIndex.isScreenshot()) {
+                launchNextTest();
+            }
         }
         super.onResume();
     }

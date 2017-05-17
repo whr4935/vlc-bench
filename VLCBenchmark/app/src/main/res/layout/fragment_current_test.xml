@@ -14,7 +14,7 @@
             android:text="@string/dialog_title_testing"
             android:textColor="@color/black"
             android:textStyle="bold"
-            android:id="@+id/test_text"
+            android:id="@+id/test_dialog_title"
             android:textSize="18sp"
             android:layout_margin="@dimen/default_margin"/>
 
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/default_margin"
             android:text=""
-            android:layout_below="@+id/test_text"
+            android:layout_below="@+id/test_dialog_title"
             android:textColor="@color/black"/>
 
         <ProgressBar

@@ -21,7 +21,9 @@
 package org.videolan.vlcbenchmark;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -29,14 +31,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
+import org.videolan.vlcbenchmark.tools.FormatStr;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class CurrentTestFragment extends DialogFragment {
 
+    private final static String TAG = CurrentTestFragment.class.getName();
+
     TestView mListener;
+
+    private TextView percentText = null;
+    private TextView currentSample = null;
+    private ProgressBar progressBar = null;
+
+    private final static String STATE_PERCENT_TEXT = "STATE_PERCENT_TEXT";
+    private final static String STATE_CURRENT_SAMPLE = "STATE_SAMPLE_NAME";
+    private final static String STATE_PROGRESS = "STATE_PROGRESS";
+    private final static String STATE_MAX_PROGRESS = "STATE_MAX_PROGRESS";
 
     public CurrentTestFragment() {}
 
@@ -54,6 +71,10 @@ public class CurrentTestFragment extends DialogFragment {
                 dismiss();
             }
         });
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        currentSample = (TextView) view.findViewById(R.id.current_sample);
+        percentText = (TextView) view.findViewById(R.id.percentText);
+        setUiToDefault();
         return view;
     }
 
@@ -82,12 +103,41 @@ public class CurrentTestFragment extends DialogFragment {
         super.onDetach();
     }
 
+    public void setUiToDefault() {
+        progressBar.setProgress(0);
+        progressBar.setMax(100);
+        percentText.setText(R.string.default_percent_value);
+        currentSample.setText("");
+    }
 
+    public void updatePercent(double percent, long bitRate) {
+        String strPercent;
+        progressBar.setProgress((int) Math.round(percent));
+        if (bitRate == BenchServiceDispatcher.NO_BITRATE) {
+            strPercent = FormatStr.format2Dec(percent) + "%%";
+            percentText.setText(strPercent);
+        }
+        else {
+            strPercent = FormatStr.format2Dec(percent) + "%% (" + FormatStr.bitRateToString(bitRate) + ")";
+            percentText.setText(strPercent);
+        }
+    }
 
-    public void setText(String text) {
-        if (this.getView() != null) {
-            TextView textView = (TextView) this.getView().findViewById(R.id.test_text);
-            textView.setText(text);
+    public void updateTestProgress(String sampleName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
+        progressBar.setProgress((numberOfFiles * 4) * (loopNumber - 1) + ((fileIndex - 1) * 4) + testNumber);
+        progressBar.setMax(numberOfFiles * numberOfLoops * 4);
+        currentSample.setText(sampleName);
+        if (numberOfLoops != 1) {
+            percentText.setText(String.format(
+                    getResources().getString(R.string.progress_text_format_loop),
+                    FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
+                    numberOfFiles, testNumber, loopNumber, numberOfLoops));
+        }
+        else {
+            percentText.setText(
+                    String.format(getResources().getString(R.string.progress_text_format),
+                            FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
+                            numberOfFiles, testNumber));
         }
     }
 
