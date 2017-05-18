@@ -106,12 +106,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 new RecyclerItemClickListener(this, mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        String filename = JsonHandler.fromDatePrettyPrint(getSupportActionBar().getTitle().toString()) + ".txt";
-                        ArrayList<TestInfo> results = JsonHandler.load(filename);
-                        TestInfo test = results.get(position);
-                        Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
-                        intent.putExtra("result", test);
-                        startActivity(intent);
+                        onClickMethod(view, position);
                     }
 
                     @Override
@@ -134,6 +129,15 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 mGoogleConnectionHandler.signIn();
             }
         });
+    }
+
+    private void onClickMethod(View view, int position) {
+        String filename = JsonHandler.fromDatePrettyPrint(getSupportActionBar().getTitle().toString()) + ".txt";
+        ArrayList<TestInfo> results = JsonHandler.load(filename);
+        TestInfo test = results.get(position);
+        Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
+        intent.putExtra("result", test);
+        startActivity(intent);
     }
 
     @Override
@@ -214,6 +218,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
                 title = (TextView) view.findViewById(R.id.test_name);
                 mResult = (TextView) view.findViewById(R.id.test_result);
+
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d("ResultList", "onClick called");
+                        onClickMethod(v, getAdapterPosition());
+                    }
+                });
             }
         }
 

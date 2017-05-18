@@ -8,7 +8,7 @@
     android:paddingEnd="@dimen/default_margin"
     android:paddingTop="@dimen/default_margin"
     android:paddingBottom="@dimen/default_margin"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground">
     <TextView
         android:id="@+id/test_name"
         android:layout_width="0dp"

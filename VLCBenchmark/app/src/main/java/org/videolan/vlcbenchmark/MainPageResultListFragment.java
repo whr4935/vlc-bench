@@ -30,6 +30,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.FormatStr;
@@ -58,9 +59,12 @@ public class MainPageResultListFragment extends Fragment {
         RecyclerView.LayoutManager mLayoutManager;
 
         View view = inflater.inflate(R.layout.fragment_main_page_result_list_fragment, container, false);
+        LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.no_results);
+        linearLayout.setFocusable(false);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.test_list_view);
         mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setFocusable(true);
 
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -79,10 +83,7 @@ public class MainPageResultListFragment extends Fragment {
                 new RecyclerItemClickListener(this.getContext(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        TextView text = (TextView) view.findViewById(R.id.test_name);
-                        Intent intent = new Intent(getActivity(), ResultPage.class);
-                        intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
-                        startActivityForResult(intent, RequestCodes.RESULTS);
+                        onClickMethod(view);
                     }
 
                     @Override
@@ -91,6 +92,13 @@ public class MainPageResultListFragment extends Fragment {
                 }
                 ));
         return view;
+    }
+
+    private void onClickMethod(View view) {
+        TextView text = (TextView) view.findViewById(R.id.test_name);
+        Intent intent = new Intent(getActivity(), ResultPage.class);
+        intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
+        startActivityForResult(intent, RequestCodes.RESULTS);
     }
 
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
@@ -105,6 +113,12 @@ public class MainPageResultListFragment extends Fragment {
                 super(view);
                 mTitle = (TextView) view.findViewById(R.id.test_name);
                 mResult = (TextView) view.findViewById(R.id.test_result);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickMethod(v);
+                    }
+                });
             }
 
         }
