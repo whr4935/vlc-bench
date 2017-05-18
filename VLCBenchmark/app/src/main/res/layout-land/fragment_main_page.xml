@@ -21,7 +21,8 @@
             android:layout_weight="1"
             android:background="@color/white"
             android:elevation="0dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:focusable="false">
 
             <include
                 layout="@layout/device_layout"
@@ -37,7 +38,8 @@
             android:layout_marginTop="@dimen/default_margin"
             android:layout_marginStart="@dimen/half_default_margin"
             android:layout_marginEnd="@dimen/half_default_margin"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/darker_gray"
+            android:focusable="false"/>
 
         <RelativeLayout
             android:layout_width="0dp"
@@ -53,7 +55,8 @@
                 android:layout_above="@id/launch_test_layout"
                 android:background="@color/white"
                 android:elevation="0dp"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                android:focusable="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -95,7 +98,9 @@
                     android:src="@drawable/ic_fab_start_test"
                     android:tint="@color/white"
                     android:layout_marginTop="@dimen/half_default_margin"
-                    android:layout_marginStart="@dimen/half_default_margin" />
+                    android:layout_marginStart="@dimen/half_default_margin"
+                    android:focusable="true"
+                    android:nextFocusDown="@drawable/ic_fab_start_test3x"/>
 
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/fab_test_x3"
@@ -104,8 +109,9 @@
                     android:src="@drawable/ic_fab_start_test3x"
                     android:tint="@color/white"
                     android:layout_marginTop="@dimen/half_default_margin"
-                    android:layout_marginStart="@dimen/half_default_margin"/>
-
+                    android:layout_marginStart="@dimen/half_default_margin"
+                    android:focusable="true"
+                    android:nextFocusUp="@drawable/ic_fab_start_test"/>
             </LinearLayout>
 
         </RelativeLayout>

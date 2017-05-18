@@ -28,20 +28,16 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
-import org.json.JSONException;
 import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.JsonHandler;
-import org.videolan.vlcbenchmark.tools.TestInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainPage extends VLCWorkerModel implements
         CurrentTestFragment.TestView,
@@ -57,6 +53,11 @@ public class MainPage extends VLCWorkerModel implements
     private boolean hasChecked = false;
     private int mMenuItemId = 0;
     private CurrentTestFragment currentTestFragment = null;
+    private BottomNavigationView bottomNavigationView = null;
+
+    /* TV input handling */
+    private int navigationIndex;
+    private final static int[] navigationIds = {R.id.home_nav, R.id.results_nav, R.id.settings_nav};
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -142,7 +143,7 @@ public class MainPage extends VLCWorkerModel implements
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -156,11 +157,44 @@ public class MainPage extends VLCWorkerModel implements
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
-            setCurrentFragment(mMenuItemId);
             if (running) {
                 startCurrentTestFragment();
             }
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        View focus = getCurrentFocus();
+        boolean ret = super.dispatchKeyEvent(event);
+        if (focus == null) {
+            Log.e(TAG, "Failed to get current focus");
+            return ret;
+        }
+        if (event.getAction() == KeyEvent.ACTION_UP && focus.getId() == R.id.bottom_navigation_bar) {
+            bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+                    if (navigationIndex + 1>= 0 && navigationIndex + 1 < navigationIds.length) {
+                        navigationIndex += 1;
+                    }
+                    bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_MEDIA_REWIND:
+                    if (navigationIndex - 1 >= 0 && navigationIndex - 1 < navigationIds.length) {
+                        navigationIndex -= 1;
+                    }
+                    bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                    break;
+                default:
+                    break;
+            }
+        } else if (focus.getId() != R.id.bottom_navigation_bar) {
+            bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background);
+        }
+        return ret;
     }
 
     public void cancelBench() {

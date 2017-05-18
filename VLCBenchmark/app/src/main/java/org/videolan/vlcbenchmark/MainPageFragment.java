@@ -35,6 +35,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
@@ -169,6 +170,12 @@ public class MainPageFragment extends Fragment {
                 checkForTestStart(3);
             }
         });
+
+        ScrollView specs = (ScrollView) view.findViewById(R.id.specs_scrollview);
+        specs.setFocusable(false);
+
+        ScrollView explanations = (ScrollView) view.findViewById(R.id.test_explanation_scrollview);
+        explanations.setFocusable(false);
 
         fillDeviceLayout(view);
 

@@ -24,6 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/colorAccent"
+        android:focusable="true"
+        app:itemBackground="@drawable/bottom_navigation_view_item_background"
         app:itemIconTint="@drawable/bottom_navigation_view_selector"
         app:itemTextColor="@drawable/bottom_navigation_view_selector"
         app:menu="@menu/bottom_navigation_bar"
