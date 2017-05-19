@@ -2,7 +2,6 @@ package org.videolan.vlcbenchmark.tools;
 
 import android.content.Intent;
 import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -13,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,7 +21,7 @@ import org.videolan.vlcbenchmark.SystemPropertiesProxy;
 
 public class JsonHandler {
 
-    private final static String TAG = JsonHandler.class.getName();
+    private final static String TAG = "JsonHandler";
 
     public static String toDatePrettyPrint(String name) {
         char[] array;
@@ -67,7 +65,7 @@ public class JsonHandler {
         FileOutputStream fileOutputStream;
         String folderName = FileHandler.getFolderStr("jsonFolder");
         if (!FileHandler.checkFolderLocation(folderName)) {
-            Log.e("VLCBench", "Failed to created json folder");
+            Log.e(TAG, "Failed to created json folder");
             return null;
         }
         String fileName = FormatStr.getDateStr();
@@ -76,15 +74,15 @@ public class JsonHandler {
             fileOutputStream = new FileOutputStream(jsonFile);
             fileOutputStream.write(testInformation.toString(4).getBytes());
         } catch (IOException e) {
-            Log.e("VLC Benchmark", "Failed to save json test results");
-            //TODO handle fail to write to file
+            Log.e(TAG, "Failed to save json test results");
+            return null;
         }
         return fileName;
     }
 
     public static ArrayList<TestInfo> load(String fileName) {
         File jsonFile = new File(FileHandler.getFolderStr("jsonFolder") + fileName);
-        ArrayList<TestInfo> testInfoList = new ArrayList<TestInfo>();
+        ArrayList<TestInfo> testInfoList = new ArrayList<>();
         try {
             StringBuilder text = new StringBuilder();
             BufferedReader br = new BufferedReader(new FileReader(jsonFile));
@@ -99,13 +97,13 @@ public class JsonHandler {
                 testInfoList.add(i, new TestInfo(jsonArray.getJSONObject(i)));
             }
         } catch (FileNotFoundException e) {
-            Log.e("VLCBenchmark", "Json file not found: " + e.toString());
+            Log.e(TAG, "Json file not found: " + e.toString());
             return null;
         } catch (JSONException e) {
-            Log.e("VLCBenchmark", "Failed to load json file : " + e.toString());
+            Log.e(TAG, "Failed to load json file : " + e.toString());
             return null;
         } catch (IOException e) {
-            Log.e("VLCBenchmark", "Failed to read jsonFile : " + e.toString());
+            Log.e(TAG, "Failed to read jsonFile : " + e.toString());
             return null;
         }
         return testInfoList;
@@ -114,7 +112,7 @@ public class JsonHandler {
     public static ArrayList<String> getFileNames() {
         File dir = new File(FileHandler.getFolderStr("jsonFolder"));
         File[] files = dir.listFiles();
-        ArrayList<String> fileNames = new ArrayList<String>();
+        ArrayList<String> fileNames = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
                 fileNames.add(file.getName().replaceAll(".txt", ""));
@@ -128,7 +126,7 @@ public class JsonHandler {
         File[] files = dir.listFiles();
         for (File file : files) {
             if (!file.delete()) {
-                Log.e("VLCBench", "Failed to delete test results");
+                Log.e(TAG, "Failed to delete test results");
                 return false;
             }
         }
