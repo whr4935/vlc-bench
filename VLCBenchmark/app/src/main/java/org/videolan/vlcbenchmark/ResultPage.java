@@ -22,6 +22,7 @@ package org.videolan.vlcbenchmark;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.*;
 import android.util.Log;
@@ -52,12 +53,9 @@ import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 public class ResultPage extends AppCompatActivity implements BenchServiceListener{
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mAdapter;
-    ArrayList<TestInfo> results;
+    private final static String TAG = ResultPage.class.getName();
 
-    private final static String TAG = "ResultPage";
+    ArrayList<TestInfo> results;
 
     private GoogleConnectionHandler mGoogleConnectionHandler;
 
@@ -71,16 +69,25 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
     private void setupUi() {
         if (!getIntent().hasExtra("name")) {
-            Log.e("VLCBench", "Failed to get name extra in intent");
+            Log.e(TAG, "setupUi: Failed to get name extra in intent");
             return;
         }
         String name = getIntent().getStringExtra("name");
+        if (getSupportActionBar() == null) {
+            Log.e(TAG, "setupUi: Failed to get action bar");
+            return;
+        }
         getSupportActionBar().setTitle(JsonHandler.toDatePrettyPrint(name));
 
         results = JsonHandler.load(name + ".txt");
         if (results == null) {
+            Log.e(TAG, "setupUi: Failed to get results from file");
             return;
         }
+
+        RecyclerView mRecyclerView;
+        RecyclerView.LayoutManager mLayoutManager;
+        RecyclerView.Adapter mAdapter;
 
         TextView softView = (TextView) findViewById(R.id.softAvg);
         String softText = "Software score : " + format2Dec(TestInfo.getSoftScore(results)) +
@@ -97,7 +104,6 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView .setLayoutManager(mLayoutManager);
-        Log.d("VLCBench", "Before addItemDecoration");
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         mAdapter = new TestResultListAdapter(results);
@@ -106,7 +112,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 new RecyclerItemClickListener(this, mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        onClickMethod(view, position);
+                        onClickMethod(position);
                     }
 
                     @Override
@@ -118,10 +124,11 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         try {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
-            Log.e("VLCBenchmark", e.toString());
+            Log.e(TAG, e.toString());
         }
 
         /* Sending JSON results to server */
+        /* But need to connect to google first to get user id */
         Button button = (Button) findViewById(R.id.uploadButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,9 +138,18 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         });
     }
 
-    private void onClickMethod(View view, int position) {
-        String filename = JsonHandler.fromDatePrettyPrint(getSupportActionBar().getTitle().toString()) + ".txt";
+    private void onClickMethod(int position) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null || actionBar.getTitle() == null) {
+            Log.e(TAG, "onClickMethod: Failed to get action bar title");
+            return;
+        }
+        String filename = JsonHandler.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
         ArrayList<TestInfo> results = JsonHandler.load(filename);
+        if (results == null) {
+            Log.e(TAG, "onClickMethod: Failed to get results");
+            return;
+        }
         TestInfo test = results.get(position);
         Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
         intent.putExtra("result", test);
@@ -148,23 +164,23 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             try {
                 res = JsonHandler.dumpResults(results, data);
                 if (res == null) {
-                    Log.e("VLCBench", "onActivityResult: res is null");
+                    Log.e(TAG, "onActivityResult: res is null");
                     return;
                 }
                 if (mGoogleConnectionHandler != null && mGoogleConnectionHandler.getAccount() != null) {
                         res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
                 } else {
                     if (mGoogleConnectionHandler == null) {
-                        Log.d("VLCBench", "ResultPage: onActivityResult: mGoogleConnectionHandler is null");
+                        Log.d(TAG, "onActivityResult: mGoogleConnectionHandler is null");
                     } else {
-                        Log.e(TAG, "Failed to get google email");
+                        Log.e(TAG, "onActivityResult: Failed to get google email");
                     }
                     DialogInstance dialogInstance = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_google);
                     dialogInstance.display(this);
                     return;
                 }
             } catch (JSONException e) {
-                Log.e("VLCBench", e.toString());
+                Log.e(TAG, e.toString());
                 return;
             }
             /* Starts the upload in BenchService */
@@ -174,7 +190,6 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             startService(intent);
         } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
-            Log.d("ResultPage", "resultCode: " + resultCode);
             mGoogleConnectionHandler.handleSignInResult(data);
             startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
                     RequestCodes.OPENGL);
@@ -206,14 +221,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         return super.onOptionsItemSelected(item);
     }
 
-    public class TestResultListAdapter extends RecyclerView.Adapter<TestResultListAdapter.ViewHolder> {
+    class TestResultListAdapter extends RecyclerView.Adapter<TestResultListAdapter.ViewHolder> {
         ArrayList<TestInfo> mData;
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public TextView title;
-            public TextView mResult;
+        class ViewHolder extends RecyclerView.ViewHolder {
+            private TextView title;
+            private TextView mResult;
 
-            public ViewHolder(View view) {
+            ViewHolder(View view) {
                 super(view);
 
                 title = (TextView) view.findViewById(R.id.test_name);
@@ -222,14 +237,24 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d("ResultList", "onClick called");
-                        onClickMethod(v, getAdapterPosition());
+                        onClickMethod(getAdapterPosition());
                     }
                 });
             }
+
+            void setTitle(int position) {
+                this.title.setText(mData.get(position).getName());
+            }
+
+            void setResult(int position) {
+                this.mResult.setText(
+                        (format2Dec(mData.get(position).getHardware() +
+                                mData.get(position).getSoftware()) +
+                                " / " + format2Dec(TestInfo.SCORE_TOTAL * 2)));
+            }
         }
 
-        public TestResultListAdapter(ArrayList<TestInfo> data) {
+        TestResultListAdapter(ArrayList<TestInfo> data) {
             mData = data;
         }
 
@@ -241,9 +266,8 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.title.setText(mData.get(position).getName());
-            holder.mResult.setText(
-                    (format2Dec(mData.get(position).getHardware() + mData.get(position).getSoftware()) + " / " + format2Dec(TestInfo.SCORE_TOTAL * 2)));
+            holder.setTitle(position);
+            holder.setResult(position);
         }
 
         @Override
