@@ -202,7 +202,6 @@ public class MainPage extends VLCWorkerModel implements
         Log.i(TAG, "Benchmark was stopped by the user");
     }
 
-    //todo percent of bar relative to all test, not just specific loop;
     @Override
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
