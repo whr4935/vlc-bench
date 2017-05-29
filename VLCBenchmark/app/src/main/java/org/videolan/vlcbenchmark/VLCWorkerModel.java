@@ -43,6 +43,7 @@ import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
+import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
@@ -50,6 +51,7 @@ import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +80,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     private List<TestInfo>[] resultsTest;
     private List<MediaInfo> testFiles;
+    private ArrayList<TestInfo> finalResults;
     private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
     private int fileIndex = 0;
     private int loopNumber = 0;
@@ -369,7 +372,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             });
         } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
              GoogleConnectionHandler.getInstance().handleSignInResult(data);
-         }
+        }
     }
 
     /**
@@ -489,15 +492,20 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         }
     }
 
-    private void onTestsFinished(List<TestInfo>[] results) { //TODO move to VLCWorkerModel
-        ArrayList<TestInfo> testResult = TestInfo.mergeTests(results);
+    private void onTestsFinished(List<TestInfo>[] results) {
+        finalResults = TestInfo.mergeTests(results);
         String name;
         doneDownload();
+        running = false;
         try {
-            name = JsonHandler.save((testResult));
+            name = JsonHandler.save(finalResults);
+            if (name == null) {
+                new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_save_failure)
+                        .display(this);
+                return;
+            }
             Intent intent = new Intent(VLCWorkerModel.this, ResultPage.class);
             intent.putExtra("name", name);
-            running = false;
             startActivityForResult(intent, RequestCodes.RESULTS);
         } catch (JSONException e) {
             Log.e(TAG, "Failed to save test : " + e.toString());
