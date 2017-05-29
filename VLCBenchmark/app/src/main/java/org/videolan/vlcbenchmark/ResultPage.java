@@ -56,6 +56,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     private final static String TAG = ResultPage.class.getName();
 
     ArrayList<TestInfo> results;
+    String testName;
 
     private GoogleConnectionHandler mGoogleConnectionHandler;
 
@@ -72,14 +73,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             Log.e(TAG, "setupUi: Failed to get name extra in intent");
             return;
         }
-        String name = getIntent().getStringExtra("name");
+        testName = getIntent().getStringExtra("name");
         if (getSupportActionBar() == null) {
             Log.e(TAG, "setupUi: Failed to get action bar");
             return;
         }
-        getSupportActionBar().setTitle(JsonHandler.toDatePrettyPrint(name));
+        getSupportActionBar().setTitle(JsonHandler.toDatePrettyPrint(testName));
 
-        results = JsonHandler.load(name + ".txt");
+        results = JsonHandler.load(testName + ".txt");
         if (results == null) {
             Log.e(TAG, "setupUi: Failed to get results from file");
             return;
