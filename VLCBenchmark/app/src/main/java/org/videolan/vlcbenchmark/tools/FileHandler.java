@@ -8,6 +8,9 @@ import java.io.File;
 
 public class FileHandler {
 
+    public final static String jsonFolder = "jsonFolder";
+    public final static String mediaFolder = "media_folder";
+
     public static String getFolderStr(String name) {
         String folderStr;
         if (BuildConfig.DEBUG) {

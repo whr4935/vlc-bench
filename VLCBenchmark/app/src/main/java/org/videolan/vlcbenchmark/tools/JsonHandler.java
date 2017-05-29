@@ -1,11 +1,13 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -62,8 +64,8 @@ public class JsonHandler {
     public static String save(ArrayList<TestInfo> testInfoList) throws JSONException {
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList);
-        FileOutputStream fileOutputStream;
-        String folderName = FileHandler.getFolderStr("jsonFolder");
+        FileOutputStream jsonFileOutputStream;
+        String folderName = FileHandler.getFolderStr(FileHandler.jsonFolder);
         if (!FileHandler.checkFolderLocation(folderName)) {
             Log.e(TAG, "Failed to created json folder");
             return null;
@@ -71,8 +73,13 @@ public class JsonHandler {
         String fileName = FormatStr.getDateStr();
         File jsonFile = new File(folderName + fileName + ".txt");
         try {
-            fileOutputStream = new FileOutputStream(jsonFile);
-            fileOutputStream.write(testInformation.toString(4).getBytes());
+            jsonFileOutputStream = new FileOutputStream(jsonFile);
+            if (BuildConfig.DEBUG) {
+                jsonFileOutputStream.write(testInformation.toString(4).getBytes());
+            } else {
+                jsonFileOutputStream.write(testInformation.toString().getBytes());
+            }
+
         } catch (IOException e) {
             Log.e(TAG, "Failed to save json test results");
             return null;
@@ -81,7 +88,7 @@ public class JsonHandler {
     }
 
     public static ArrayList<TestInfo> load(String fileName) {
-        File jsonFile = new File(FileHandler.getFolderStr("jsonFolder") + fileName);
+        File jsonFile = new File(FileHandler.getFolderStr(FileHandler.jsonFolder) + fileName);
         ArrayList<TestInfo> testInfoList = new ArrayList<>();
         try {
             StringBuilder text = new StringBuilder();
@@ -110,19 +117,21 @@ public class JsonHandler {
     }
 
     public static ArrayList<String> getFileNames() {
-        File dir = new File(FileHandler.getFolderStr("jsonFolder"));
+        File dir = new File(FileHandler.getFolderStr(FileHandler.jsonFolder));
         File[] files = dir.listFiles();
-        ArrayList<String> fileNames = new ArrayList<>();
+        ArrayList<String> results = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
-                fileNames.add(file.getName().replaceAll(".txt", ""));
+                if (file.getName().contains(".txt")) {
+                    results.add(file.getName().replaceAll(".txt", ""));
+                }
             }
         }
-        return fileNames;
+        return results;
     }
 
     public static boolean deleteFiles(){
-        File dir = new File(FileHandler.getFolderStr("jsonFolder"));
+        File dir = new File(FileHandler.getFolderStr(FileHandler.jsonFolder));
         File[] files = dir.listFiles();
         for (File file : files) {
             if (!file.delete()) {
