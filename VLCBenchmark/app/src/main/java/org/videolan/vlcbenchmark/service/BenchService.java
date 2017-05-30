@@ -286,7 +286,6 @@ public class BenchService extends IntentService {
      */
     private void UploadJson(String json) {
         String url;
-        Log.d("BenchService", "Called UploadJson()");
         if (BuildConfig.DEBUG) {
             url = "http://192.168.1.50:8080/benchmarks"; //tmp url
         } else {

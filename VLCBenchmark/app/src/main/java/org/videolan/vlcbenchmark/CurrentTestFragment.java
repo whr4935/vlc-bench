@@ -57,7 +57,6 @@ public class CurrentTestFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_current_test, container, false);
-        Log.d("CurrentTestFragment", "onCreateView: inflated view");
         Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,14 +85,12 @@ public class CurrentTestFragment extends DialogFragment {
 
     @Override
     public void onStart() {
-        Log.e("CurrentTestFragment", "onStart: ");
         mListener.setDialogFragment(this);
         super.onStart();
     }
 
     @Override
     public void onDetach() {
-        Log.e("CurrentTestFragment", "onDetach: ");
         mListener.setDialogFragment(null);
         super.onDetach();
     }

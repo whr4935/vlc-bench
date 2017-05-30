@@ -33,7 +33,6 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         ex.printStackTrace(printWriter);
         String stacktrace = result.toString();
         printWriter.close();
-        Log.e("VLCBench/Crash", stacktrace);
 
         // Writing log file
         FileOutputStream fileOutputStream;

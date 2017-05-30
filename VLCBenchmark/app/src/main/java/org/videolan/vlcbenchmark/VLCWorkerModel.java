@@ -319,7 +319,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
                 .putExtra("item_location", Uri.parse("file://" + currentFile.getLocalUrl()));
-        Log.d(TAG, "file: " + currentFile.getLocalUrl());
         if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);
         if (testIndex.isScreenshot())

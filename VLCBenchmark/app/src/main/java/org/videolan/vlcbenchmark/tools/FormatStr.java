@@ -21,7 +21,6 @@ public class FormatStr {
 
     public static String getDateStr() {
         String str_date = DateFormat.getDateTimeInstance().format(System.currentTimeMillis());
-        Log.d("FormatStr", "date: " + str_date);
         str_date = str_date.replaceAll(",", "_");
         str_date = str_date.replaceAll(" ", "_");
         str_date = str_date.replaceAll(":", "_");

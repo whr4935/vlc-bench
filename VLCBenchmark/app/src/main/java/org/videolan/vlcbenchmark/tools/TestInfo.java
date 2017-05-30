@@ -138,24 +138,6 @@ public class TestInfo implements Serializable {
         return getHardScore(list) + getSoftScore(list);
     }
 
-    public void display() {
-        Log.e("VLCBench - testinfo", "name = " + name);
-        Log.e("VLCBench - testinfo", "software = " + (software[0] + software[1]));
-        Log.e("VLCBench - testinfo", "hardware = " + (hardware[0] + hardware[1]));
-        Log.e("VLCBench - testinfo", "loopnumber = " + loopNumber);
-        Log.e("VLCBench - testinfo", "framesDropped[0] = " + framesDropped[0]);
-        Log.e("VLCBench - testinfo", "framesDropped[1] = " + framesDropped[1]);
-        Log.e("VLCBench - testinfo", "percentOfBadScreenshots[0] = " + percentOfBadScreenshots[0]);
-        Log.e("VLCBench - testinfo", "percentOfBadScreenshots[1] = " + percentOfBadScreenshots[1]);
-        Log.e("VLCBench - testinfo", "numberOfWarnings[0] = " + numberOfWarnings[0]);
-        Log.e("VLCBench - testinfo", "numberOfWarnings[1] = " + numberOfWarnings[1]);
-        Log.e("VLCBench - testinfo", crashed[0][0]);
-        Log.e("VLCBench - testinfo", crashed[0][1]);
-        Log.e("VLCBench - testinfo", crashed[1][0]);
-        Log.e("VLCBench - testinfo", crashed[1][1]);
-        Log.e("VLCBench - testinfo", "EOT");
-    }
-
     public String getName() {
         return name;
     }
