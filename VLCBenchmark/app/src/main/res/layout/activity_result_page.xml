@@ -44,7 +44,8 @@
             android:layout_height="match_parent"
             android:background="@color/grey300"
             android:layout_marginTop="@dimen/half_default_margin"
-            android:layout_marginBottom="@dimen/half_default_margin"/>
+            android:layout_marginBottom="@dimen/half_default_margin"
+            android:visibility="invisible"/> <!-- TODO remove invisible when implemented way to garanty data integrity -->
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -58,7 +59,9 @@
             android:textSize="@dimen/text_size"
             android:textAllCaps="false"
             android:background="?android:attr/selectableItemBackground"
-            android:elevation="0dp" />
+            android:elevation="0dp"
+            android:visibility="invisible"
+            android:clickable="false"/> <!-- TODO remove invisible when implemented way to garanty data integrity -->
     </LinearLayout>
 
 
