@@ -50,11 +50,6 @@ public class CurrentTestFragment extends DialogFragment {
     private TextView currentSample = null;
     private ProgressBar progressBar = null;
 
-    private final static String STATE_PERCENT_TEXT = "STATE_PERCENT_TEXT";
-    private final static String STATE_CURRENT_SAMPLE = "STATE_SAMPLE_NAME";
-    private final static String STATE_PROGRESS = "STATE_PROGRESS";
-    private final static String STATE_MAX_PROGRESS = "STATE_MAX_PROGRESS";
-
     public CurrentTestFragment() {}
 
     @Override
