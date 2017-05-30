@@ -58,6 +58,8 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     ArrayList<TestInfo> results;
     String testName;
 
+    private boolean hasSendData = true;
+
     private GoogleConnectionHandler mGoogleConnectionHandler;
 
     @Override
@@ -66,6 +68,9 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         setContentView(R.layout.activity_result_page);
 
         setupUi();
+        if (getIntent().getBooleanExtra("fromBench", false)) {
+            hasSendData = false;
+        }
     }
 
     private void setupUi() {
@@ -202,6 +207,10 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         super.onResume();
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
         mGoogleConnectionHandler.setGoogleApiClient(this, this);
+        if (!hasSendData) {
+            hasSendData = true;
+            mGoogleConnectionHandler.signIn();
+        }
         BenchServiceDispatcher.getInstance().startService(this);
     }
 
