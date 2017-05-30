@@ -66,6 +66,7 @@
     <string name="dialog_text_sample_deletion_failure">Failed to delete all test samples</string>
     <string name="dialog_text_deletion_confirmation">Are you sure you want to delete these files ?</string>
     <string name="dialog_text_save_failure">There was a problem while saving the benchmark results.</string>
+    <string name="dialog_text_file_creation_failure">There was a problem while creating files</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>

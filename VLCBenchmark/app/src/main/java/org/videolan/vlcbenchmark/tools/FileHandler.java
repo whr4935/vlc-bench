@@ -10,13 +10,23 @@ public class FileHandler {
 
     public final static String jsonFolder = "jsonFolder";
     public final static String mediaFolder = "media_folder";
+    public final static String screenshotFolder = "screenshot_folder";
+
+    private final static String benchFolder =
+            Environment.getExternalStorageDirectory() + File.separator + "VLCBenchmark" + File.separator;
 
     public static String getFolderStr(String name) {
         String folderStr;
         if (BuildConfig.DEBUG) {
-            folderStr = Environment.getExternalStorageDirectory() + File.separator + name + File.separator;
+            if (!checkFolderLocation(benchFolder)) {
+                return null;
+            }
+            folderStr = benchFolder + name + File.separator;
         } else {
-            folderStr = null;
+            folderStr = Environment.getDataDirectory().getAbsolutePath() + File.separator + name + File.separator;
+        }
+        if (!checkFolderLocation(folderStr)) {
+            return null;
         }
         return folderStr;
     }

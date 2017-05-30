@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -33,6 +32,7 @@ import android.util.Pair;
 
 import org.videolan.vlcbenchmark.R;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.FileHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -282,7 +282,7 @@ public class BenchService extends IntentService {
      * @param json json string from JsonObject.toString()
      */
     private void UploadJson(String json) {
-        String url = "http://192.168.1.22:8080/benchmarks"; //tmp url
+        String url = "http://192.168.1.50:8080/benchmarks"; //tmp url
         HttpURLConnection connection;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
@@ -370,7 +370,12 @@ public class BenchService extends IntentService {
         }
         try {
             filesInfo = JSonParser.getMediaInfos();
-            File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "media_folder");
+            String dirStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
+            if (dirStr == null) {
+                sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_file_creation_failure));
+                return;
+            }
+            File dir = new File(dirStr);
             File[] files = dir.listFiles();
             filesToDownload = new ArrayList<MediaInfo>();
             for (MediaInfo mediaFile : filesInfo) {
@@ -432,7 +437,8 @@ public class BenchService extends IntentService {
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
         sendMessage(STEP_FINISHED, JSON_FINISH_STR);
-        File mediaFolder = new File(Environment.getExternalStorageDirectory() + File.separator + "media_folder");
+        String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
+        File mediaFolder = new File(mediaFolderStr);
         if (!mediaFolder.exists())
             mediaFolder.mkdir();
         HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));

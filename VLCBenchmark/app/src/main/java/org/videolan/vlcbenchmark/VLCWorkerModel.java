@@ -44,6 +44,7 @@ import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
@@ -139,6 +140,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
     private static final String SHARED_PREFERENCE_WARNING = "org.videolan.vlc.gui.video.benchmark.WARNING";
+    private static final String SHARED_PREFERENCE_SCREENSHOT_DIR = "org.videolan.vlc.gui.video.benchmark.SCREENSHOT_DIR";
     private static final String WARNING_MESSAGE = "VLCBenchmark will extensively test your phone's video capabilities." +
             "\n\nIt will download a large amount of files and will run for several hours." +
             "\nFurthermore, it will need the permission to access external storage";
@@ -213,6 +215,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             editor.putBoolean(SHARED_PREFERENCE_WARNING, true);
             editor.apply();
         }
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(SHARED_PREFERENCE_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
+        editor.apply();
 
         /* Getting vlc normal or debug package name, *
          * according to our application's state */
@@ -313,6 +319,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
                 .putExtra("item_location", Uri.parse("file://" + currentFile.getLocalUrl()));
+        Log.d(TAG, "file: " + currentFile.getLocalUrl());
         if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);
         if (testIndex.isScreenshot())
@@ -429,7 +436,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * @param data the Intent from which we get in which folder the screenshots are located.
      */
     private void testScreenshot(Intent data) {
-        final String screenshotFolder = data.getStringExtra("screenshot_folder"); //TODO replace with SharedPreference
+        final String screenshotFolder = FileHandler.getFolderStr(FileHandler.screenshotFolder);
         final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
         final List<int[]> colors = testFiles.get(fileIndex).getColors();
 
@@ -506,6 +513,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             }
             Intent intent = new Intent(VLCWorkerModel.this, ResultPage.class);
             intent.putExtra("name", name);
+            intent.putExtra("fromBench", true);
             startActivityForResult(intent, RequestCodes.RESULTS);
         } catch (JSONException e) {
             Log.e(TAG, "Failed to save test : " + e.toString());
