@@ -30,6 +30,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.util.Pair;
 
+import org.videolan.vlcbenchmark.BuildConfig;
 import org.videolan.vlcbenchmark.R;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FileHandler;
@@ -49,6 +50,8 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * This class is the service responsible for:
@@ -282,10 +285,16 @@ public class BenchService extends IntentService {
      * @param json json string from JsonObject.toString()
      */
     private void UploadJson(String json) {
-        String url = "http://192.168.1.50:8080/benchmarks"; //tmp url
+        String url;
+        Log.d("BenchService", "Called UploadJson()");
+        if (BuildConfig.DEBUG) {
+            url = "http://192.168.1.50:8080/benchmarks"; //tmp url
+        } else {
+            url = "https://videolan.org/benchmarks";
+        }
         HttpURLConnection connection;
         try {
-            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection = (HttpsURLConnection) new URL(url).openConnection();
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
@@ -293,8 +302,12 @@ public class BenchService extends IntentService {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             writer.write(json);
             writer.flush();
-            int httpResult = connection.getResponseCode();
-            // TODO use response to send message to UI
+            int response = connection.getResponseCode();
+            if (response != 200) {
+                Log.e("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+            } else {
+                Log.i("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+            }
         } catch (IOException e) {
             Log.e("VLCBench", e.toString());
             sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
