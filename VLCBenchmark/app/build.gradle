@@ -11,6 +11,11 @@ android {
         versionCode 1
         versionName "1.0"
         buildConfigField("String", "VLC_VERSION", "\"2.1.2\"")
+
+        resValue "string", "build_time", buildTime()
+        resValue "string", "build_host", hostName()
+        resValue "string", "build_revision", revision()
+        resValue "string", "build_api_address", apiAddress()
     }
     buildTypes {
         release {
@@ -30,4 +35,25 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:10.2.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+}
+
+static def apiAddress() {
+    return InetAddress.localHost.address
+}
+
+static def hostName() {
+    return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName
+}
+
+static def buildTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
+def revision() {
+    def code = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = code
+    }
+    return code.toString()
 }
