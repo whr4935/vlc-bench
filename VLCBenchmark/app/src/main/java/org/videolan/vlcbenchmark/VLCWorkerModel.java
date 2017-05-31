@@ -136,11 +136,11 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
     private static final String PLAYBACK_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_PLAYBACK";
+    private static final String INTENT_SCREENSHOT_DIR = "SCREENSHOT_DIR";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
     private static final String SHARED_PREFERENCE_WARNING = "org.videolan.vlc.gui.video.benchmark.WARNING";
-    private static final String SHARED_PREFERENCE_SCREENSHOT_DIR = "org.videolan.vlc.gui.video.benchmark.SCREENSHOT_DIR";
     private static final String WARNING_MESSAGE = "VLCBenchmark will extensively test your phone's video capabilities." +
             "\n\nIt will download a large amount of files and will run for several hours." +
             "\nFurthermore, it will need the permission to access external storage";
@@ -215,10 +215,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             editor.putBoolean(SHARED_PREFERENCE_WARNING, true);
             editor.apply();
         }
-
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(SHARED_PREFERENCE_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
-        editor.apply();
 
         /* Getting vlc normal or debug package name, *
          * according to our application's state */
@@ -323,6 +319,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             intent = intent.putExtra("disable_hardware", true);
         if (testIndex.isScreenshot())
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
+        intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
         return intent;
     }
 
