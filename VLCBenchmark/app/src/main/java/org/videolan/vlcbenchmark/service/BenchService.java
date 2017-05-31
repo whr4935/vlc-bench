@@ -43,6 +43,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -280,19 +281,32 @@ public class BenchService extends IntentService {
     }
 
 
-    /**
-     *  Uploads json result file to server
-     * @param json json string from JsonObject.toString()
-     */
-    private void UploadJson(String json) {
-        String url;
-        if (BuildConfig.DEBUG) {
-            url = "http://192.168.1.50:8080/benchmarks"; //tmp url
-        } else {
-            url = "https://videolan.org/benchmarks";
-        }
-        HttpURLConnection connection;
+    private void httpJsonUpload(String json, String url) {
         try {
+            HttpURLConnection connection;
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestMethod("POST");
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(json);
+            writer.flush();
+            int response = connection.getResponseCode();
+            if (response != 200) {
+                Log.e("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+            } else {
+                Log.i("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            Log.e("VLCBench", e.toString());
+            sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
+        }
+    }
+
+    private void httpsJsonUpload(String json, String url) {
+        try {
+            HttpsURLConnection connection;
             connection = (HttpsURLConnection) new URL(url).openConnection();
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
@@ -311,6 +325,22 @@ public class BenchService extends IntentService {
             Log.e("VLCBench", e.toString());
             sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
         }
+    }
+
+    /**
+     *  Uploads json result file to server
+     * @param json json string from JsonObject.toString()
+     */
+    private void UploadJson(String json) {
+        String url;
+            if (BuildConfig.DEBUG) {
+                Log.e("VLCBench", "url = " + getString(R.string.build_api_address));
+                url = "http://" + getString(R.string.build_api_address) + ":8080/benchmarks";
+                httpJsonUpload(json, url);
+            } else {
+                url = "https://videolan.org/benchmarks";
+                httpsJsonUpload(json, url);
+            }
     }
 
     /**

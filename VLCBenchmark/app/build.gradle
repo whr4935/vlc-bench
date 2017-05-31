@@ -15,12 +15,14 @@ android {
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
         resValue "string", "build_revision", revision()
-        resValue "string", "build_api_address", apiAddress()
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            resValue "string", "build_api_address", apiAddress()
         }
     }
 }
@@ -37,8 +39,31 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+// Tmp solution to find the ip address of the computer building VLCBenchmark
+// ideally should use shell script + environment variables
 static def apiAddress() {
-    return InetAddress.localHost.address
+    InetAddress result = null;
+    Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+    while (interfaces.hasMoreElements()) {
+        NetworkInterface anInterface = interfaces.nextElement();
+        if (anInterface.displayName.contains("docker") ||
+            anInterface.displayName.contains("virbr")) {
+            continue;
+        }
+        Enumeration<InetAddress> addresses = anInterface.getInetAddresses();
+        while (addresses.hasMoreElements()) {
+            InetAddress address = addresses.nextElement();
+            if (!address.isLoopbackAddress()) {
+                if (address.isSiteLocalAddress()) {
+                    return address.getHostAddress();
+                } else if (result == null) {
+                    result = address;
+                }
+            }
+        }
+    }
+    return (result != null ? result : InetAddress.getLocalHost()).getHostAddress();
+
 }
 
 static def hostName() {
