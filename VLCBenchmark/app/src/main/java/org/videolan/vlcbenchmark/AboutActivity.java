@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.Util;
 
@@ -39,6 +40,15 @@ public class AboutActivity extends AppCompatActivity {
 
         View aboutLayout = findViewById(R.id.layout_about);
         WebView licenceWebView = (WebView) findViewById(R.id.licence_webview);
+
+        TextView link = (TextView) aboutLayout.findViewById(R.id.about_link);
+        link.setText(R.string.about_link);
+        TextView revisionText = (TextView) aboutLayout.findViewById(R.id.revision);
+        String revisionStr = getString(R.string.about_revision) + " " + getString(R.string.build_revision) +
+                " ( " + getString(R.string.build_time) + " )";
+        revisionText.setText(revisionStr);
+        TextView compiledText = (TextView) aboutLayout.findViewById(R.id.about_compiled);
+        compiledText.setText(R.string.build_host);
 
         licenceWebView.loadData(Util.readAsset("licence.htm", getResources().getAssets()), "text/html", "UTF8");
 

@@ -32,10 +32,12 @@
     <string name="disconnect_key">disconnect_key</string>
 
     <!-- About content -->
-    <string name="about_description">Bla&#8230;VLCBenchmark&#8230;BlaBla</string>
-    <string name="about_copyright" translatable="false">Copyleft &#169; 2016&#8211;2017 by VideoLAN.\n</string>
-    <string name="authors" translatable="false">Jean-Baptiste&#160;Kempf, Geoffrey&#160;Métais, Alexandre&#160;Perraud, Thomas&#160;Guillem, Benoit&#160;Du&#160;Payrat, Bastien&#160;Penavayre, Duncan&#160;McNamara</string>
-
+    <string name="about_description">VLCBenchmark is a tool to benchmark android devices\' video capabilities using the VLC Media Player.</string>
+    <string name="about_copyright" translatable="false">Copyleft &#169; 2016&#8211;2017 by VideoLAN.</string>
+    <string name="about_authors" translatable="false">Jean-Baptiste&#160;Kempf, Geoffrey&#160;Métais, Alexandre&#160;Perraud, Thomas&#160;Guillem, Benoit&#160;Du&#160;Payrat, Bastien&#160;Penavayre, Duncan&#160;McNamara</string>
+    <string name="about_revision">Revision:</string>
+    <string name="about_compiled_by">This VLCBenchmark version is compiled by:</string>
+    <string name="about_link">http://www.videolan.org</string>
     <!-- About tabs -->
     <string name="tab_about">About</string>
     <string name="tab_licence">Licence</string>
