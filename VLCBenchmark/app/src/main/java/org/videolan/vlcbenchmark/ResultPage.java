@@ -142,6 +142,13 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 mGoogleConnectionHandler.signIn();
             }
         });
+
+        if (BuildConfig.DEBUG) {
+            View separator = findViewById(R.id.result_page_separator);
+            separator.setVisibility(View.VISIBLE);
+
+            button.setVisibility(View.VISIBLE);
+        }
     }
 
     private void onClickMethod(int position) {

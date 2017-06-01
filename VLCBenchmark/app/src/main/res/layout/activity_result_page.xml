@@ -40,6 +40,7 @@
                 android:textColor="@android:color/white"/>
         </LinearLayout>
         <View
+            android:id="@+id/result_page_separator"
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:background="@color/grey300"
