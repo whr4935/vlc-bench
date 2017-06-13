@@ -53,9 +53,12 @@ public class TestInfo implements Serializable {
 
     public static final double SCORE_TOTAL = 50d;
 
+    private static final double SCORE_MAX_PLAYBACK = 20d;
+    private static final double SCORE_MAX_PERFORMANCE = 30d;
+
     private String name;
-    private double[] software = {20d, 30d}; //playback, performance
-    private double[] hardware = {20d, 30d};
+    private double[] software = {SCORE_MAX_PLAYBACK, SCORE_MAX_PERFORMANCE};
+    private double[] hardware = {SCORE_MAX_PLAYBACK, SCORE_MAX_PERFORMANCE};
     private int loopNumber;
     private int[] framesDropped = {0, 0};
     private double[] percentOfBadScreenshots = {0d, 0d};
@@ -185,9 +188,9 @@ public class TestInfo implements Serializable {
     public void setWarningNumber(int number, boolean isSoftware) {
         this.numberOfWarnings[isSoftware ? SOFT : HARD] += number;
         if (isSoftware) {
-            software[PLAYBACK] -= number;
+            software[PLAYBACK] -= number < SCORE_MAX_PLAYBACK ? number : SCORE_MAX_PLAYBACK;
         } else {
-            hardware[PLAYBACK] -= number;
+            hardware[PLAYBACK] -= number < SCORE_MAX_PLAYBACK ? number : SCORE_MAX_PLAYBACK;
         }
     }
 
