@@ -4,6 +4,8 @@ import sys
 import urllib2
 import json
 from pprint import pprint
+from subprocess import check_output
+from subprocess import call
 import dbus
 import sys
 import os
@@ -189,7 +191,7 @@ def getBlockColorValue(pix, imageSize, iWidth, iHeight):
     return (getIntFromRGB([red, green, blue]))
 
 
-def getColorValues():
+def getScreenColorValues():
     window = gtk.gdk.get_default_root_window()
     size = window.get_size()
     pixelBuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, size[0], size[1])
@@ -199,26 +201,29 @@ def getColorValues():
     if (pixelBuf != None):
         filename = "screenshot.png"
         pixelBuf.save(filename, "png")
-        image = Image.open(filename) #Can be many different formats.
-        pix = image.load()
-        imageSize = image.size
-
-        colorValues = []
-
-        for i in range(0, wb_number):
-            for inc in range(0, hb_number):
-                colorValues.append(getBlockColorValue(pix, imageSize, i, inc))
-
-
-        for i in range (0, len(colorValues)):
-            print(str(i) + " - " + str(colorValues[i]))
-        os.remove(filename)
-        return colorValues
+        return getColorValues(filename)
     else:
         print("Failed to get screenshot")
     return 0
 
+def getColorValues(filename):
+    image = Image.open(filename) #Can be many different formats.
+    pix = image.load()
+    imageSize = image.size
+
+    colorValues = []
+
+    for i in range(0, wb_number):
+        for inc in range(0, hb_number):
+            colorValues.append(getBlockColorValue(pix, imageSize, i, inc))
+
+    for i in range (0, len(colorValues)):
+        print(str(i) + " - " + str(colorValues[i]))
+    os.remove(filename)
+    return colorValues
+
 def selectionLoop(filepath):
+    #manual screenshot selection loop
     vlc = VlcDbus()
     vlc.open("file://" + filepath)
     keyHandle = KeyHandler()
@@ -229,7 +234,7 @@ def selectionLoop(filepath):
         if (state_changed and pressed == "<enter>"):
             vlc.pause()
             position = vlc.getPosition()
-            colorValue = getColorValues()
+            colorValue = getScreenColorValues()
             tab.append(list([position, colorValue]))
             i += 1
             vlc.play()
@@ -238,6 +243,51 @@ def selectionLoop(filepath):
             break
     vlc.quit()
     return tab
+
+def autoSelectionLoop(filepath, tab, timestamps):
+    #automatic mode takes screenshots using vlc scene filter
+    #it takes 3 screenshots respectively at 25, 50, 75 percent of the video length
+    if len(tab) == 3:
+        return tab
+    time = timestamps[len(tab)]
+    print "time: " + str(time)
+    vlcParams = list()
+    vlcParams.append("vlc")
+    vlcParams.append(filepath)
+    vlcParams.append("--rate=1")
+    vlcParams.append("--video-filter=scene")
+    vlcParams.append("--vout")
+    vlcParams.append("dummy")
+    vlcParams.append("--start-time=" + str(time))
+    vlcParams.append("--stop-time=" + str(time + 0.5))
+    vlcParams.append("--scene-format=png")
+    vlcParams.append("--scene-ratio=24")
+    vlcParams.append("--scene-prefix=snap")
+    vlcParams.append("--scene-path=.")
+    vlcParams.append("vlc://quit")
+    filename = "snap00001.png"
+    i = 0
+    while os.path.isfile(filename) == False & i < 5:
+        call(vlcParams)
+        i += 1
+    if i == 5:
+        print "Failed to take screenshot"
+        exit(1)
+    tab.append([int(round(time * 1000)), getColorValues("snap00001.png")])
+    return autoSelectionLoop(filepath, tab, timestamps)
+
+def autoGetTimestamps(filepath):
+    strVidLen = check_output(["./getSampleLength.sh", filepath])
+    vidLen = float(strVidLen)
+    print "Video length: " + str(vidLen)
+    timestamps = list()
+    print "Video step 1: " + str(0.25 * vidLen)
+    print "Video step 2: " + str(0.50 * vidLen)
+    print "Video step 3: " + str(0.75 * vidLen)
+    timestamps.append(0.25 * vidLen)
+    timestamps.append(0.50 * vidLen)
+    timestamps.append(0.75 * vidLen)
+    return timestamps
 
 def getChecksum(filepath):
     filestr = open(filepath, "r")
@@ -252,7 +302,9 @@ def getFileName(filepath):
 def edit(filepath):
     print ("edit option was not yet implemented")
 
-def add(filepath):
+def add(filepath, auto):
+    #auto is a boolean to add in automatic mode
+    #reminders()
     if (not os.path.exists(filepath)):
         print ("File not found")
         return
@@ -261,7 +313,11 @@ def add(filepath):
         print ("That sample already exists")
     else:
         sample = dict()
-        sample["snapshot"] = selectionLoop(filepath)
+        if auto == False:
+            sample["snapshot"] = selectionLoop(filepath)
+        else:
+            timestamps = autoGetTimestamps(filepath)
+            sample["snapshot"] = autoSelectionLoop(filepath, list(), timestamps)
         sample["name"] = name
         sample["url"] = name
         sample["checksum"] = getChecksum(filepath)
@@ -352,7 +408,9 @@ elif (len(sys.argv) == 3):
     filepath = updateFileName(sys.argv[2])
     getFileName(filepath)
     if (option == "--add" or option == "-a"):
-        add(filepath)
+        add(filepath, False)
+    elif (option == "--add-auto" or option == "-aa"):
+        add(filepath, True)
     elif (option == "--del" or option == "-d"):
         delete(filepath)
     elif (option == "--edit" or option == "-e"):
