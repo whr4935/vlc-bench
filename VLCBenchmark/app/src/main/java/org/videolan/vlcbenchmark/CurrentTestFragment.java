@@ -1,7 +1,7 @@
 /*****************************************************************************
  * CurrentTestFragment.java
  *****************************************************************************
- * Copyright © 2011-2014 VLC authors and VideoLAN
+ * Copyright © 2016-2017 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,9 @@
 package org.videolan.vlcbenchmark;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

@@ -1,7 +1,7 @@
 /*****************************************************************************
  * MainPageFragment.java
  *****************************************************************************
- * Copyright © 2011-2014 VLC authors and VideoLAN
+ * Copyright © 2016-2017 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-
 
 /**
  * A simple {@link Fragment} subclass.
