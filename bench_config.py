@@ -226,6 +226,7 @@ def selectionLoop(filepath):
     #manual screenshot selection loop
     vlc = VlcDbus()
     vlc.open("file://" + filepath)
+    time.sleep(2)
     keyHandle = KeyHandler()
     tab = list()
     i = 0
@@ -242,6 +243,8 @@ def selectionLoop(filepath):
         if (state_changed and pressed == "<esc>" and len(tab) >= 1):
             break
     vlc.quit()
+    if i == 0:
+        return None
     return tab
 
 def autoSelectionLoop(filepath, tab, timestamps):
@@ -321,6 +324,10 @@ def add(filepath, auto):
         sample["name"] = name
         sample["url"] = name
         sample["checksum"] = getChecksum(filepath)
+
+        if sample["snapshot"] == None:
+            print "Failed to produce snapshot"
+            return
 
         jHandler = JsonHandler()
         jsonData = jHandler.getJsonObject()
