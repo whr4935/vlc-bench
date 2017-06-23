@@ -1,0 +1,1 @@
+VLCBenchmark is a tool to benchmark android devices\' video capabilities using the VLC Media Player.
