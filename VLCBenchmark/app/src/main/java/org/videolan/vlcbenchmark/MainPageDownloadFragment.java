@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -64,25 +65,29 @@ public class MainPageDownloadFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main_page_download, container, false);
+        return inflater.inflate(R.layout.fragment_main_page_download, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         FloatingActionButton dlButton = (FloatingActionButton) view.findViewById(R.id.fab_download);
         dlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new AlertDialog.Builder(getContext())
-                    .setTitle(getResources().getString(R.string.dialog_title_warning))
-                    .setMessage(getResources().getString(R.string.download_warning))
-                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
-                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            startDownload();
-                        }
-                    })
-                    .show();
+                        .setTitle(getResources().getString(R.string.dialog_title_warning))
+                        .setMessage(getResources().getString(R.string.download_warning))
+                        .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
+                        .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startDownload();
+                            }
+                        })
+                        .show();
             }
         });
-        return view;
     }
 
     @Override
