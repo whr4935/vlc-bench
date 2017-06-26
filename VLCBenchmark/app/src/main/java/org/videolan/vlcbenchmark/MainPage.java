@@ -223,7 +223,7 @@ public class MainPage extends VLCWorkerModel implements
         if (currentTestFragment != null ) {
             currentTestFragment.dismiss();
         }
-        new AlertDialog.Builder(this).setTitle("Error during download").setMessage(exception.getMessage()).setNeutralButton("ok", null).show();
+        new AlertDialog.Builder(this).setTitle(R.string.dialog_text_download_error).setMessage(exception.getMessage()).setNeutralButton(R.string.dialog_btn_ok, null).show();
     }
 
     @Override
