@@ -114,18 +114,6 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
         mAdapter = new TestResultListAdapter(results);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        onClickMethod(position);
-                    }
-
-                    @Override
-                    public void onLongItemClick(View view, int position) {
-                    }
-                })
-        );
 
         try {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -149,24 +137,6 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
 
             button.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void onClickMethod(int position) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null || actionBar.getTitle() == null) {
-            Log.e(TAG, "onClickMethod: Failed to get action bar title");
-            return;
-        }
-        String filename = JsonHandler.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
-        ArrayList<TestInfo> results = JsonHandler.load(filename);
-        if (results == null) {
-            Log.e(TAG, "onClickMethod: Failed to get results");
-            return;
-        }
-        TestInfo test = results.get(position);
-        Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
-        intent.putExtra("result", test);
-        startActivity(intent);
     }
 
     @Override
@@ -254,7 +224,21 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onClickMethod(getAdapterPosition());
+                        ActionBar actionBar = getSupportActionBar();
+                        if (actionBar == null || actionBar.getTitle() == null) {
+                            Log.e(TAG, "onClickMethod: Failed to get action bar title");
+                            return;
+                        }
+                        String filename = JsonHandler.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
+                        ArrayList<TestInfo> results = JsonHandler.load(filename);
+                        if (results == null) {
+                            Log.e(TAG, "onClickMethod: Failed to get results");
+                            return;
+                        }
+                        TestInfo test = results.get(getAdapterPosition());
+                        Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
+                        intent.putExtra("result", test);
+                        startActivity(intent);
                     }
                 });
             }

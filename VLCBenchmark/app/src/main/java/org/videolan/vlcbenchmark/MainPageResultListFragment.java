@@ -27,6 +27,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,26 +80,7 @@ public class MainPageResultListFragment extends Fragment {
         }
 
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this.getContext(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        onClickMethod(view);
-                    }
-
-                    @Override
-                    public void onLongItemClick(View view, int position) {
-                    }
-                }
-                ));
         return view;
-    }
-
-    private void onClickMethod(View view) {
-        TextView text = (TextView) view.findViewById(R.id.test_name);
-        Intent intent = new Intent(getActivity(), ResultPage.class);
-        intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
-        startActivityForResult(intent, RequestCodes.RESULTS);
     }
 
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
@@ -115,8 +97,11 @@ public class MainPageResultListFragment extends Fragment {
                 mResult = (TextView) view.findViewById(R.id.test_result);
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        onClickMethod(v);
+                    public void onClick(View view) {
+                        TextView text = (TextView) view.findViewById(R.id.test_name);
+                        Intent intent = new Intent(getActivity(), ResultPage.class);
+                        intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
+                        startActivityForResult(intent, RequestCodes.RESULTS);
                     }
                 });
             }
