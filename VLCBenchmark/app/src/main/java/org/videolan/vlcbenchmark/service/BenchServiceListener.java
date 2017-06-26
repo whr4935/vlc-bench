@@ -32,9 +32,8 @@ public interface BenchServiceListener {
     void failure(FAILURE_STATES reason, Exception exception);
     void doneReceived(List<MediaInfo> files);
     void updatePercent(double percent, long bitRate);
-    void stepFinished(String message);
     void setFilesDownloaded(boolean hasDownloaded);
-    void doneDownload();
+    void dismissDialog();
     void setFilesChecked(boolean hasChecked);
     void displayDialog(DialogInstance dialog);
 }

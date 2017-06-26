@@ -92,7 +92,7 @@ public class MainPageFragment extends Fragment {
         mListener.startCurrentTestFragment();
         if (!mListener.launchTests(testNumber)) {
             Log.e(TAG, "Failed to start the benchmark");
-            mListener.doneDownload();
+            mListener.dismissDialog();
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_oups))
                     .setMessage(getResources().getString(R.string.dialog_text_oups))
@@ -196,7 +196,7 @@ public class MainPageFragment extends Fragment {
         boolean launchTests(int number);
         boolean checkSignature();
         boolean checkVlcVersion();
-        void doneDownload();
+        void dismissDialog();
     }
 
 }

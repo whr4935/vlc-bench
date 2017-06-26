@@ -158,7 +158,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     public abstract void setFilesChecked(boolean hasChecked);
 
-    public abstract void doneDownload();
+    public abstract void dismissDialog();
 
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
@@ -498,7 +498,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private void onTestsFinished(List<TestInfo>[] results) {
         finalResults = TestInfo.mergeTests(results);
         String name;
-        doneDownload();
+        dismissDialog();
         running = false;
         try {
             name = JsonHandler.save(finalResults);

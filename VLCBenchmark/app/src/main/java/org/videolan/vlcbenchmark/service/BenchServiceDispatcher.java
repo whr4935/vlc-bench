@@ -113,9 +113,6 @@ public class BenchServiceDispatcher extends Handler {
                 Pair<Double, Long> percentAndBitRate = (Pair<Double, Long>) msg.obj;
                 listener.updatePercent(percentAndBitRate.first, percentAndBitRate.second);
                 break;
-            case BenchService.STEP_FINISHED:
-                listener.stepFinished((String)msg.obj);
-                break;
             case BenchService.FILE_CHECK:
                 listener.setFilesChecked((boolean)msg.obj);
                 break;

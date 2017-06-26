@@ -347,7 +347,6 @@ public class BenchService extends IntentService {
      * Method responsible for handling the download of a single file
      * and checking its integrity afterward.
      * <p>
-     * It also send {@link BenchService#PERCENT_STATUS} and {@link BenchService#STEP_FINISHED} events.
      *
      * @param file     a {@link File} to represent the distant local file that this method will create and fill
      * @param fileData metadata about the media.
@@ -381,12 +380,6 @@ public class BenchService extends IntentService {
                 sendMessage(PERCENT_STATUS_BITRATE, new Pair<Double, Long>((DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT, (long) bitPerSeconds));
                 fromTime = System.nanoTime();
             }
-            sendMessage(STEP_FINISHED, String.format(DOWNLOAD_STR, fileData.name));
-            if (checkFileSum(file, fileData.checksum)) {
-                sendMessage(STEP_FINISHED, String.format(SHA512_SUCCESS_STR, fileData.name));
-                return;
-            }
-            sendMessage(STEP_FINISHED, String.format(SHA512_FAILED_STR, fileData.name));
             file.delete();
             throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
         } catch (Exception e) {
@@ -478,7 +471,6 @@ public class BenchService extends IntentService {
         filesInfo = JSonParser.getMediaInfos();
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
-        sendMessage(STEP_FINISHED, JSON_FINISH_STR);
         String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
         File mediaFolder = new File(mediaFolderStr);
         if (!mediaFolder.exists())
@@ -493,13 +485,10 @@ public class BenchService extends IntentService {
                     fileData.localUrl = localFile.getAbsolutePath();
                     unusedFiles.remove(localFile);
                     sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
-                    sendMessage(STEP_FINISHED, String.format(SHA512_SUCCESS_STR, fileData.name));
                     continue;
                 } else {
                     localFile.delete();
-                    sendMessage(STEP_FINISHED, String.format(SHA512_FAILED_STR, fileData.name));
                 }
-            sendMessage(STEP_FINISHED, String.format(DOWNLOAD_INIT_STR, fileData.name));
             downloadFile(localFile, fileData, percent, 1.0 / filesInfo.size());
             fileData.localUrl = localFile.getAbsolutePath();
         }

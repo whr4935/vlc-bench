@@ -293,11 +293,9 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     @Override
     public void updatePercent(double percent, long bitRate) {}
     @Override
-    public void stepFinished(String message) {}
-    @Override
     public void setFilesDownloaded(boolean hasDownloaded) {}
     @Override
-    public void doneDownload() {}
+    public void dismissDialog() {}
     @Override
     public void setFilesChecked(boolean hasChecked) {}
 }

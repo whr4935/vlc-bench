@@ -238,7 +238,7 @@ public class MainPage extends VLCWorkerModel implements
     }
 
     @Override //TODO change to dismissDialog
-    public void doneDownload() {
+    public void dismissDialog() {
         if (currentTestFragment != null) {
             currentTestFragment.dismiss();
         }
@@ -258,11 +258,5 @@ public class MainPage extends VLCWorkerModel implements
             startCurrentTestFragment();
         }
         super.onStart();
-    }
-
-    //TO handle
-
-    @Override //BenchService method
-    public void stepFinished(String message) {
     }
 }
