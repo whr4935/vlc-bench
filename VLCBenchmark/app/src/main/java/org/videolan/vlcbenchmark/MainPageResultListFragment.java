@@ -22,6 +22,7 @@ package org.videolan.vlcbenchmark;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
@@ -41,6 +42,8 @@ import org.videolan.vlcbenchmark.tools.TestInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
@@ -86,10 +89,13 @@ public class MainPageResultListFragment extends Fragment {
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
 
         ArrayList<String> mData;
+        ExecutorService mLoader = Executors.newSingleThreadExecutor();
+        Handler mHandler;
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView mTitle;
             TextView mResult;
+
 
             ViewHolder(View view) {
                 super(view);
@@ -110,6 +116,13 @@ public class MainPageResultListFragment extends Fragment {
 
         TestListAdapter(ArrayList<String> data) {
             mData = data;
+            mHandler = new Handler();
+        }
+
+        @Override
+        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+            mLoader.shutdownNow();
+            super.onDetachedFromRecyclerView(recyclerView);
         }
 
         @Override
@@ -118,15 +131,31 @@ public class MainPageResultListFragment extends Fragment {
             return new ViewHolder(view);
         }
 
+        public void onLoadJson(TestListAdapter.ViewHolder holder, String title, String text) {
+            holder.mTitle.setText(title);
+            holder.mResult.setText(text);
+        }
+
         @Override
-        public void onBindViewHolder(TestListAdapter.ViewHolder holder, int position) {
-            ArrayList<TestInfo> test = JsonHandler.load(mData.get(position) + ".txt");
-            if (test != null) {
-                holder.mTitle.setText(JsonHandler.toDatePrettyPrint(mData.get(position)));
-                TestInfo.getGlobalScore(test);
-                holder.mResult.setText(String.format(getResources().getString(R.string.result_score),
-                        format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL)));
-            }
+        public void onBindViewHolder(final TestListAdapter.ViewHolder holder, int position) {
+            final String name = mData.get(position);
+            mLoader.execute(new Runnable() {
+                @Override
+                public void run() {
+                    ArrayList<TestInfo> test = JsonHandler.load(name + ".txt");
+                    if (test != null) {
+                        final String title = JsonHandler.toDatePrettyPrint(name);
+                        final String text = String.format(getResources().getString(R.string.result_score),
+                                format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                onLoadJson(holder, title, text);
+                            }
+                        });
+                    }
+                }
+            });
         }
 
         @Override
