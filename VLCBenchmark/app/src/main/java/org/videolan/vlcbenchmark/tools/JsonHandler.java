@@ -102,6 +102,7 @@ public class JsonHandler {
 
         } catch (IOException e) {
             Log.e(TAG, "Failed to save json test results");
+            jsonFile.delete();
             return null;
         }
         return fileName;
