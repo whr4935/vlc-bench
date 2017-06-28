@@ -78,4 +78,15 @@ public class FileHandler {
         });
     }
 
+    public static void delete(final File file) {
+        mThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!file.delete()) {
+                    Log.e(TAG, "Failed to delete file: " + file.getName());
+                }
+            }
+        });
+    }
+
 }
