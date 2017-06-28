@@ -21,13 +21,11 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -102,7 +100,7 @@ public class JsonHandler {
 
         } catch (IOException e) {
             Log.e(TAG, "Failed to save json test results");
-            jsonFile.delete();
+            FileHandler.delete(jsonFile);
             return null;
         }
         return fileName;
@@ -156,13 +154,15 @@ public class JsonHandler {
     }
 
     public static boolean deleteFiles(){
-        File dir = new File(FileHandler.getFolderStr(FileHandler.jsonFolder));
+        String dirpath = FileHandler.getFolderStr(FileHandler.jsonFolder);
+        if (dirpath == null) {
+            Log.e(TAG, "Failed to get folder path");
+            return false;
+        }
+        File dir = new File(dirpath);
         File[] files = dir.listFiles();
         for (File file : files) {
-            if (!file.delete()) {
-                Log.e(TAG, "Failed to delete test results");
-                return false;
-            }
+            FileHandler.delete(file);
         }
         return true;
     }
