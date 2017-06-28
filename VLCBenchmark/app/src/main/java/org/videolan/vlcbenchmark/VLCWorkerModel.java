@@ -413,7 +413,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         if (failed) {
             lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), resultCode);
         } else if (testIndex.isScreenshot()) {
-            testScreenshot(data);
+            testScreenshot();
         } else {
             lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
             lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), testIndex.isSoftware());
@@ -428,10 +428,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      * Every time said conditions are not met a counter is incremented.
      * At the end of the Thread we update call {@link TestInfo#setBadScreenshot(double, boolean)} with said number
      * and call {@link VLCWorkerModel#launchTests(int)} on the UI thread.
-     *
-     * @param data the Intent from which we get in which folder the screenshots are located.
      */
-    private void testScreenshot(Intent data) {
+    private void testScreenshot() {
         final String screenshotFolder = FileHandler.getFolderStr(FileHandler.screenshotFolder);
         final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
         final List<int[]> colors = testFiles.get(fileIndex).getColors();
