@@ -28,13 +28,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
@@ -75,14 +75,20 @@ public class MainPageResultListFragment extends Fragment {
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
 
-        data = orderBenchmarks(JsonHandler.getFileNames());
-        mAdapter = new MainPageResultListFragment.TestListAdapter(data);
+        ArrayList<String> filenames = JsonHandler.getFileNames();
+        if (filenames != null) {
+            data = orderBenchmarks(JsonHandler.getFileNames());
+            mAdapter = new MainPageResultListFragment.TestListAdapter(data);
 
-        if (data.isEmpty()) {
-            view.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
+            if (data.isEmpty()) {
+                view.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
+            }
+
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_loading_results_failure).display(getContext());
         }
 
-        mRecyclerView.setAdapter(mAdapter);
         return view;
     }
 
@@ -131,7 +137,7 @@ public class MainPageResultListFragment extends Fragment {
             return new ViewHolder(view);
         }
 
-        public void onLoadJson(TestListAdapter.ViewHolder holder, String title, String text) {
+        void onLoadJson(TestListAdapter.ViewHolder holder, String title, String text) {
             holder.mTitle.setText(title);
             holder.mResult.setText(text);
         }

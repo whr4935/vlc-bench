@@ -138,7 +138,11 @@ public class JsonHandler {
     }
 
     public static ArrayList<String> getFileNames() {
-        File dir = new File(FileHandler.getFolderStr(FileHandler.jsonFolder));
+        String dirname = FileHandler.getFolderStr(FileHandler.jsonFolder);
+        if (dirname == null) {
+            return null;
+        }
+        File dir = new File(dirname);
         File[] files = dir.listFiles();
         ArrayList<String> results = new ArrayList<>();
         if (files != null) {
