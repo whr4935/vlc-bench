@@ -21,16 +21,22 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.os.Environment;
+import android.util.Log;
 
 import org.videolan.vlcbenchmark.BuildConfig;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FileHandler {
+
+    private final static String TAG = "FileHandler";
 
     public final static String jsonFolder = "jsonFolder";
     public final static String mediaFolder = "media_folder";
     public final static String screenshotFolder = "screenshot_folder";
+    public static ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
 
     private final static String benchFolder =
             Environment.getExternalStorageDirectory() + File.separator + "VLCBenchmark" + File.separator;
@@ -58,6 +64,18 @@ public class FileHandler {
             ret = folder.mkdir();
         }
         return ret;
+    }
+
+    public static void delete(final String filepath) {
+        mThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                File file = new File(filepath);
+                if (!file.delete()) {
+                    Log.e(TAG, "Failed to delete file: " + file.getName());
+                }
+            }
+        });
     }
 
 }
