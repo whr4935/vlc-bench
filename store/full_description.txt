@@ -1,1 +1,3 @@
-VLCBenchmark is a tool to benchmark android devices\' video capabilities using the VLC Media Player.
+VLCBenchmark is a benchmark application focused on testing android devices' video capabilities using the VLC Media Player.
+It runs a test suit of video samples encoded according to many different parameters to see what works and what doesn't.
+It then rates the device according theses tests, and allows you to upload the results online, for everyone to see and compare devices.
