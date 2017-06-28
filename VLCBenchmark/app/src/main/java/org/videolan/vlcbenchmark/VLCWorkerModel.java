@@ -493,25 +493,35 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         }
     }
 
+    void startResultPage(String name) {
+        if (name == null) {
+            new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_save_failure)
+                    .display(this);
+            return;
+        }
+        Intent intent = new Intent(VLCWorkerModel.this, ResultPage.class);
+        intent.putExtra("name", name);
+        intent.putExtra("fromBench", true);
+        startActivityForResult(intent, RequestCodes.RESULTS);
+    }
+
     private void onTestsFinished(List<TestInfo>[] results) {
         finalResults = TestInfo.mergeTests(results);
-        String name;
         dismissDialog();
         running = false;
-        try {
-            name = JsonHandler.save(finalResults);
-            if (name == null) {
-                new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_save_failure)
-                        .display(this);
-                return;
-            }
-            Intent intent = new Intent(VLCWorkerModel.this, ResultPage.class);
-            intent.putExtra("name", name);
-            intent.putExtra("fromBench", true);
-            startActivityForResult(intent, RequestCodes.RESULTS);
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to save test : " + e.toString());
-        }
+            FileHandler.mThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    String name = null;
+                    try {
+                        name = JsonHandler.save(finalResults);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to save test : " + e.toString());
+                    }
+                    startResultPage(name);
+                }
+            });
+
     }
 
     public boolean checkVlcVersion() {
