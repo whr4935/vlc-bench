@@ -368,10 +368,13 @@ public class BenchService extends IntentService {
                 sendMessage(PERCENT_STATUS_BITRATE, new Pair<Double, Long>((DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT, (long) bitPerSeconds));
                 fromTime = System.nanoTime();
             }
-            FileHandler.delete(file);
-            throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
+            if (!checkFileSum(file, fileData.checksum)) {
+                FileHandler.delete(file);
+                throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
+            }
         } catch (Exception e) {
             Log.e(TAG, "Failed to download file : " + e.toString());
+
         } finally {
             if (fileStream != null)
                 fileStream.close();
