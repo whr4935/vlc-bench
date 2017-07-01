@@ -21,6 +21,8 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.videolan.vlcbenchmark.BuildConfig;
@@ -37,6 +39,7 @@ public class FileHandler {
     public final static String mediaFolder = "media_folder";
     public final static String screenshotFolder = "screenshot_folder";
     public static ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
+    public static Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final static String benchFolder =
             Environment.getExternalStorageDirectory() + File.separator + "VLCBenchmark" + File.separator;

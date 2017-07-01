@@ -512,13 +512,19 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             FileHandler.mThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    String name = null;
+                    String savedName = null;
                     try {
-                        name = JsonHandler.save(finalResults);
+                        savedName = JsonHandler.save(finalResults);
                     } catch (JSONException e) {
                         Log.e(TAG, "Failed to save test : " + e.toString());
                     }
-                    startResultPage(name);
+                    final String name = savedName;
+                    FileHandler.mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            startResultPage(name);
+                        }
+                    });
                 }
             });
 
