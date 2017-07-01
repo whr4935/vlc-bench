@@ -49,6 +49,10 @@ public class MainPage extends VLCWorkerModel implements
 
     private Toolbar toolbar = null;
 
+    /**
+     * hasDownloaded is used to see what to display
+     * between MainPageDownloadFragment and MainPageFragment
+     */
     private boolean hasDownloaded = false;
     private boolean hasChecked = false;
     private int mMenuItemId = 0;
@@ -73,6 +77,10 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    /**
+     * After successful download, removes download dialog and sets MainPageFragment
+     * @param hasDownloaded boolean on download success
+     */
     public void setFilesDownloaded(boolean hasDownloaded) {
         this.hasDownloaded = hasDownloaded;
         if (currentTestFragment != null) {
@@ -163,6 +171,12 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    /**
+     * dispatchKeyEvent is an override to integrate the bottomNavigationView in
+     * the input flow on AndroidTV and allow to interact with it. It isn't handled natively.
+     * @param event remote control key event
+     * @return boolean event consumed
+     */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         View focus = getCurrentFocus();
@@ -171,6 +185,10 @@ public class MainPage extends VLCWorkerModel implements
             Log.e(TAG, "Failed to get current focus");
             return ret;
         }
+        /* When bottom_navigation_bar gets focus, we use the inputs left and right to move
+        * inside an array of fragments id. These fragments are the three principal home, results, settings,
+        * updating the current fragment as we go along.
+        */
         if (event.getAction() == KeyEvent.ACTION_UP && focus.getId() == R.id.bottom_navigation_bar) {
             bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
             switch (event.getKeyCode()) {
@@ -197,6 +215,10 @@ public class MainPage extends VLCWorkerModel implements
         return ret;
     }
 
+    /**
+     * Sets the running boolean to false, indicating to the UI that the current test dialog
+     * is no longer needed.
+     */
     public void cancelBench() {
         running = false;
         Log.i(TAG, "Benchmark was stopped by the user");
