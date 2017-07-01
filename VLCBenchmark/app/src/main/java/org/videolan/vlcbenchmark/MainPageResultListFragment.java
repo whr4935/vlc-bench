@@ -54,11 +54,14 @@ public class MainPageResultListFragment extends Fragment {
 
     public MainPageResultListFragment() {}
 
+    private static int scrollPosition = -1;
+
+    RecyclerView mRecyclerView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ArrayList<String> data;
-        RecyclerView mRecyclerView;
         RecyclerView.Adapter mAdapter;
         RecyclerView.LayoutManager mLayoutManager;
 
@@ -90,6 +93,20 @@ public class MainPageResultListFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (scrollPosition != -1) {
+            mRecyclerView.getLayoutManager().scrollToPosition(scrollPosition);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        scrollPosition = ((LinearLayoutManager)mRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
     }
 
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
