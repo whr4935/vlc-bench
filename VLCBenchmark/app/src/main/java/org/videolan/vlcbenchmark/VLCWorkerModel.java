@@ -320,6 +320,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         if (testIndex.isScreenshot())
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
+        intent.putExtra("from_start", true);
         return intent;
     }
 
