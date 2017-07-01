@@ -75,6 +75,7 @@ public class MainPage extends VLCWorkerModel implements
         if (!hasChecked) {
             setFilesDownloaded(false);
         }
+        setCurrentFragment(R.id.home_nav);
     }
 
     /**
@@ -124,6 +125,10 @@ public class MainPage extends VLCWorkerModel implements
                     fragment = new SettingsFragment();
                     toolbar.setTitle(getResources().getString(R.string.settings_page));
                     break;
+                case R.id.spinner_layout:
+                    fragment = new SpinnerFragment();
+                    toolbar.setTitle(R.string.app_name);
+                    break;
                 default:
                     return false;
             }
@@ -161,7 +166,7 @@ public class MainPage extends VLCWorkerModel implements
                 }
         );
         if (savedInstanceState == null) {
-            setCurrentFragment(R.id.home_nav);
+            setCurrentFragment(R.id.spinner_layout);
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
