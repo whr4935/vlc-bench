@@ -43,7 +43,6 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -72,6 +71,8 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public class BenchService extends IntentService {
 
+    private static final String TAG = "BenchService";
+
     //Message's what
     public static final int FAILURE = 0;
     public static final int DONE_STATUS = 1;
@@ -94,23 +95,11 @@ public class BenchService extends IntentService {
 
     private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/Skantes/FileDump/master/";
 
-    //Steps strings
-    private static final String JSON_FINISH_STR = "The list of the videos was correctly retrieved";
-    private static final String DOWNLOAD_STR = "%s download finish";
-    private static final String SHA512_SUCCESS_STR = "%s integrity check successful";
-    private static final String SHA512_FAILED_STR = "%s integrity check failed";
-    private static final String DOWNLOAD_INIT_STR = "Starting download of %s...";
-
     /**
      * Field holding the result of the service,
      * the list of MediaInfo for all videos/media.
      */
     private List<MediaInfo> filesInfo = null;
-
-    /**
-     *
-     */
-    private ArrayList<MediaInfo> filesToDownload = null;
 
     /**
      * Field holding an instance of {@link Handler} used by the service
@@ -153,7 +142,7 @@ public class BenchService extends IntentService {
             int action = intent.getIntExtra("action", ServiceActions.SERVICE_UNKNOWN);
             switch (action) {
                 case ServiceActions.SERVICE_CONNECT:
-                    Log.i("BenchService", "Connected");
+                    Log.i(TAG, "Connected");
                     break;
                 case ServiceActions.SERVICE_CHECKFILES:
                     checkFiles(intent.getIntExtra("context", FileCheckContext.check));
@@ -165,7 +154,7 @@ public class BenchService extends IntentService {
                     UploadJson(intent.getStringExtra("json"));
                     break;
                 default:
-                    Log.e("VLCBench", "Unknown service action requested");
+                    Log.e(TAG, "Unknown service action requested");
                     break;
             }
             // TODO if IOexception is only related to no internet
@@ -208,7 +197,7 @@ public class BenchService extends IntentService {
          * Must be called by the Activity on the result of binding with BenchService, otherwise BenchService will
          * hang indefinitely.
          *
-         * @param dispatcher
+         * @param dispatcher to UI thread
          * @see BenchService#sendMessage(int, FAILURE_STATES, Object)
          */
         void sendData(Handler dispatcher) {
@@ -240,7 +229,7 @@ public class BenchService extends IntentService {
         synchronized (this) {
             if (dispatcher == null)
                 try {
-                    Log.e("BenchService", "dispatcher is null: Waiting");
+                    Log.i(TAG, "dispatcher is null: Waiting");
                     wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -294,12 +283,12 @@ public class BenchService extends IntentService {
             writer.flush();
             int response = connection.getResponseCode();
             if (response != 200) {
-                Log.e("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+                Log.e(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
             } else {
-                Log.i("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+                Log.i(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
             }
         } catch (IOException e) {
-            Log.e("VLCBench", e.toString());
+            Log.e(TAG, e.toString());
             sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
         }
     }
@@ -317,12 +306,12 @@ public class BenchService extends IntentService {
             writer.flush();
             int response = connection.getResponseCode();
             if (response != 200) {
-                Log.e("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+                Log.e(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
             } else {
-                Log.i("BenchService", "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+                Log.i(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
             }
         } catch (IOException e) {
-            Log.e("VLCBench", e.toString());
+            Log.e(TAG, e.toString());
             sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
         }
     }
@@ -334,7 +323,6 @@ public class BenchService extends IntentService {
     private void UploadJson(String json) {
         String url;
             if (BuildConfig.DEBUG) {
-                Log.e("VLCBench", "url = " + getString(R.string.build_api_address));
                 url = "http://" + getString(R.string.build_api_address) + ":8080/benchmarks";
                 httpJsonUpload(json, url);
             } else {
@@ -357,7 +345,7 @@ public class BenchService extends IntentService {
      */
     private void downloadFile(File file, MediaInfo fileData, double percent, double pas) throws IOException, GeneralSecurityException {
         if (!hasWifiAndLan(this)) {
-            Log.e("VLCBench", "No wifi !!");
+            Log.e(TAG, "There is no wifi");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         file.createNewFile();
@@ -370,8 +358,8 @@ public class BenchService extends IntentService {
             pas /= fileUrl.openConnection().getContentLength();
             urlStream = fileUrl.openStream();
             byte[] buffer = new byte[2048];
-            int read = 0;
-            long fromTime = System.nanoTime(), toTime = 0;
+            int read;
+            long fromTime = System.nanoTime(), toTime;
             while ((read = urlStream.read(buffer, 0, 2048)) != -1) {
                 toTime = System.nanoTime();
                 fileStream.write(buffer, 0, read);
@@ -383,7 +371,7 @@ public class BenchService extends IntentService {
             FileHandler.delete(file);
             throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
         } catch (Exception e) {
-            Log.e("VLCBench", "Failed to download file : " + e.toString());
+            Log.e(TAG, "Failed to download file : " + e.toString());
         } finally {
             if (fileStream != null)
                 fileStream.close();
@@ -396,13 +384,14 @@ public class BenchService extends IntentService {
     //TODO create new download list as to loop only on files to download
     private void checkFiles(int context) {
         if (!hasWifiAndLan(this)) {
-            Log.e("VLCBench", "There is no wifi.");
+            Log.e(TAG, "There is no wifi.");
             sendMessage(FILE_CHECK, false);
             if (context == FileCheckContext.download) {
                 sendMessage(FAILURE, FAILURE_STATES.DOWNLOAD_FAILED,
                         new IOException("Cannot download the videos without WIFI, please connect to wifi and retry"));
             }
         }
+        ArrayList<MediaInfo> filesToDownload;
         try {
             filesInfo = JSonParser.getMediaInfos();
             String dirStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
@@ -412,7 +401,7 @@ public class BenchService extends IntentService {
             }
             File dir = new File(dirStr);
             File[] files = dir.listFiles();
-            filesToDownload = new ArrayList<MediaInfo>();
+            filesToDownload = new ArrayList<>();
             for (MediaInfo mediaFile : filesInfo) {
                 boolean presence = false;
                 if (files != null) {
@@ -434,7 +423,7 @@ public class BenchService extends IntentService {
                 }
             }
         } catch (IOException | GeneralSecurityException e) {
-            Log.e("VLCBench", "Failed to check files: " + e.toString());
+            Log.e(TAG, "Failed to check files: " + e.toString());
             sendMessage(BenchService.FILE_CHECK, false);
             sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_sample));
             return;
@@ -465,16 +454,19 @@ public class BenchService extends IntentService {
      */
     private void downloadFiles() throws IOException, GeneralSecurityException {
         if (!hasWifiAndLan(this)) {
-            Log.e("VLCBench", "Downloading Filessss no wifi !!");
+            Log.e(TAG, "Downloading Filessss no wifi !!");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         filesInfo = JSonParser.getMediaInfos();
 
         sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
         String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
+        if (mediaFolderStr == null) {
+            Log.e(TAG, "Failed to get media directory");
+            sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_download_error));
+            return;
+        }
         File mediaFolder = new File(mediaFolderStr);
-        if (!mediaFolder.exists())
-            mediaFolder.mkdir();
         HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
         double percent = 0d;
         for (MediaInfo fileData : filesInfo) {
@@ -516,7 +508,7 @@ public class BenchService extends IntentService {
             stream = new FileInputStream(file);
             algorithm = MessageDigest.getInstance("SHA512");
             byte[] buff = new byte[2048];
-            int read = 0;
+            int read;
             while ((read = stream.read(buff, 0, 2048)) != -1)
                 algorithm.update(buff, 0, read);
             buff = algorithm.digest();
