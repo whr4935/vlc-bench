@@ -380,7 +380,7 @@ public class BenchService extends IntentService {
                 sendMessage(PERCENT_STATUS_BITRATE, new Pair<Double, Long>((DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT, (long) bitPerSeconds));
                 fromTime = System.nanoTime();
             }
-            file.delete();
+            FileHandler.delete(file);
             throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.url).toString());
         } catch (Exception e) {
             Log.e("VLCBench", "Failed to download file : " + e.toString());
@@ -419,8 +419,8 @@ public class BenchService extends IntentService {
                     for (File localFile : files) {
                         if (localFile.getName().equals(mediaFile.getName())) {
                             if (!checkFileSum(localFile, mediaFile.checksum)) {
-                                localFile.delete(); //TODO handle return value
                                 mediaFile.localUrl = localFile.getAbsolutePath();
+                                FileHandler.delete(localFile);
                                 filesToDownload.add(mediaFile);
                             }
                             mediaFile.localUrl = localFile.getAbsolutePath();
@@ -487,13 +487,14 @@ public class BenchService extends IntentService {
                     sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
                     continue;
                 } else {
-                    localFile.delete();
+                    FileHandler.delete(localFile);
                 }
             downloadFile(localFile, fileData, percent, 1.0 / filesInfo.size());
             fileData.localUrl = localFile.getAbsolutePath();
         }
-        for (File toRemove : unusedFiles)
-            toRemove.delete();
+        for (File toRemove : unusedFiles) {
+            FileHandler.delete(toRemove);
+        }
         sendMessage(DONE_DOWNLOAD, true);
         sendMessage(DONE_STATUS, filesInfo);
     }
