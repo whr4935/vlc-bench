@@ -22,7 +22,6 @@ package org.videolan.vlcbenchmark;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
@@ -35,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
@@ -42,8 +42,6 @@ import org.videolan.vlcbenchmark.tools.TestInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
@@ -57,11 +55,12 @@ public class MainPageResultListFragment extends Fragment {
     private static int scrollPosition = -1;
 
     RecyclerView mRecyclerView;
+    ArrayList<Pair<String, String>> mData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ArrayList<String> data;
+        final ArrayList<String> tmpdata;
         RecyclerView.Adapter mAdapter;
         RecyclerView.LayoutManager mLayoutManager;
 
@@ -77,22 +76,46 @@ public class MainPageResultListFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        mData = new ArrayList<>();
+        mAdapter = new MainPageResultListFragment.TestListAdapter(mData);
+        mRecyclerView.setAdapter(mAdapter);
 
         ArrayList<String> filenames = JsonHandler.getFileNames();
         if (filenames != null) {
-            data = orderBenchmarks(JsonHandler.getFileNames());
-            mAdapter = new MainPageResultListFragment.TestListAdapter(data);
+            tmpdata = orderBenchmarks(JsonHandler.getFileNames());
 
-            if (data.isEmpty()) {
+            if (tmpdata.isEmpty()) {
                 view.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
+            } else {
+                FileHandler.mThreadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (String filename : tmpdata) {
+                            ArrayList<TestInfo> test = JsonHandler.load(filename + ".txt");
+                            if (test != null) {
+                                final String title = JsonHandler.toDatePrettyPrint(filename);
+                                final String text = String.format(getResources().getString(R.string.result_score),
+                                        format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
+                                FileHandler.mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        addResult(title, text);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
             }
-
-            mRecyclerView.setAdapter(mAdapter);
         } else {
             new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_loading_results_failure).display(getContext());
         }
-
         return view;
+    }
+
+    public void addResult(String name, String result) {
+        mData.add(new Pair<>(name, result));
+        mRecyclerView.getAdapter().notifyItemInserted(mData.size());
     }
 
     @Override
@@ -111,14 +134,11 @@ public class MainPageResultListFragment extends Fragment {
 
     public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
 
-        ArrayList<String> mData;
-        ExecutorService mLoader = Executors.newSingleThreadExecutor();
-        Handler mHandler;
+        ArrayList<Pair<String, String>> mData;
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView mTitle;
             TextView mResult;
-
 
             ViewHolder(View view) {
                 super(view);
@@ -137,14 +157,12 @@ public class MainPageResultListFragment extends Fragment {
 
         }
 
-        TestListAdapter(ArrayList<String> data) {
+        TestListAdapter(ArrayList<Pair<String, String>> data) {
             mData = data;
-            mHandler = new Handler();
         }
 
         @Override
         public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-            mLoader.shutdownNow();
             super.onDetachedFromRecyclerView(recyclerView);
         }
 
@@ -154,31 +172,10 @@ public class MainPageResultListFragment extends Fragment {
             return new ViewHolder(view);
         }
 
-        void onLoadJson(TestListAdapter.ViewHolder holder, String title, String text) {
-            holder.mTitle.setText(title);
-            holder.mResult.setText(text);
-        }
-
         @Override
-        public void onBindViewHolder(final TestListAdapter.ViewHolder holder, int position) {
-            final String name = mData.get(position);
-            mLoader.execute(new Runnable() {
-                @Override
-                public void run() {
-                    ArrayList<TestInfo> test = JsonHandler.load(name + ".txt");
-                    if (test != null) {
-                        final String title = JsonHandler.toDatePrettyPrint(name);
-                        final String text = String.format(getResources().getString(R.string.result_score),
-                                format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                onLoadJson(holder, title, text);
-                            }
-                        });
-                    }
-                }
-            });
+        public void onBindViewHolder(final TestListAdapter.ViewHolder holder, final int position) {
+            holder.mTitle.setText(mData.get(position).first);
+            holder.mResult.setText(mData.get(position).second);
         }
 
         @Override
