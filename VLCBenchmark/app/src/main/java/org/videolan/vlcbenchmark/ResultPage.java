@@ -142,7 +142,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RequestCodes.OPENGL) {
+        if (requestCode == Constants.RequestCodes.OPENGL) {
             JSONObject res;
             try {
                 res = JsonHandler.dumpResults(results, data);
@@ -171,11 +171,11 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             intent.putExtra("action", ServiceActions.SERVICE_POST);
             intent.putExtra("json", res.toString());
             startService(intent);
-        } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
+        } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
             mGoogleConnectionHandler.handleSignInResult(data);
             startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
-                    RequestCodes.OPENGL);
+                    Constants.RequestCodes.OPENGL);
         }
     }
 

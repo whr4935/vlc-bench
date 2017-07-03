@@ -150,7 +150,7 @@ public class MainPageResultListFragment extends Fragment {
                         TextView text = (TextView) view.findViewById(R.id.test_name);
                         Intent intent = new Intent(getActivity(), ResultPage.class);
                         intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
-                        startActivityForResult(intent, RequestCodes.RESULTS);
+                        startActivityForResult(intent, Constants.RequestCodes.RESULTS);
                     }
                 });
             }

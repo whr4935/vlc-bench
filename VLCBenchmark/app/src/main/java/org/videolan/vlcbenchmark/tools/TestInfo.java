@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.videolan.vlcbenchmark.Constants;
 import org.videolan.vlcbenchmark.ResultCodes;
 
 import java.io.Serializable;
@@ -200,16 +201,16 @@ public class TestInfo implements Serializable {
 
     public void vlcCrashed(boolean isSoftware, boolean isScreenshot, int resultCode) {
         switch (resultCode) {
-            case ResultCodes.RESULT_OK:
+            case Constants.ResultCodes.RESULT_OK:
                 crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + OK_STR;
                 break;
-            case ResultCodes.RESULT_FAILED:
+            case Constants.ResultCodes.RESULT_FAILED:
                 crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = (isScreenshot ? QUALITY_STR : PLAYBACK_STR);
                 break;
-            case ResultCodes.RESULT_NO_HW:
+            case Constants.ResultCodes.RESULT_NO_HW:
                 crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + NO_HW_STR;
                 break;
-            case ResultCodes.RESULT_VLC_CRASH:
+            case Constants.ResultCodes.RESULT_VLC_CRASH:
                 crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) +VLC_CRASH_STR;
                 break;
             default:

@@ -286,7 +286,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         MediaInfo currentFile = testFiles.get(0);
         try {
             running = true;
-            startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
+            startActivityForResult(createIntentForVlc(currentFile), Constants.RequestCodes.VLC);
         } catch (ActivityNotFoundException e) {
             Log.e("VLCBench", "Failed to start VLC");
             return false;
@@ -340,7 +340,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) { //TODO refactor all this, lots of useless stuff
-         if (requestCode == RequestCodes.VLC) {
+         if (requestCode == Constants.RequestCodes.VLC) {
             super.onActivityResult(requestCode, resultCode, data);
 
              if (testIndex.ordinal() == 0) {
@@ -351,7 +351,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                 fillCurrentTestInfo(data, false, resultCode);
                 return;
             }
-            if (data == null && resultCode != ResultCodes.RESULT_OK) {
+            if (data == null && resultCode != Constants.ResultCodes.RESULT_OK) {
                 fillCurrentTestInfo(null, true, resultCode);
                 return;
             }
@@ -371,10 +371,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             onVlcCrashed(errorMessage, new Runnable() {
                 @Override
                 public void run() {
-                    fillCurrentTestInfo(data, true, ResultCodes.RESULT_VLC_CRASH);
+                    fillCurrentTestInfo(data, true, Constants.ResultCodes.RESULT_VLC_CRASH);
                 }
             });
-        } else if (requestCode == RequestCodes.GOOGLE_CONNECTION) {
+        } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
              GoogleConnectionHandler.getInstance().handleSignInResult(data);
         }
     }
@@ -488,7 +488,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             }
             testIndex = testIndex.next();
             MediaInfo currentFile = testFiles.get(fileIndex);
-            startActivityForResult(createIntentForVlc(currentFile), RequestCodes.VLC);
+            startActivityForResult(createIntentForVlc(currentFile), Constants.RequestCodes.VLC);
         } else {
             Log.e(TAG, "launchNextTest was called but running is false.");
         }
@@ -503,7 +503,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         Intent intent = new Intent(VLCWorkerModel.this, ResultPage.class);
         intent.putExtra("name", name);
         intent.putExtra("fromBench", true);
-        startActivityForResult(intent, RequestCodes.RESULTS);
+        startActivityForResult(intent, Constants.RequestCodes.RESULTS);
     }
 
     private void onTestsFinished(List<TestInfo>[] results) {

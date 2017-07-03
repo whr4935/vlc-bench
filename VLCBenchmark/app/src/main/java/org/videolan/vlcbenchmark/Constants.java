@@ -1,7 +1,7 @@
 /*****************************************************************************
- * ResultCodes.java
+ * CrashHandler.java
  *****************************************************************************
- * Copyright © 2016-2017 VLC authors and VideoLAN
+ * Copyright © 2017 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,20 @@
 
 package org.videolan.vlcbenchmark;
 
-public class ResultCodes {
-    public static final int RESULT_OK = -1;
-    public static final int RESULT_FAILED = 0;
-    public static final int RESULT_NO_HW = 1;
-    public static final int RESULT_VLC_CRASH = 2;
+public class Constants {
+
+    public static class RequestCodes {
+        public static int RESULTS = 1;
+        public static int VLC = 2;
+        public static int GOOGLE_CONNECTION = 3;
+        public static int OPENGL = 4;
+    }
+
+    public static class ResultCodes {
+        public static final int RESULT_OK = -1;
+        public static final int RESULT_FAILED = 0;
+        public static final int RESULT_NO_HW = 1;
+        public static final int RESULT_VLC_CRASH = 2;
+    }
+
 }
