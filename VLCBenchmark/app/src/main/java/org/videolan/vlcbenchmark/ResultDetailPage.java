@@ -60,39 +60,17 @@ public class ResultDetailPage extends AppCompatActivity {
     }
 
     private void setupText() {
-        TextView mSoftwareScore;
-        TextView mSoftwareFramesDropped;
-        TextView mSoftwareBadScreenshot;
-        TextView mSoftwareWarningNumber;
-        TextView mSoftwareCrash;
-        TextView mHardwareScore;
-        TextView mHardwareFramesDropped;
-        TextView mHardwareBadScreenshot;
-        TextView mHardwareWarningNumber;
-        TextView mHardwareCrash;
+        ((TextView) findViewById(R.id.software_score)).setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getSoftware())));
+        ((TextView) findViewById(R.id.software_bad_screenshot)).setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(0))));
+        ((TextView) findViewById(R.id.software_frames_dropped)).setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(0)));
+        ((TextView) findViewById(R.id.software_warning_number)).setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(0)));
+        setCrashText(((TextView) findViewById(R.id.software_crash)), TestInfo.SOFT);
 
-        mSoftwareScore = (TextView) findViewById(R.id.software_score);
-        mSoftwareBadScreenshot = (TextView) findViewById(R.id.software_bad_screenshot);
-        mSoftwareFramesDropped = (TextView) findViewById(R.id.software_frames_dropped);
-        mSoftwareWarningNumber = (TextView) findViewById(R.id.software_warning_number);
-        mSoftwareCrash = (TextView) findViewById(R.id.software_crash);
-        mHardwareScore = (TextView) findViewById(R.id.hardware_score);
-        mHardwareBadScreenshot = (TextView) findViewById(R.id.hardware_bad_screenshot);
-        mHardwareFramesDropped = (TextView) findViewById(R.id.hardware_frames_dropped);
-        mHardwareWarningNumber = (TextView) findViewById(R.id.hardware_warning_number);
-        mHardwareCrash = (TextView) findViewById(R.id.hardware_crash);
-
-        mSoftwareScore.setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getSoftware())));
-        mSoftwareBadScreenshot.setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(0))));
-        mSoftwareFramesDropped.setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(0)));
-        mSoftwareWarningNumber.setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(0)));
-        mHardwareScore.setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getHardware())));
-        mHardwareBadScreenshot.setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(1))));
-        mHardwareFramesDropped.setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(1)));
-        mHardwareWarningNumber.setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(1)));
-
-        setCrashText(mHardwareCrash, TestInfo.QUALITY);
-        setCrashText(mSoftwareCrash, TestInfo.PLAYBACK);
+        ((TextView) findViewById(R.id.hardware_score)).setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getHardware())));
+        ((TextView) findViewById(R.id.hardware_bad_screenshot)).setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(1))));
+        ((TextView) findViewById(R.id.hardware_frames_dropped)).setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(1)));
+        ((TextView) findViewById(R.id.hardware_warning_number)).setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(1)));
+        setCrashText(((TextView) findViewById(R.id.hardware_crash)), TestInfo.HARD);
     }
 
     private void setCrashText(TextView textView, int decoding) {
