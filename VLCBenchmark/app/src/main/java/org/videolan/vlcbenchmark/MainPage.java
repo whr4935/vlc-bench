@@ -134,7 +134,6 @@ public class MainPage extends VLCWorkerModel implements
             }
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_page_fragment_holder, fragment)
-                    .addToBackStack(null)
                     .commit();
             mMenuItemId = itemId;
         }
