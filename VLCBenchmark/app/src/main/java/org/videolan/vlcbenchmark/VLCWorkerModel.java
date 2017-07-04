@@ -441,7 +441,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             public void run() {
                 int badScreenshots = 0;
                 for (int i = 0; i < numberOfScreenshot; i++) {
-                    String filePath = screenshotFolder + File.separator + SCREENSHOT_NAMING + i + ".jpg";
+                    String filePath = screenshotFolder + "/" + SCREENSHOT_NAMING + i + ".jpg";
                     File file = new File(filePath);
                     boolean exists;
                     if (!(exists = file.exists()) ||

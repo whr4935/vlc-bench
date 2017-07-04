@@ -40,7 +40,7 @@ public class FileHandler {
     public final static String screenshotFolder = "screenshot_folder";
 
     private final static String benchFolder =
-            Environment.getExternalStorageDirectory() + File.separator + "VLCBenchmark" + File.separator;
+            Environment.getExternalStorageDirectory() +  "/VLCBenchmark/";
 
     public static String getFolderStr(String name) {
         String folderStr;
@@ -48,9 +48,9 @@ public class FileHandler {
             if (!checkFolderLocation(benchFolder)) {
                 return null;
             }
-            folderStr = benchFolder + name + File.separator;
+            folderStr = benchFolder + name + "/";
         } else {
-            folderStr = Environment.getDataDirectory().getAbsolutePath() + File.separator + name + File.separator;
+            folderStr = Environment.getDataDirectory().getAbsolutePath() + "/" + name + "/";
         }
         if (!checkFolderLocation(folderStr)) {
             return null;
