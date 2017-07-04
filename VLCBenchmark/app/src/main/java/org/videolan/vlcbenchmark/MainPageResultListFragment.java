@@ -38,6 +38,7 @@ import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
+import org.videolan.vlcbenchmark.tools.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +88,7 @@ public class MainPageResultListFragment extends Fragment {
             if (tmpdata.isEmpty()) {
                 view.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
             } else {
-                FileHandler.mThreadPool.execute(new Runnable() {
+                Util.runInBackground(new Runnable() {
                     @Override
                     public void run() {
                         for (String filename : tmpdata) {
@@ -96,7 +97,7 @@ public class MainPageResultListFragment extends Fragment {
                                 final String title = JsonHandler.toDatePrettyPrint(filename);
                                 final String text = String.format(getResources().getString(R.string.result_score),
                                         format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
-                                FileHandler.mHandler.post(new Runnable() {
+                                Util.runInUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         addResult(title, text);

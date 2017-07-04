@@ -21,6 +21,8 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.content.res.AssetManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -28,10 +30,15 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Util {
 
     private final static String TAG = Util.class.getName();
+
+    public static ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
+    public static Handler mHandler = new Handler(Looper.getMainLooper());
 
     public static String readAsset(String assetName, AssetManager assetManager) {
         InputStream is = null;
@@ -68,5 +75,13 @@ public class Util {
                 Log.e(TAG, "Failed to close: " + e.toString());
             }
         return false;
+    }
+
+    public static void runInUiThread(Runnable runnable) {
+        mHandler.post(runnable);
+    }
+
+    public static void runInBackground(Runnable runnable) {
+        mThreadPool.execute(runnable);
     }
 }

@@ -38,8 +38,6 @@ public class FileHandler {
     public final static String jsonFolder = "jsonFolder";
     public final static String mediaFolder = "media_folder";
     public final static String screenshotFolder = "screenshot_folder";
-    public static ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
-    public static Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final static String benchFolder =
             Environment.getExternalStorageDirectory() + File.separator + "VLCBenchmark" + File.separator;
@@ -70,7 +68,7 @@ public class FileHandler {
     }
 
     public static void delete(final String filepath) {
-        mThreadPool.execute(new Runnable() {
+        Util.runInBackground(new Runnable() {
             @Override
             public void run() {
                 File file = new File(filepath);
@@ -82,7 +80,7 @@ public class FileHandler {
     }
 
     public static void delete(final File file) {
-        mThreadPool.execute(new Runnable() {
+        Util.runInBackground(new Runnable() {
             @Override
             public void run() {
                 if (!file.delete()) {

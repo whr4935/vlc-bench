@@ -27,10 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.videolan.vlcbenchmark.Constants;
-import org.videolan.vlcbenchmark.ResultCodes;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 

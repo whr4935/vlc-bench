@@ -49,6 +49,7 @@ import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;
+import org.videolan.vlcbenchmark.tools.Util;
 
 import java.io.File;
 import java.io.Serializable;
@@ -510,24 +511,24 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         finalResults = TestInfo.mergeTests(results);
         dismissDialog();
         running = false;
-            FileHandler.mThreadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    String savedName = null;
-                    try {
-                        savedName = JsonHandler.save(finalResults);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Failed to save test : " + e.toString());
-                    }
-                    final String name = savedName;
-                    FileHandler.mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            startResultPage(name);
-                        }
-                    });
+        Util.runInBackground(new Runnable() {
+            @Override
+            public void run() {
+                String savedName = null;
+                try {
+                    savedName = JsonHandler.save(finalResults);
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to save test : " + e.toString());
                 }
-            });
+                final String name = savedName;
+                Util.runInUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        startResultPage(name);
+                    }
+                });
+            }
+        });
 
     }
 
