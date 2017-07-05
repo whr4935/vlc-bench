@@ -51,6 +51,7 @@
     <string name="dialog_title_testing">Testing &#8230;</string>
     <string name="dialog_title_file_deletion">File deletion</string>
     <string name="dialog_title_sample_deletion">Sample deletion</string>
+    <string name="dialog_title_downloading">Downloading &#8230;</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>

@@ -47,11 +47,17 @@ public class CurrentTestFragment extends DialogFragment {
     private TextView currentSample = null;
     private ProgressBar progressBar = null;
 
+    public static final int MODE_DOWNLOAD = 1;
+    public static final int MODE_BENCHMARK = 2;
+
+    public static final String ARG_MODE = "MODE";
+
     public CurrentTestFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        int mode;
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_current_test, container, false);
         Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
@@ -62,9 +68,16 @@ public class CurrentTestFragment extends DialogFragment {
                 dismiss();
             }
         });
+        mode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         currentSample = (TextView) view.findViewById(R.id.current_sample);
         percentText = (TextView) view.findViewById(R.id.percentText);
+        TextView title = (TextView) view.findViewById(R.id.test_dialog_title);
+        if (mode == MODE_DOWNLOAD) {
+            title.setText(R.string.dialog_title_downloading);
+        } else {
+            title.setText(R.string.dialog_title_testing);
+        }
         setUiToDefault();
         return view;
     }

@@ -59,6 +59,9 @@ public class MainPageDownloadFragment extends Fragment {
         }
         CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
         fragment.setCancelable(false);
+        Bundle args = new Bundle();
+        args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_DOWNLOAD);
+        fragment.setArguments(args);
         fragment.show(getFragmentManager(), "Download dialog");
     }
 
