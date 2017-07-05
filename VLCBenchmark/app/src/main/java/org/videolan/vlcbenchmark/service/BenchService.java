@@ -365,7 +365,7 @@ public class BenchService extends IntentService {
                 fileStream.write(buffer, 0, read);
                 percent += pas * read;
                 double bitPerSeconds = read * 1_000_000_000d / (toTime - fromTime);
-                sendMessage(PERCENT_STATUS_BITRATE, new Pair<Double, Long>((DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT, (long) bitPerSeconds));
+                sendMessage(PERCENT_STATUS_BITRATE, new Pair<Double, Long>(100d * percent, (long) bitPerSeconds));
                 fromTime = System.nanoTime();
             }
             if (!checkFileSum(file, fileData.checksum)) {
@@ -462,7 +462,7 @@ public class BenchService extends IntentService {
         }
         filesInfo = JSonParser.getMediaInfos();
 
-        sendMessage(PERCENT_STATUS, JSON_FINISHED_PERCENT);
+        sendMessage(PERCENT_STATUS, 0d);
         String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
         if (mediaFolderStr == null) {
             Log.e(TAG, "Failed to get media directory");
@@ -473,17 +473,17 @@ public class BenchService extends IntentService {
         HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
         double percent = 0d;
         for (MediaInfo fileData : filesInfo) {
-            percent += 1.0 / filesInfo.size();
             File localFile = new File(mediaFolder.getPath() + '/' + fileData.name);
             if (localFile.exists())
                 if (localFile.isFile() && checkFileSum(localFile, fileData.checksum)) {
                     fileData.localUrl = localFile.getAbsolutePath();
                     unusedFiles.remove(localFile);
-                    sendMessage(PERCENT_STATUS, (DOWNLOAD_FINISHED_PERCENT - JSON_FINISHED_PERCENT) * percent + JSON_FINISHED_PERCENT);
+                    sendMessage(PERCENT_STATUS, 100d * percent);
                     continue;
                 } else {
                     FileHandler.delete(localFile);
                 }
+            percent += 1.0 / filesInfo.size();
             downloadFile(localFile, fileData, percent, 1.0 / filesInfo.size());
             fileData.localUrl = localFile.getAbsolutePath();
         }
