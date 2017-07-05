@@ -2,21 +2,23 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="preferenceTheme">
             @style/PreferenceThemeOverlay.v14.Material
         </item>
+        <item name="android:actionBarStyle">@style/AppTheme.ActionBar.TitleTextStyle</item>
+        <!--<item name="android:homeAsUpIndicator">@color/white</item>-->
+        <item name="colorControlNormal">@color/white</item>
     </style>
 
-    <style name="SubPageTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorAccent</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
+    <style name="AppTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_very_imp_size</item>
+
     </style>
 
-    <!--<style name="Toolbar.VLC" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>-->
 
 </resources>

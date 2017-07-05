@@ -25,6 +25,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,10 +46,11 @@ public class AboutActivity extends AppCompatActivity {
         String tab_about = getResources().getString(R.string.tab_about);
         String tab_licence = getResources().getString(R.string.tab_licence);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolbar.setTitle(tab_about);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(tab_about);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setElevation(0);
         } else {
             onBackPressed();
             return;

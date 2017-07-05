@@ -10,6 +10,7 @@
 
     <!-- Font sizes -->
     <dimen name="text_title_size">28sp</dimen>
+    <dimen name="text_very_imp_size">20sp</dimen>
     <dimen name="text_imp_size">16sp</dimen>
     <dimen name="text_size">12sp</dimen>
 

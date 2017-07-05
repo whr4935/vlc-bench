@@ -79,11 +79,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             return;
         }
         testName = getIntent().getStringExtra("name");
-        if (getSupportActionBar() == null) {
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        if (toolbar == null) {
             Log.e(TAG, "setupUi: Failed to get action bar");
             return;
         }
-        getSupportActionBar().setTitle(JsonHandler.toDatePrettyPrint(testName));
+        toolbar.setTitle(JsonHandler.toDatePrettyPrint(testName));
+        setSupportActionBar(toolbar);
 
         results = JsonHandler.load(testName + ".txt");
         if (results == null) {
