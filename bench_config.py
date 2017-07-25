@@ -127,7 +127,6 @@ class JsonHandler:
     def closeJsonObject(self):
         self.jsonfile.close()
 
-
 #number of blocks in width
 wb_number = 6
 #number of blocks in height
@@ -292,6 +291,19 @@ def autoGetTimestamps(filepath):
     timestamps.append(0.75 * vidLen)
     return timestamps
 
+def checkChecksum():
+    dirpath = updateFileName("./samples")
+    dirfiles = os.listdir(dirpath)
+    jHandle = JsonHandler()
+    jsonConfig = jHandle.getJsonObject()
+    for filename in dirfiles:
+        configEl = getFromConfig(filename)
+        if configEl != None and configEl["checksum"] != getChecksum(dirpath + "/" + filename):
+            print (filename + ": bad checksum")
+        elif configEl == None and filename != "config.json":
+            print (filename + ": not in the json config file")
+
+
 def getChecksum(filepath):
     filestr = open(filepath, "r")
     hexhash = hashlib.sha512(filestr.read()).hexdigest()
@@ -363,6 +375,14 @@ def find(filepath):
             return True
     return False
 
+def getFromConfig(filename):
+    jHandle = JsonHandler()
+    jsonData = jHandle.getJsonObject()
+    for element in jsonData:
+        if element["name"] == filename:
+            return element
+    return None
+
 def show():
     jHandle = JsonHandler()
     jsonData = jHandle.getJsonObject()
@@ -408,6 +428,8 @@ if (len(sys.argv) == 2):
         show()
     elif (option == "--json" or option == "-j"):
         showJson()
+    elif (option == "--checksum" or option == "-c"):
+        checkChecksum()
     else:
         print (usage)
 elif (len(sys.argv) == 3):
