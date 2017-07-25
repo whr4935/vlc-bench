@@ -270,7 +270,7 @@ def autoSelectionLoop(filepath, tab, timestamps):
     vlcParams.append("vlc://quit")
     filename = "snap00001.png"
     i = 0
-    while os.path.isfile(filename) == False & i < 5:
+    while os.path.isfile(filename) == False and i < 5:
         call(vlcParams)
         i += 1
     if i == 5:
@@ -400,7 +400,7 @@ def reminders():
         exit(1)
 
 
-usage = "Usage: ./bench_config.py --[add | del | edit | list | json] [filepath]"
+usage = "Usage: ./bench_config.py --[add | add-auto | del | edit | checksum | list | json] [filepath]"
 # option selection
 if (len(sys.argv) == 2):
     option = sys.argv[1]
