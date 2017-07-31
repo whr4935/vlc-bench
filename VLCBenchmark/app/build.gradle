@@ -16,6 +16,9 @@ android {
         resValue "string", "build_host", hostName()
         resValue "string", "build_revision", revision()
     }
+
+    // right now debug_prod & release mode use the same URL ressources
+    // but in the future there will be a debug infra
     buildTypes {
         release {
             minifyEnabled false
@@ -24,11 +27,13 @@ android {
             resValue "string", "file_location_url", "https://streams.videolan.org/benchmark/"
             resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
         }
+        // debug is to use with local resources
         debug {
             resValue "string", "build_api_address", apiAddress()
             resValue "string", "file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/"
             resValue "string", "config_file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/config.json"
         }
+        // debug_prod is debug mode with the urls resources of release
         debug_prod.initWith(buildTypes.debug)
         debug_prod {
             resValue "string", "build_api_address", "https://bench.videolabs.io/api/"
