@@ -37,6 +37,15 @@ android {
             debuggable true
         }
     }
+
+    applicationVariants.all { variant ->
+        //Custom APK name
+        variant.outputs.each { output ->
+            def outputName = "VLCBenchmark-" + variant.versionName + ".apk"
+            output.outputFile = new File(output.outputFile.parentFile, outputName);
+        }
+    }
+
 }
 
 dependencies {
