@@ -20,6 +20,7 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -71,6 +72,8 @@ public class AboutActivity extends AppCompatActivity {
         revisionText.setText(revisionStr);
         TextView compiledText = (TextView) aboutLayout.findViewById(R.id.about_compiled);
         compiledText.setText(R.string.build_host);
+        TextView minVlc = (TextView) aboutLayout.findViewById(R.id.vlc_min_version);
+        minVlc.setText(String.format(getString(R.string.about_vlc_min),  BuildConfig.VLC_VERSION));
 
         licenceWebView.loadData(Util.readAsset("licence.htm", getResources().getAssets()), "text/html", "UTF8");
 

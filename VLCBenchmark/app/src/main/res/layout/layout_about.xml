@@ -79,6 +79,17 @@
             android:textSize="@dimen/text_size"/>
 
         <TextView
+            android:id="@+id/vlc_min_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="@dimen/default_margin"
+            android:text="@string/about_vlc_min"
+            android:textSize="@dimen/text_size">
+
+        </TextView>
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
