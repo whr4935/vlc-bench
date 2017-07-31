@@ -68,7 +68,11 @@ public class CurrentTestFragment extends DialogFragment {
                 dismiss();
             }
         });
-        mode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
+        if (getArguments() != null) {
+            mode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
+        } else {
+            mode = MODE_BENCHMARK;
+        }
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         currentSample = (TextView) view.findViewById(R.id.current_sample);
         percentText = (TextView) view.findViewById(R.id.percentText);
