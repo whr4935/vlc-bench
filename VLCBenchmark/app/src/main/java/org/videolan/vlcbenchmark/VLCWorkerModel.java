@@ -532,11 +532,29 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     }
 
+    private int checkVersion(String str1, String str2) {
+        String[] vals1 = str1.split("\\.");
+        String[] vals2 = str2.split("\\.");
+        int i = 0;
+
+        while (i < vals1.length && i < vals2.length && vals1[i].equals(vals2[i])) {
+            i++;
+        }
+
+        if (i < vals1.length && i < vals2.length) {
+            int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
+            return Integer.signum(diff);
+        }
+
+        return Integer.signum(vals1.length - vals2.length);
+    }
+
     public boolean checkVlcVersion() {
         if (!BuildConfig.DEBUG) {
-            try {
-                if (!this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName.equals(BuildConfig.VLC_VERSION))
+            try { // tmp during the VLCBenchmark alpha, using the vlc beta
+                if (checkVersion(this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName, BuildConfig.VLC_VERSION) < 0) {
                     return false;
+                }
             } catch (PackageManager.NameNotFoundException e) {
                 return false;
             }
