@@ -20,8 +20,11 @@
 
 package org.videolan.vlcbenchmark.service;
 
+import android.content.Context;
 import android.util.JsonReader;
 import android.util.Pair;
+
+import org.videolan.vlcbenchmark.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,15 +39,14 @@ import java.util.List;
  */
 public class JSonParser {
 
-    private static final String JSON_FILE_URL = "https://raw.githubusercontent.com/Skantes/FileDump/master/config.json";
     private static String encoding = null;
 
     public static String getEncoding() {
         return encoding;
     }
 
-    public static List<MediaInfo> getMediaInfos() throws IOException {
-        URL url = new URL(JSON_FILE_URL);
+    public static List<MediaInfo> getMediaInfos(Context context) throws IOException {
+        URL url = new URL(context.getString(R.string.config_file_location_url));
         URLConnection connection = url.openConnection();
         InputStream in = connection.getInputStream();
         encoding = connection.getContentEncoding();

@@ -89,12 +89,6 @@ public class BenchService extends IntentService {
         public static final int download = 2;
     }
 
-    //Percent tools
-    private static final double JSON_FINISHED_PERCENT = 100.0 / 4;
-    private static final double DOWNLOAD_FINISHED_PERCENT = 100.0;
-
-    private static final String BASE_URL_MEDIA = "https://raw.githubusercontent.com/Skantes/FileDump/master/";
-
     /**
      * Field holding the result of the service,
      * the list of MediaInfo for all videos/media.
@@ -321,13 +315,10 @@ public class BenchService extends IntentService {
      * @param json json string from JsonObject.toString()
      */
     private void UploadJson(String json) {
-        String url;
             if (BuildConfig.DEBUG) {
-                url = "http://" + getString(R.string.build_api_address) + ":8080/benchmarks";
-                httpJsonUpload(json, url);
+                httpJsonUpload(json, this.getString(R.string.build_api_address));
             } else {
-                url = "https://videolan.org/benchmarks";
-                httpsJsonUpload(json, url);
+                httpsJsonUpload(json, this.getString(R.string.build_api_address));
             }
     }
 
@@ -349,7 +340,7 @@ public class BenchService extends IntentService {
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         file.createNewFile();
-        URL fileUrl = new URL(BASE_URL_MEDIA + fileData.url);
+        URL fileUrl = new URL(this.getResources().getString(R.string.file_location_url) + fileData.url);
         FileOutputStream fileStream = null;
         InputStream urlStream = null;
         try {
@@ -396,7 +387,7 @@ public class BenchService extends IntentService {
         }
         ArrayList<MediaInfo> filesToDownload;
         try {
-            filesInfo = JSonParser.getMediaInfos();
+            filesInfo = JSonParser.getMediaInfos(this);
             String dirStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
             if (dirStr == null) {
                 sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_file_creation_failure));
@@ -446,7 +437,7 @@ public class BenchService extends IntentService {
     }
 
     /**
-     * Obtain the list of {@link MediaInfo} by calling {@link JSonParser#getMediaInfos()},
+     * Obtain the list of {@link MediaInfo} by calling {@link JSonParser#getMediaInfos(Context)},
      * prepare the environment to download the videos and
      * then check if they are already on the device and if so if the video is valid.
      * If its the case update the progress with assisted events, otherwise
@@ -460,7 +451,7 @@ public class BenchService extends IntentService {
             Log.e(TAG, "Downloading Filessss no wifi !!");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
-        filesInfo = JSonParser.getMediaInfos();
+        filesInfo = JSonParser.getMediaInfos(this);
 
         sendMessage(PERCENT_STATUS, 0d);
         String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);

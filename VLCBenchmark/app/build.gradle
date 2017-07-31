@@ -9,8 +9,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
-        buildConfigField("String", "VLC_VERSION", "\"2.1.2\"")
+        versionName "0.1"
+        buildConfigField("String", "VLC_VERSION", "\"2.1.14\"")
 
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
@@ -20,21 +20,33 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "build_api_address", "https://bench.videolabs.io/api/"
+            resValue "string", "file_location_url", "https://streams.videolan.org/benchmark/"
+            resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
         }
         debug {
             resValue "string", "build_api_address", apiAddress()
+            resValue "string", "file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/"
+            resValue "string", "config_file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/config.json"
+        }
+        debug_prod.initWith(buildTypes.debug)
+        debug_prod {
+            resValue "string", "build_api_address", "https://bench.videolabs.io/api/"
+            resValue "string", "file_location_url", "https://streams.videolan.org/benchmark/"
+            resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
+            debuggable true
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:preference-v7:25.3.1'
     compile 'com.android.support:preference-v14:25.3.1'
-    compile 'com.google.android.gms:play-services-auth:10.2.1'
+    compile 'com.google.android.gms:play-services-auth:11.0.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }
