@@ -29,7 +29,7 @@ android {
         }
         // debug is to use with local resources
         debug {
-            resValue "string", "build_api_address", apiAddress()
+            resValue "string", "build_api_address", "http://" + apiAddress() + ":8080/api/"
             resValue "string", "file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/"
             resValue "string", "config_file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/config.json"
         }
