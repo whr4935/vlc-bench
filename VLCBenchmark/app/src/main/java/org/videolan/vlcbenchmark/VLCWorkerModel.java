@@ -32,6 +32,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
@@ -322,6 +323,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
         intent.putExtra("from_start", true);
+        Log.i(TAG, "Testing: " + currentFile.getName());
         return intent;
     }
 
@@ -341,9 +343,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) { //TODO refactor all this, lots of useless stuff
-         if (requestCode == Constants.RequestCodes.VLC) {
-            super.onActivityResult(requestCode, resultCode, data);
-
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.RequestCodes.VLC) {
              if (testIndex.ordinal() == 0) {
                  String name = testFiles.get(fileIndex).getName();
                 lastTestInfo = new TestInfo(name, loopNumber);
@@ -414,6 +415,21 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private void fillCurrentTestInfo(Intent data, boolean failed, int resultCode) {
         if (failed) {
             lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), resultCode);
+            if (testIndex.isScreenshot()) {
+                // When a quality test fails, there is no screenshot analysis,
+                // hence no delay before re-starting vlc-android.
+                // That sometimes doesn't let vlc-android exit properly before being recreated.
+                // For that specific case a delay was introduced.
+                // But the class should be refactored as to not start anything in onActivityResult()
+                // but rather later, in onResume() for example.
+                Handler mHandler = new Handler();
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        launchNextTest();
+                    }
+                }, 2000);
+            }
         } else if (testIndex.isScreenshot()) {
             testScreenshot();
         } else {

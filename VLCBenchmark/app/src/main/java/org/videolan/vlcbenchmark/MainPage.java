@@ -262,7 +262,7 @@ public class MainPage extends VLCWorkerModel implements
     protected void onVlcCrashed(String errorMessage, final Runnable continueTesting) {
     }
 
-    @Override //TODO change to dismissDialog
+    @Override
     public void dismissDialog() {
         if (currentTestFragment != null) {
             currentTestFragment.dismiss();
