@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    compileSdkVersion 27
 
     defaultConfig {
         applicationId "org.videolan.vlcbenchmark"
         minSdkVersion 21
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "0.1"
         buildConfigField("String", "VLC_VERSION", "\"2.1.14\"")
@@ -54,46 +53,46 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:preference-v7:25.3.1'
-    compile 'com.android.support:preference-v14:25.3.1'
-    compile 'com.google.android.gms:play-services-auth:11.0.2'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:preference-v7:27.1.1'
+    implementation 'com.android.support:preference-v14:27.1.1'
+    implementation 'com.google.android.gms:play-services-auth:15.0.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
 }
 
 // Tmp solution to find the ip address of the computer building VLCBenchmark
 // ideally should use shell script + environment variables
 static def apiAddress() {
-    InetAddress result = null;
-    Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+    InetAddress result = null
+    Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces()
     while (interfaces.hasMoreElements()) {
-        NetworkInterface anInterface = interfaces.nextElement();
+        NetworkInterface anInterface = interfaces.nextElement()
         if (anInterface.displayName.contains("docker") ||
             anInterface.displayName.contains("virbr")) {
-            continue;
+            continue
         }
-        Enumeration<InetAddress> addresses = anInterface.getInetAddresses();
+        Enumeration<InetAddress> addresses = anInterface.getInetAddresses()
         while (addresses.hasMoreElements()) {
             InetAddress address = addresses.nextElement();
             if (!address.isLoopbackAddress()) {
                 if (address.isSiteLocalAddress()) {
-                    return address.getHostAddress();
+                    return address.getHostAddress()
                 } else if (result == null) {
-                    result = address;
+                    result = address
                 }
             }
         }
     }
-    return (result != null ? result : InetAddress.getLocalHost()).getHostAddress();
+    return (result != null ? result : InetAddress.getLocalHost()).getHostAddress()
 
 }
 
 static def hostName() {
-    return System.getProperty("user.name") + "@" + InetAddress.localHost.hostName
+    return "${System.getProperty("user.name")}@${InetAddress.localHost.hostName}"
 }
 
 static def buildTime() {
