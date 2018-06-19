@@ -42,6 +42,7 @@ import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
@@ -85,7 +86,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             Log.e(TAG, "setupUi: Failed to get action bar");
             return;
         }
-        toolbar.setTitle(JsonHandler.toDatePrettyPrint(testName));
+        toolbar.setTitle(FormatStr.toDatePrettyPrint(testName));
         setSupportActionBar(toolbar);
 
         results = JsonHandler.load(testName + ".txt");
@@ -232,7 +233,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                             Log.e(TAG, "onClickMethod: Failed to get action bar title");
                             return;
                         }
-                        String filename = JsonHandler.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
+                        String filename = FormatStr.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
                         ArrayList<TestInfo> results = JsonHandler.load(filename);
                         if (results == null) {
                             Log.e(TAG, "onClickMethod: Failed to get results");

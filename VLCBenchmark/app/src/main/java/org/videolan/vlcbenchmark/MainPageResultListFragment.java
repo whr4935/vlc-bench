@@ -27,6 +27,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
@@ -50,6 +50,8 @@ import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
  * A simple {@link Fragment} subclass.
  */
 public class MainPageResultListFragment extends Fragment {
+
+    private final static String TAG = FormatStr.class.getName();
 
     public MainPageResultListFragment() {}
 
@@ -94,7 +96,7 @@ public class MainPageResultListFragment extends Fragment {
                         for (String filename : tmpdata) {
                             ArrayList<TestInfo> test = JsonHandler.load(filename + ".txt");
                             if (test != null) {
-                                final String title = JsonHandler.toDatePrettyPrint(filename);
+                                final String title = FormatStr.toDatePrettyPrint(filename);
                                 final String text = String.format(getResources().getString(R.string.result_score),
                                         format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
                                 Util.runInUiThread(new Runnable() {
@@ -150,7 +152,7 @@ public class MainPageResultListFragment extends Fragment {
                     public void onClick(View view) {
                         TextView text = (TextView) view.findViewById(R.id.test_name);
                         Intent intent = new Intent(getActivity(), ResultPage.class);
-                        intent.putExtra("name", JsonHandler.fromDatePrettyPrint(text.getText().toString()));
+                        intent.putExtra("name", FormatStr.fromDatePrettyPrint(text.getText().toString()));
                         startActivityForResult(intent, Constants.RequestCodes.RESULTS);
                     }
                 });
@@ -188,7 +190,12 @@ public class MainPageResultListFragment extends Fragment {
     private ArrayList<String> orderBenchmarks(ArrayList<String> str_dates) {
         ArrayList<PairDateStr> data = new ArrayList<>();
         for (String str_date : str_dates) {
-            PairDateStr pair = new PairDateStr(FormatStr.strDateToDate(JsonHandler.toDatePrettyPrint(str_date)), str_date);
+            Date date = FormatStr.strDateToDate(str_date);
+            if (date == null) {
+                Log.i(TAG, "orderBenchmarks: skipping date");
+                continue;
+            }
+            PairDateStr pair = new PairDateStr(date, str_date);
             if (pair.pair.first != null) {
                 data.add(pair);
             }

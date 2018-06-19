@@ -22,7 +22,6 @@ package org.videolan.vlcbenchmark.tools;
 
 import android.util.Log;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,22 +39,56 @@ public class FormatStr {
     }
 
     public static String getDateStr() {
-        String str_date = DateFormat.getDateTimeInstance().format(System.currentTimeMillis());
-        str_date = str_date.replaceAll(",", "_");
-        str_date = str_date.replaceAll(" ", "_");
-        str_date = str_date.replaceAll(":", "_");
-        return str_date;
+        SimpleDateFormat format = new SimpleDateFormat("yyMMddHHmmssZ", Locale.getDefault());
+        return format.format(System.currentTimeMillis());
     }
 
     public static Date strDateToDate(String str_date) {
-        SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat format = new SimpleDateFormat("yyMMddHHmmssZ", Locale.getDefault());
         Date date = null;
         try {
             date = format.parse(str_date);
         } catch (ParseException e) {
-            Log.e(TAG, "Failed to parse date: " + e.toString());
+            Log.e(TAG, "strDateToDate: Failed to parse date: " + str_date + "\n" + e.toString() );
         }
         return date;
+    }
+
+    /**
+     * Converts date string used for filenames
+     * to pretty readable date string ("dd MMM yyyy HH:mm:ss")
+     * @param date_str filename date string
+     * @return readable date string
+     */
+    public static String toDatePrettyPrint(String date_str) {
+        SimpleDateFormat format = new SimpleDateFormat( "yyMMddHHmmssZ", Locale.getDefault());
+        Date date = null;
+        try {
+            date = format.parse(date_str);
+        } catch (ParseException e) {
+            Log.e(TAG, "Failed to parse date: " + date_str + "\n" + e.toString());
+        }
+        format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss", Locale.getDefault());
+        date_str = format.format(date);
+        return date_str;
+    }
+
+    /**
+     * Converts the readable date string ("dd MMM yyyy HH:mm:ss")
+     * to the date string for filenames
+     * @param date_str pretty readable date
+     * @return underscore separated date string
+     */
+    public static String fromDatePrettyPrint(String date_str) {
+        SimpleDateFormat format = new SimpleDateFormat( "dd MMM yyyy HH:mm:ss", Locale.getDefault());
+        Date date = null;
+        try {
+            date = format.parse(date_str);
+        } catch (ParseException e) {
+            Log.e(TAG, "Failed to parse date: " + e.toString());
+        }
+        format = new SimpleDateFormat("yyMMddHHmmssZ", Locale.getDefault());
+        return format.format(date);
     }
 
     public static String bitRateToString(long bitRate) {

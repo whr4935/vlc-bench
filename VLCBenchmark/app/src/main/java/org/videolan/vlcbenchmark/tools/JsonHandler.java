@@ -43,42 +43,6 @@ public class JsonHandler {
 
     private final static String TAG = "JsonHandler";
 
-    public static String toDatePrettyPrint(String name) {
-        char[] array;
-        int count = 0;
-        int i = 0;
-        array = name.toCharArray();
-        while (i < array.length && count < 6) {
-            if (array[i] == '_') {
-                if (count == 1) {
-                    array[i] = ',';
-                } else if (count >= 4) {
-                    array[i] = ':';
-                } else {
-                    array[i] = ' ';
-                }
-                ++count;
-            }
-            ++i;
-        }
-        return new String(array);
-    }
-
-    public static String fromDatePrettyPrint(String name) {
-        char[] array;
-        int count = 0;
-        int i = 0;
-        array = name.toCharArray();
-        while (i < array.length && count < 6) {
-            if (array[i] == ' ' || array[i] == ',' || array[i] == ':') {
-                array[i] = '_';
-                ++count;
-            }
-            ++i;
-        }
-        return new String(array);
-    }
-
     public static String save(ArrayList<TestInfo> testInfoList) throws JSONException {
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList);
