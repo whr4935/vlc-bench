@@ -21,15 +21,9 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
-import org.videolan.vlcbenchmark.BuildConfig;
-
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class FileHandler {
 
@@ -44,14 +38,10 @@ public class FileHandler {
 
     public static String getFolderStr(String name) {
         String folderStr;
-        if (BuildConfig.DEBUG) {
-            if (!checkFolderLocation(benchFolder)) {
-                return null;
-            }
-            folderStr = benchFolder + name + "/";
-        } else {
-            folderStr = Environment.getDataDirectory().getAbsolutePath() + "/" + name + "/";
+        if (!checkFolderLocation(benchFolder)) {
+            return null;
         }
+        folderStr = benchFolder + name + "/";
         if (!checkFolderLocation(folderStr)) {
             return null;
         }
@@ -65,18 +55,6 @@ public class FileHandler {
             ret = folder.mkdir();
         }
         return ret;
-    }
-
-    public static void delete(final String filepath) {
-        Util.runInBackground(new Runnable() {
-            @Override
-            public void run() {
-                File file = new File(filepath);
-                if (!file.delete()) {
-                    Log.e(TAG, "Failed to delete file: " + file.getName());
-                }
-            }
-        });
     }
 
     public static void delete(final File file) {
