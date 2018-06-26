@@ -82,7 +82,7 @@ public class BenchService extends IntentService {
     public static final int FILE_CHECK = 5;
     public static final int DONE_DOWNLOAD = 6;
     public static final int NO_INTERNET = 7;
-    public static final int FAILURE_DIALOG = 8;
+    public static final int DIALOG = 8;
 
     public static final class FileCheckContext {
         public static final int check = 1;
@@ -283,7 +283,7 @@ public class BenchService extends IntentService {
             }
         } catch (IOException e) {
             Log.e(TAG, e.toString());
-            sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
+            sendMessage(DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
         }
     }
 
@@ -301,12 +301,14 @@ public class BenchService extends IntentService {
             int response = connection.getResponseCode();
             if (response != 200) {
                 Log.e(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+                sendMessage(DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_upload));
             } else {
                 Log.i(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
+                sendMessage(DIALOG, new DialogInstance(R.string.dialog_title_success, R.string.dialog_text_upload_success));
             }
         } catch (IOException e) {
             Log.e(TAG, e.toString());
-            sendMessage(FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet));
+            sendMessage(DIALOG, new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_upload));
         }
     }
 
@@ -390,7 +392,7 @@ public class BenchService extends IntentService {
             filesInfo = JSonParser.getMediaInfos(this);
             String dirStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
             if (dirStr == null) {
-                sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_file_creation_failure));
+                sendMessage(BenchService.DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_file_creation_failure));
                 return;
             }
             File dir = new File(dirStr);
@@ -419,7 +421,7 @@ public class BenchService extends IntentService {
         } catch (IOException | GeneralSecurityException e) {
             Log.e(TAG, "Failed to check files: " + e.toString());
             sendMessage(BenchService.FILE_CHECK, false);
-            sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_sample));
+            sendMessage(BenchService.DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_sample));
             return;
         }
         sendMessage(FILE_CHECK, true);
@@ -457,7 +459,7 @@ public class BenchService extends IntentService {
         String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
         if (mediaFolderStr == null) {
             Log.e(TAG, "Failed to get media directory");
-            sendMessage(BenchService.FAILURE_DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_download_error));
+            sendMessage(BenchService.DIALOG, new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_download_error));
             return;
         }
         File mediaFolder = new File(mediaFolderStr);

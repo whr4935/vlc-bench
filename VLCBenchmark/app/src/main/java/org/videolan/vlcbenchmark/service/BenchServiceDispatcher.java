@@ -119,7 +119,7 @@ public class BenchServiceDispatcher extends Handler {
             case BenchService.DONE_DOWNLOAD:
                 listener.setFilesDownloaded((boolean)msg.obj);
                 break;
-            case BenchService.FAILURE_DIALOG:
+            case BenchService.DIALOG:
                 listener.displayDialog((DialogInstance)msg.obj);
                 break;
             default:
