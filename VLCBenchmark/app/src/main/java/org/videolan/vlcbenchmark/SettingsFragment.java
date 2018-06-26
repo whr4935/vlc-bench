@@ -38,6 +38,8 @@ import java.io.File;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
+    private static String TAG = SettingsFragment.class.getName();
+
     GoogleConnectionHandler mGoogleConnectionHandler;
 
     ISettingsFragment mListener;
@@ -46,8 +48,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onResume() {
         super.onResume();
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
-        mGoogleConnectionHandler.setGoogleApiClient(getContext(), getActivity());
-        mGoogleConnectionHandler.checkConnection(this);
+        mGoogleConnectionHandler.setGoogleSignInClient(getContext(), getActivity());
+        this.updateGoogleButton();
     }
 
     @Override
@@ -103,11 +105,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 break;
             case "connect_key":
                 mGoogleConnectionHandler.signIn();
-                mGoogleConnectionHandler.checkConnection(this);
                 break;
             case "disconnect_key":
                 mGoogleConnectionHandler.signOut();
-                mGoogleConnectionHandler.checkConnection(this);
+                this.updateGoogleButton();
                 break;
             case "delete_samples_key":
                 dialog.setNegativeButton(R.string.dialog_btn_continue, new DialogInterface.OnClickListener() {
@@ -130,8 +131,39 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.w(TAG, "onActivityResult: " + requestCode );
+        if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
+            mGoogleConnectionHandler.setGoogleSignInClient(getContext(), getActivity());
+            if (mGoogleConnectionHandler.handleSignInResult(data)) {
+                updateGoogleButton();
+            } else {
+                DialogInstance dialogInstance = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_google);
+                dialogInstance.display(getContext());
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void updateGoogleButton() {
+        if (!mGoogleConnectionHandler.isConnected()) {
+            if (this.findPreference("connect_key") == null) {
+                Preference preference = this.findPreference("disconnect_key");
+                preference.setTitle(this.getResources().getString(R.string.connect_pref));
+                preference.setKey("connect_key");
+            }
+        } else {
+            if (this.findPreference("disconnect_key") == null) {
+                Preference preference = this.findPreference("connect_key");
+                preference.setTitle(this.getResources().getString(R.string.disconnect_pref));
+                preference.setKey("disconnect_key");
+            }
+        }
+    }
+
+    @Override
     public void onPause() {
-        mGoogleConnectionHandler.unsetGoogleApiClient();
+        mGoogleConnectionHandler.unsetGoogleSignInClient();
         super.onPause();
     }
 

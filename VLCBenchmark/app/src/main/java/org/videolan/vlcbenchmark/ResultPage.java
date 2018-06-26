@@ -131,7 +131,12 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mGoogleConnectionHandler.signIn();
+                if (mGoogleConnectionHandler.isConnected()) {
+                    startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
+                            Constants.RequestCodes.OPENGL);
+                } else {
+                    mGoogleConnectionHandler.signIn();
+                }
             }
         });
 
@@ -146,6 +151,8 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
+        mGoogleConnectionHandler.setGoogleSignInClient(this, this);
         if (requestCode == Constants.RequestCodes.OPENGL) {
             JSONObject res;
             try {
@@ -155,7 +162,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                     return;
                 }
                 if (mGoogleConnectionHandler != null && mGoogleConnectionHandler.getAccount() != null) {
-                        res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
+                    res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
                 } else {
                     if (mGoogleConnectionHandler == null) {
                         Log.d(TAG, "onActivityResult: mGoogleConnectionHandler is null");
@@ -177,9 +184,10 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
             startService(intent);
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
-            mGoogleConnectionHandler.handleSignInResult(data);
-            startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
-                    Constants.RequestCodes.OPENGL);
+            if (mGoogleConnectionHandler.handleSignInResult(data)) {
+                startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
+                        Constants.RequestCodes.OPENGL);
+            }
         }
     }
 
@@ -187,7 +195,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     protected void onResume() {
         super.onResume();
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
-        mGoogleConnectionHandler.setGoogleApiClient(this, this);
+        mGoogleConnectionHandler.setGoogleSignInClient(this, this);
         if (!hasSendData) {
             hasSendData = true;
             mGoogleConnectionHandler.signIn();
@@ -198,7 +206,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     @Override
     protected void onPause() {
         super.onPause();
-        mGoogleConnectionHandler.unsetGoogleApiClient();
+        mGoogleConnectionHandler.unsetGoogleSignInClient();
         BenchServiceDispatcher.getInstance().stopService();
     }
 

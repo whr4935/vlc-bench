@@ -22,6 +22,7 @@ package org.videolan.vlcbenchmark;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,6 +37,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -377,7 +379,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
                 }
             });
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
-             GoogleConnectionHandler.getInstance().handleSignInResult(data);
+            android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
+            fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 

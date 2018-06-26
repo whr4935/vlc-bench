@@ -1,8 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            keyAlias 'VLCBenchmark_key'
+            keyPassword 'benchpass842'
+            storeFile file('/home/skantes/.android/debug.keystore')
+            storePassword 'android'
+        }
+    }
     compileSdkVersion 27
-
     defaultConfig {
         applicationId "org.videolan.vlcbenchmark"
         minSdkVersion 21
@@ -11,12 +18,11 @@ android {
         versionName "0.1"
         buildConfigField("String", "VLC_VERSION", "\"2.1.14\"")
         vectorDrawables.useSupportLibrary = true
-
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
         resValue "string", "build_revision", revision()
+        signingConfig signingConfigs.debug
     }
-
     // right now debug_prod & release mode use the same URL ressources
     // but in the future there will be a debug infra
     buildTypes {
@@ -42,14 +48,12 @@ android {
             debuggable true
         }
     }
-
     applicationVariants.all { variant ->
         //Custom APK name
         variant.outputs.all { output ->
             outputFileName = "VLCBenchmark-" + variant.versionName + ".apk"
         }
     }
-
 }
 
 dependencies {
