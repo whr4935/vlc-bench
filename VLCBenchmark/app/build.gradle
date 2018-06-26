@@ -2,12 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        debug {
-            keyAlias 'VLCBenchmark_key'
-            keyPassword 'benchpass842'
-            storeFile file('/home/skantes/.android/debug.keystore')
-            storePassword 'android'
-        }
     }
     compileSdkVersion 27
     defaultConfig {
