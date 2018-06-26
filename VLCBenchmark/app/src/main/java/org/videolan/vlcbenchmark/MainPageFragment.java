@@ -120,7 +120,7 @@ public class MainPageFragment extends Fragment {
         if (batteryPct <= 50f && !isCharging) {
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_warning))
-                    .setMessage(String.format(getResources().getString(R.string.dialog_text_battery_warning), batteryPct))
+                    .setMessage(String.format(getResources().getString(R.string.dialog_text_battery_warning), Math.round(batteryPct)))
                     .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
