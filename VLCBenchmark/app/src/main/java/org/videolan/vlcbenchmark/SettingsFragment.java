@@ -155,7 +155,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         } else {
             if (this.findPreference("disconnect_key") == null) {
                 Preference preference = this.findPreference("connect_key");
-                preference.setTitle(this.getResources().getString(R.string.disconnect_pref));
+                preference.setTitle(this.getResources().getString(R.string.disconnect_pref) + " " + mGoogleConnectionHandler.getAccount().getEmail());
                 preference.setKey("disconnect_key");
             }
         }
