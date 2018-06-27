@@ -202,6 +202,7 @@ public class ScreenshotValidator {
             int[][] colorValues = getColorValues(filepath);
             int[][] colorReference = convertRGBintArray(reference);
             double diff = compareImageBlocks(colorValues, colorReference);
+            Log.i(TAG, "validateScreenshot: screenshots difference percentage: " + diff);
             return diff < MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT;
         } catch (RuntimeException e) {
             Log.e(TAG, "getValidityPercent has failed: ");
