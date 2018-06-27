@@ -175,21 +175,21 @@ public class TestInfo implements Serializable {
         tmp[QUALITY] = (1.0 - (percent / 100.0)) * tmp[QUALITY];
     }
 
-    public void setBadFrames(int number_of_dropped_frames, boolean isSoftware) {
-        double[] tmp = (isSoftware ? software : hardware);
-
-        framesDropped[isSoftware ? SOFT : HARD] += number_of_dropped_frames;
-        tmp[PLAYBACK] -= 5 * number_of_dropped_frames;
-        if (tmp[PLAYBACK] <= 0)
-            tmp[PLAYBACK] = 0;
+    public void setBadFrames(int number, boolean isSoftware) {
+        this.framesDropped[isSoftware ? SOFT : HARD] += number;
+        if (isSoftware) {
+            software[PLAYBACK] = software[PLAYBACK] - 2 * number > 0 ? software[PLAYBACK] - 2 * number : 0;
+        } else {
+            hardware[PLAYBACK] = hardware[PLAYBACK] - 2 * number > 0 ? hardware[PLAYBACK] - 2 * number : 0;
+        }
     }
 
     public void setWarningNumber(int number, boolean isSoftware) {
         this.numberOfWarnings[isSoftware ? SOFT : HARD] += number;
         if (isSoftware) {
-            software[PLAYBACK] -= number < SCORE_MAX_PLAYBACK ? number : SCORE_MAX_PLAYBACK;
+            software[PLAYBACK] = software[PLAYBACK] - number > 0 ? software[PLAYBACK] - number : 0;
         } else {
-            hardware[PLAYBACK] -= number < SCORE_MAX_PLAYBACK ? number : SCORE_MAX_PLAYBACK;
+            hardware[PLAYBACK] = hardware[PLAYBACK] - number > 0 ? hardware[PLAYBACK] - number : 0;
         }
     }
 
