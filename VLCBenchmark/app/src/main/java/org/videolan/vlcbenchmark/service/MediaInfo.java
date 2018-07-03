@@ -63,6 +63,8 @@ public class MediaInfo implements Serializable {
         return localUrl;
     }
 
+    public void setLocalUrl(String localUrl ) { this.localUrl = localUrl; }
+
     @Override
     public String toString() {
         return "MediaInfo: " + name + " " + url;

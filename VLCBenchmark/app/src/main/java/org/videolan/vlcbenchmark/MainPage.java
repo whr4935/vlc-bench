@@ -21,12 +21,10 @@
 package org.videolan.vlcbenchmark;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -34,9 +32,8 @@ import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.FAILURE_STATES;
-import org.videolan.vlcbenchmark.service.ServiceActions;
+import org.videolan.vlcbenchmark.tools.CheckFilesTask;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 
 public class MainPage extends VLCWorkerModel implements
@@ -59,6 +56,8 @@ public class MainPage extends VLCWorkerModel implements
     private CurrentTestFragment currentTestFragment = null;
     private BottomNavigationView bottomNavigationView = null;
 
+    private CheckFilesTask checkFilesTask;
+
     /* TV input handling */
     private int navigationIndex;
     private final static int[] navigationIds = {R.id.home_nav, R.id.results_nav, R.id.settings_nav};
@@ -70,12 +69,14 @@ public class MainPage extends VLCWorkerModel implements
         return true;
     }
 
-    public void setFilesChecked(boolean hasChecked) {
-        this.hasChecked = hasChecked;
-        if (!hasChecked) {
-            setFilesDownloaded(false);
-        }
-        setCurrentFragment(R.id.home_nav);
+    /**
+     * Called after a file check, sets hasChecked bool to true,
+     * and specifies if the files are present.
+     * @param hasDownloaded file presence
+     */
+    public void setFilesChecked(boolean hasDownloaded) {
+        this.hasChecked = true;
+        setFilesDownloaded(hasDownloaded);
     }
 
     /**
@@ -143,11 +144,8 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
-        if (savedInstanceState == null) {
-            Intent intent = new Intent(this, BenchService.class);
-            intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
-            this.startService(intent);
-        } else {
+
+        if (savedInstanceState != null) {
             hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
             hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
         }
@@ -163,7 +161,7 @@ public class MainPage extends VLCWorkerModel implements
                     }
                 }
         );
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null || !hasChecked) {
             setCurrentFragment(R.id.spinner_layout);
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
@@ -171,6 +169,28 @@ public class MainPage extends VLCWorkerModel implements
             if (running) {
                 startCurrentTestFragment();
             }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // makes sure that the asyncTask doesn't survive the activity (leak)
+        if (checkFilesTask != null) {
+            checkFilesTask.cancel(true);
+        }
+    }
+
+    protected void checkFiles() {
+        checkFilesTask = new CheckFilesTask(this);
+        checkFilesTask.execute();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!hasChecked) {
+            checkFiles();
         }
     }
 

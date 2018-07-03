@@ -22,7 +22,6 @@ package org.videolan.vlcbenchmark;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,7 +36,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -56,7 +54,6 @@ import org.videolan.vlcbenchmark.tools.Util;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -160,6 +157,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
     private String vlcPackageName;
 
+    /* Permissions request codes */
+    private static final int PERMISSION_REQUEST_READ = 1;
+    private static final int PERMISSION_REQUEST_WRITE = 2;
+
     public abstract void setFilesChecked(boolean hasChecked);
 
     public abstract void dismissDialog();
@@ -169,6 +170,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
      */
     protected abstract void setupUiMembers(Bundle savedInstanceState);
 
+    /**
+     * Called when ready to check presence and integrity of media files;
+     */
+    protected abstract void checkFiles();
     /**
      * Called to update the test dialog.
      * @param testName the name of the test (ex : screenshot software, ...)
@@ -228,8 +233,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             vlcPackageName = VLC_PACKAGE_NAME;
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
@@ -248,17 +251,24 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     final public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // check for grantResult size. On some devices this callback is called before responding to the dialog
-        if (requestCode == 1 && grantResults.length >= 1 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                }).create();
-                dialog.setCancelable(false);
-                dialog.setTitle("Bad permission");
-                dialog.setMessage("Cannot proceed without asked permission.\n\nExiting...");
-                dialog.show();
+        if ((requestCode == PERMISSION_REQUEST_WRITE || requestCode == PERMISSION_REQUEST_READ) &&
+                grantResults.length >= 1 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    finishAndRemoveTask();
+                }
+            }).create();
+            dialog.setCancelable(false);
+            dialog.setTitle("Bad permission");
+            dialog.setMessage("Cannot proceed without asked permission.\n\nExiting...");
+            dialog.show();
+        }
+        if (requestCode == PERMISSION_REQUEST_READ && grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITE);
+        } else if (requestCode == PERMISSION_REQUEST_WRITE && grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            checkFiles();
         }
     }
 
@@ -296,6 +306,16 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             return false;
         }
         return true;
+    }
+
+    /**
+     * This method is called when local media files were checked and validated
+     * The files set by the method are those that the benchmark is going to test with VLC
+     * @param files list of metadata for all the video/media to test.
+     */
+    public void setBenchmarkFiles(List<MediaInfo> files) {
+        testFiles = files;
+        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
     }
 
     /**

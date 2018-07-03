@@ -20,7 +20,10 @@
 
 package org.videolan.vlcbenchmark.tools;
 
+import android.content.Context;
 import android.content.res.AssetManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -39,6 +42,24 @@ public class Util {
 
     public static ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
     public static Handler mHandler = new Handler(Looper.getMainLooper());
+
+    /**
+     * Tool method to check if the device is currently connected to WIFI or LAN
+     *
+     * @return true if connected to WIFI or LAN else false
+     */
+    public static boolean hasWifiAndLan(Context context) {
+        boolean networkEnabled = false;
+        ConnectivityManager connectivity = (ConnectivityManager) (context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        if (connectivity != null) {
+            NetworkInfo networkInfo = connectivity.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected() &&
+                    (networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
+                networkEnabled = true;
+            }
+        }
+        return networkEnabled;
+    }
 
     public static String readAsset(String assetName, AssetManager assetManager) {
         InputStream is = null;

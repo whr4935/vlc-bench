@@ -119,7 +119,7 @@ public class CurrentTestFragment extends DialogFragment {
     public void updatePercent(double percent, long bitRate) {
         String strPercent;
         progressBar.setProgress((int) Math.round(percent));
-        if (bitRate == BenchServiceDispatcher.NO_BITRATE) {
+        if (bitRate < 0) {
             strPercent = FormatStr.format2Dec(percent) + "%";
             percentText.setText(strPercent);
         }

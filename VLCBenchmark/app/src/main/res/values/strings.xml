@@ -76,6 +76,7 @@
     <string name="dialog_text_save_failure">There was a problem while saving the benchmark results.</string>
     <string name="dialog_text_file_creation_failure">There was a problem while creating files</string>
     <string name="dialog_text_loading_results_failure">There was a problem while loading results</string>
+    <string name="dialog_text_no_wifi">You are not connected to wifi</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>

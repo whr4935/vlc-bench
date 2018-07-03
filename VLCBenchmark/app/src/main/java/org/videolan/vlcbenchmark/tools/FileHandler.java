@@ -24,6 +24,10 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 
 public class FileHandler {
 
@@ -68,4 +72,35 @@ public class FileHandler {
         });
     }
 
+    /**
+     * Check if a file correspond to a sha512 key.
+     *
+     * @param file     the file to compare
+     * @param checksum the wished value of the transformation of the file by using the sha512 algorithm.
+     * @return true if the result of sha512 transformation is identical to the given String in argument (checksum).
+     * @throws GeneralSecurityException if the algorithm is not found.
+     * @throws IOException              if an IO error occurs while we read the file.
+     */
+    public static boolean checkFileSum(File file, String checksum) throws GeneralSecurityException, IOException {
+        MessageDigest algorithm;
+        FileInputStream stream = null;
+
+        try {
+            stream = new FileInputStream(file);
+            algorithm = MessageDigest.getInstance("SHA512");
+            byte[] buff = new byte[2048];
+            int read;
+            while ((read = stream.read(buff, 0, 2048)) != -1)
+                algorithm.update(buff, 0, read);
+            buff = algorithm.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : buff) {
+                sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+            }
+            return sb.toString().equals(checksum);
+        } finally {
+            if (stream != null)
+                stream.close();
+        }
+    }
 }

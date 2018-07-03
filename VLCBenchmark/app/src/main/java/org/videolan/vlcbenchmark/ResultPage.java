@@ -46,6 +46,7 @@ import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
+import org.videolan.vlcbenchmark.tools.UploadResultsTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,7 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
     private boolean hasSendData = true;
 
     private GoogleConnectionHandler mGoogleConnectionHandler;
+    private UploadResultsTask uploadResultsTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,11 +179,8 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
                 Log.e(TAG, e.toString());
                 return;
             }
-            /* Starts the upload in BenchService */
-            Intent intent = new Intent(ResultPage.this, BenchService.class);
-            intent.putExtra("action", ServiceActions.SERVICE_POST);
-            intent.putExtra("json", res.toString());
-            startService(intent);
+            uploadResultsTask = new UploadResultsTask(this);
+            uploadResultsTask.execute(res.toString());
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
             if (mGoogleConnectionHandler.handleSignInResult(data)) {
@@ -208,6 +207,14 @@ public class ResultPage extends AppCompatActivity implements BenchServiceListene
         super.onPause();
         mGoogleConnectionHandler.unsetGoogleSignInClient();
         BenchServiceDispatcher.getInstance().stopService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (uploadResultsTask != null) {
+            uploadResultsTask.cancel(true);
+        }
     }
 
     @Override

@@ -21,6 +21,7 @@
 package org.videolan.vlcbenchmark;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,6 +35,7 @@ import android.view.ViewGroup;
 
 import org.videolan.vlcbenchmark.service.BenchService;
 import org.videolan.vlcbenchmark.service.ServiceActions;
+import org.videolan.vlcbenchmark.tools.DownloadFilesTask;
 
 
 /**
@@ -43,20 +45,13 @@ import org.videolan.vlcbenchmark.service.ServiceActions;
 public class MainPageDownloadFragment extends Fragment {
 
     IMainPageDownloadFragment mListener;
+    DownloadFilesTask downloadFilesTask;
 
     public MainPageDownloadFragment() {}
 
     private void startDownload() {
-        if (mListener.getHasChecked()) {
-            Intent intent = new Intent(getActivity(), BenchService.class);
-            intent.putExtra("action", ServiceActions.SERVICE_DOWNLOAD);
-            getActivity().startService(intent);
-        } else {
-            Intent intent = new Intent(getActivity(), BenchService.class);
-            intent.putExtra("action", ServiceActions.SERVICE_CHECKFILES);
-            intent.putExtra("context",BenchService.FileCheckContext.download);
-            getActivity().startService(intent);
-        }
+        downloadFilesTask = new DownloadFilesTask(getActivity());
+        downloadFilesTask.execute();
         CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
         fragment.setCancelable(false);
         Bundle args = new Bundle();
@@ -91,6 +86,14 @@ public class MainPageDownloadFragment extends Fragment {
                         .show();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (downloadFilesTask != null) {
+            downloadFilesTask.cancel(true);
+        }
     }
 
     @Override
