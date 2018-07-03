@@ -77,6 +77,8 @@
     <string name="dialog_text_file_creation_failure">There was a problem while creating files</string>
     <string name="dialog_text_loading_results_failure">There was a problem while loading results</string>
     <string name="dialog_text_no_wifi">You are not connected to wifi</string>
+    <string name="dialog_text_invalid_file">This file is corrupted.\nPlease restart the download to replace it.</string>
+    <string name="dialog_text_vlc_failed">Failed to start VLC.</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>

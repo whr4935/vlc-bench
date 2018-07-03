@@ -105,7 +105,7 @@ public class MainPage extends VLCWorkerModel implements
         return hasChecked;
     }
 
-    private boolean setCurrentFragment(int itemId) {
+    protected boolean setCurrentFragment(int itemId) {
         Fragment fragment;
         if (findViewById(R.id.main_page_fragment_holder) != null) {
             switch (itemId) {
@@ -264,6 +264,7 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    @Override
     public void resetDownload() {
         hasDownloaded = false;
         hasChecked = false;

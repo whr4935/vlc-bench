@@ -90,15 +90,7 @@ public class MainPageFragment extends Fragment {
             return;
         }
         mListener.startCurrentTestFragment();
-        if (!mListener.launchTests(testNumber)) {
-            Log.e(TAG, "Failed to start the benchmark");
-            mListener.dismissDialog();
-            new AlertDialog.Builder(getContext())
-                    .setTitle(getResources().getString(R.string.dialog_title_oups))
-                    .setMessage(getResources().getString(R.string.dialog_text_oups))
-                    .setNeutralButton(getResources().getString(R.string.dialog_btn_ok), null)
-                    .show();
-        }
+        mListener.launchTests(testNumber);
     }
 
     private void checkForTestStart(final int testNumber) {
@@ -193,7 +185,7 @@ public class MainPageFragment extends Fragment {
 
     public interface IMainPageFragment {
         void startCurrentTestFragment();
-        boolean launchTests(int number);
+        void launchTests(int number);
         boolean checkSignature();
         boolean checkVlcVersion();
         void dismissDialog();

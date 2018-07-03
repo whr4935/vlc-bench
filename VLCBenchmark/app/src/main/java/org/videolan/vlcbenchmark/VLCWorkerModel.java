@@ -159,8 +159,11 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     public abstract void setFilesChecked(boolean hasChecked);
 
+    protected abstract boolean setCurrentFragment(int itemId);
+
     public abstract void dismissDialog();
 
+    public abstract void resetDownload();
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
      */
@@ -273,7 +276,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @param numberOfTests number of repetition of all the tests. must be 1 or 3 other values are ignored.
      */
     @UiThread
-    final public boolean launchTests(int numberOfTests) {
+    final public void launchTests(int numberOfTests) {
         if (numberOfTests == 1) {
             this.numberOfTests = 1;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
@@ -281,8 +284,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             this.numberOfTests = 3;
             resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
         } else {
-            Log.e("VLCBench", "Wrong number of tests to start: " + numberOfTests);
-            return false;
+            Log.e(TAG, "Wrong number of tests to start: " + numberOfTests);
+            return;
         }
 
         fileIndex = 0;
@@ -292,12 +295,23 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         MediaInfo currentFile = testFiles.get(0);
         try {
             running = true;
-            startActivityForResult(createIntentForVlc(currentFile), Constants.RequestCodes.VLC);
+            Intent intent = createIntentForVlc(currentFile);
+            /* In case of failure due to an invalid file, stop benchmark, and display download page */
+            if (intent == null) {
+                dismissDialog();
+                running = false;
+                Log.e(TAG, "launchTests: " + getString(R.string.dialog_text_invalid_file ));
+                new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
+                resetDownload();
+                setCurrentFragment(R.id.home_nav);
+                return;
+            }
+            startActivityForResult(intent, Constants.RequestCodes.VLC);
         } catch (ActivityNotFoundException e) {
-            Log.e("VLCBench", "Failed to start VLC");
-            return false;
+            new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_vlc_failed).display(this);
+            Log.e(TAG, "launchTests: Failed to start VLC");
+            return;
         }
-        return true;
     }
 
     /**
@@ -316,6 +330,16 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @return a new Intent
      */
     private Intent createIntentForVlc(MediaInfo currentFile) {
+        boolean validFile = false;
+        try {
+            validFile = FileHandler.checkFileSum(new File(currentFile.getLocalUrl()), currentFile.getChecksum());
+        } catch (Exception e) {
+            Log.e(TAG, "createIntentForVlc: " + e.toString() );
+        }
+        if (!validFile) {
+            Log.e(TAG, "createIntentForVlc: Invalid file");
+            return null;
+        }
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
                 .putExtra("item_location", Uri.parse("file://" + currentFile.getLocalUrl()));
@@ -509,7 +533,17 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
             testIndex = testIndex.next();
             MediaInfo currentFile = testFiles.get(fileIndex);
-            startActivityForResult(createIntentForVlc(currentFile), Constants.RequestCodes.VLC);
+            Intent intent = createIntentForVlc(currentFile);
+            if (intent == null) {
+                Log.e(TAG, "launchNextTest: " + getString(R.string.dialog_text_invalid_file ));
+                dismissDialog();
+                running = false;
+                new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
+                resetDownload();
+                setCurrentFragment(R.id.home_nav);
+                return;
+            }
+            startActivityForResult(intent, Constants.RequestCodes.VLC);
         } else {
             Log.e(TAG, "launchNextTest was called but running is false.");
         }
