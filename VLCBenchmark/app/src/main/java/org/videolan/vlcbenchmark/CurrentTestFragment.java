@@ -31,7 +31,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 
 /**

@@ -31,11 +31,6 @@
             android:name=".ResultPage"
             android:configChanges="orientation|screenSize" />
 
-        <service
-            android:name=".service.BenchService"
-            android:exported="false"
-            android:launchMode="singleTask" />
-
         <activity
             android:name=".ResultDetailPage" />
         <activity android:name=".BenchGLActivity" />

@@ -40,8 +40,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import org.json.JSONException;
-import org.videolan.vlcbenchmark.service.BenchServiceDispatcher;
-import org.videolan.vlcbenchmark.service.BenchServiceListener;
 import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
@@ -74,12 +72,10 @@ import java.util.List;
  * <p>
  * This architecture allows the UI and logical part to be independent from one an other.
  */
-public abstract class VLCWorkerModel extends AppCompatActivity implements BenchServiceListener {
+public abstract class VLCWorkerModel extends AppCompatActivity {
 
     private final static String TAG = "VLCWorkerModel";
-    /**
-     * We use this member to start, stop and listene to {@link org.videolan.vlcbenchmark.service.BenchService}
-     */
+
     private List<TestInfo>[] resultsTest;
     private List<MediaInfo> testFiles;
     private ArrayList<TestInfo> finalResults;
@@ -195,9 +191,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     /**
      * Initialization of the Activity.
-     *
-     * This calls {@link #setupUiMembers(Bundle savedInstanceState)}, sets up the {@link BenchServiceDispatcher} dispatcher member and request
-     * permissions to read on the external storage.
+     *request permissions to read on the external storage.
      *
      * @param savedInstanceState saved state bundle
      */
@@ -213,8 +207,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         if (savedInstanceState != null) {
             running = savedInstanceState.getBoolean(STATE_RUNNING);
         }
-
-        BenchServiceDispatcher.getInstance().startService(this);
 
         setupUiMembers(savedInstanceState);
 
@@ -319,18 +311,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
     }
 
     /**
-     * Method called when {@link org.videolan.vlcbenchmark.service.BenchService} has finished his task
-     *
-     * @param files list of metadata for all the video/media to test.
-     */
-    @Override
-    final public void doneReceived(List<MediaInfo> files) {
-        testFiles = files;
-        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        setFilesDownloaded(true);
-    }
-
-    /**
      * This method creates a new intent that corresponds with VLC's BenchActivity launch protocol.
      * @param currentFile metadata about the current file
      * @return a new Intent
@@ -346,6 +326,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
         intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
         intent.putExtra("from_start", true);
         Log.i(TAG, "Testing: " + currentFile.getName());
+        Log.i(TAG, "Testing mode" );
         return intent;
     }
 
@@ -677,9 +658,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
 
     @Override
     protected void onResume() {
-        if (!BenchServiceDispatcher.getInstance().isStarted()) {
-            BenchServiceDispatcher.getInstance().startService(this);
-        }
         if (running) {
             String name = testFiles.get(fileIndex).getName();
             updateTestProgress(name, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
@@ -690,12 +668,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity implements BenchS
             }
         }
         super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        BenchServiceDispatcher.getInstance().stopService();
-        super.onPause();
     }
 
 }

@@ -21,10 +21,8 @@
 package org.videolan.vlcbenchmark;
 
 import android.app.AlertDialog;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -33,8 +31,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.videolan.vlcbenchmark.service.BenchService;
-import org.videolan.vlcbenchmark.service.ServiceActions;
 import org.videolan.vlcbenchmark.tools.DownloadFilesTask;
 
 

@@ -20,7 +20,6 @@
 
 package org.videolan.vlcbenchmark;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -32,7 +31,6 @@ import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import org.videolan.vlcbenchmark.service.FAILURE_STATES;
 import org.videolan.vlcbenchmark.tools.CheckFilesTask;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 
@@ -189,6 +187,7 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume: hasChecked: " + hasChecked);
         if (!hasChecked) {
             checkFiles();
         }
@@ -247,28 +246,15 @@ public class MainPage extends VLCWorkerModel implements
         Log.i(TAG, "Benchmark was stopped by the user");
     }
 
-    @Override
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
             currentTestFragment.updatePercent(percent, bitRate);
         }
     }
 
-    public void displayDialog(DialogInstance dialog) {
-        dialog.display(this);
-    }
-
     public void resetDownload() {
         hasDownloaded = false;
         hasChecked = false;
-    }
-
-    @Override
-    public void failure(FAILURE_STATES reason, Exception exception) {
-        if (currentTestFragment != null ) {
-            currentTestFragment.dismiss();
-        }
-        new AlertDialog.Builder(this).setTitle(R.string.dialog_text_download_error).setMessage(exception.getMessage()).setNeutralButton(R.string.dialog_btn_ok, null).show();
     }
 
     @Override
@@ -293,8 +279,15 @@ public class MainPage extends VLCWorkerModel implements
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
         savedInstanceState.putBoolean("HAS_DOWNLOADED", hasDownloaded);
-        savedInstanceState.putBoolean("HAD_CHECKED", hasChecked);
+        savedInstanceState.putBoolean("HAS_CHECKED", hasChecked);
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
+        hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
