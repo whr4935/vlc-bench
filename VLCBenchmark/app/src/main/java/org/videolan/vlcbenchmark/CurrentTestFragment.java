@@ -60,13 +60,7 @@ public class CurrentTestFragment extends DialogFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_current_test, container, false);
         Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.cancelBench();
-                dismiss();
-            }
-        });
+
         if (getArguments() != null) {
             mode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
         } else {
@@ -80,6 +74,23 @@ public class CurrentTestFragment extends DialogFragment {
             title.setText(R.string.dialog_title_downloading);
         } else {
             title.setText(R.string.dialog_title_testing);
+        }
+        if (mode == MODE_BENCHMARK) {
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.cancelBench();
+                    dismiss();
+                }
+            });
+        } else {
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.cancelDownload();
+                    dismiss();
+                }
+            });
         }
         setUiToDefault();
         return view;
@@ -149,5 +160,6 @@ public class CurrentTestFragment extends DialogFragment {
     public interface TestView {
         void setDialogFragment(CurrentTestFragment fragment);
         void cancelBench();
+        void cancelDownload();
     }
 }

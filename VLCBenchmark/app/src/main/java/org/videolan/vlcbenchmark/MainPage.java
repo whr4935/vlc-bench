@@ -51,6 +51,7 @@ public class MainPage extends VLCWorkerModel implements
     private boolean hasDownloaded = false;
     private boolean hasChecked = false;
     private int mMenuItemId = 0;
+    private Fragment currentPageFragment;
     private CurrentTestFragment currentTestFragment = null;
     private BottomNavigationView bottomNavigationView = null;
 
@@ -135,6 +136,7 @@ public class MainPage extends VLCWorkerModel implements
                     .replace(R.id.main_page_fragment_holder, fragment)
                     .commit();
             mMenuItemId = itemId;
+            currentPageFragment = fragment;
         }
         return true;
     }
@@ -244,6 +246,16 @@ public class MainPage extends VLCWorkerModel implements
     public void cancelBench() {
         running = false;
         Log.i(TAG, "Benchmark was stopped by the user");
+    }
+
+    /**
+     * If the cancel button is pressed on the currentTestFragment during download
+     * this method is called
+     */
+    public void cancelDownload() {
+        if (currentPageFragment instanceof MainPageDownloadFragment) {
+            ((MainPageDownloadFragment)currentPageFragment).cancelDownload();
+        }
     }
 
     public void updatePercent(double percent, long bitRate) {

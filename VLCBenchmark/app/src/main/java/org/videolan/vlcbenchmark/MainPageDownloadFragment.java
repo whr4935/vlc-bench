@@ -56,6 +56,12 @@ public class MainPageDownloadFragment extends Fragment {
         fragment.show(getFragmentManager(), "Download dialog");
     }
 
+    public void cancelDownload() {
+        if (downloadFilesTask != null) {
+            downloadFilesTask.cancel(true);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
