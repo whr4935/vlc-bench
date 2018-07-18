@@ -20,6 +20,7 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -51,7 +52,7 @@ import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
  */
 public class MainPageResultListFragment extends Fragment {
 
-    private final static String TAG = FormatStr.class.getName();
+    private final static String TAG = MainPageResultListFragment.class.getName();
 
     public MainPageResultListFragment() {}
 
@@ -97,6 +98,11 @@ public class MainPageResultListFragment extends Fragment {
                             ArrayList<TestInfo> test = JsonHandler.load(filename + ".txt");
                             if (test != null) {
                                 final String title = FormatStr.toDatePrettyPrint(filename);
+                                if (getContext() == null ) {
+                                    Log.w(TAG, "No context for background json loading," +
+                                            " fragment must have been replaced");
+                                    return;
+                                }
                                 final String text = String.format(getResources().getString(R.string.result_score),
                                         format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
                                 Util.runInUiThread(new Runnable() {
