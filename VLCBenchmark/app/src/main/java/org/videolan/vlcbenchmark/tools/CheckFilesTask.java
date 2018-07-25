@@ -32,6 +32,7 @@ public class CheckFilesTask extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... voids) {
         if (!Util.hasWifiAndLan(activity)) {
             Log.e(TAG, "There is no wifi.");
+            errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet);
             return false;
         }
         ArrayList<MediaInfo> filesToDownload;
