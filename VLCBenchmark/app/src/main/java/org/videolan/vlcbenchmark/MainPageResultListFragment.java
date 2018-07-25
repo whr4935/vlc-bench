@@ -158,6 +158,7 @@ public class MainPageResultListFragment extends Fragment {
                     public void onClick(View view) {
                         TextView text = (TextView) view.findViewById(R.id.test_name);
                         Intent intent = new Intent(getActivity(), ResultPage.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         intent.putExtra("name", FormatStr.fromDatePrettyPrint(text.getText().toString()));
                         startActivityForResult(intent, Constants.RequestCodes.RESULTS);
                     }

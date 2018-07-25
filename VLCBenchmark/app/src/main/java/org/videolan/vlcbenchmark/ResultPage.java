@@ -249,6 +249,7 @@ public class ResultPage extends AppCompatActivity {
                         }
                         TestInfo test = results.get(getAdapterPosition());
                         Intent intent = new Intent(ResultPage.this, ResultDetailPage.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         intent.putExtra("result", test);
                         startActivity(intent);
                     }
