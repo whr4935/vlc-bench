@@ -121,7 +121,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 break;
             case "about_key":
                 Log.e("VLCBench", "about_key selected");
-                startActivity(new Intent(getActivity(), AboutActivity.class));
+                Intent intent = new Intent(getActivity(), AboutActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 break;
             default:
                 Log.e("VLCBench", "Unknown preference selected");
