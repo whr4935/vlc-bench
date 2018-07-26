@@ -33,11 +33,11 @@
 
     <!-- About content -->
     <string name="about_description">VLCBenchmark is a tool to benchmark android devices\' video capabilities using the VLC Media Player.</string>
-    <string name="about_copyright" translatable="false">Copyleft &#169; 2016&#8211;2017 by VideoLAN.</string>
+    <string name="about_copyright" translatable="false">Copyleft &#169; 2016&#8211;2018 by VideoLAN.</string>
     <string name="about_authors" translatable="false">Jean-Baptiste&#160;Kempf, Geoffrey&#160;Métais, Alexandre&#160;Perraud, Thomas&#160;Guillem, Benoit&#160;Du&#160;Payrat, Bastien&#160;Penavayre, Duncan&#160;McNamara</string>
     <string name="about_revision">Revision:</string>
     <string name="about_compiled_by">This VLCBenchmark version is compiled by:</string>
-    <string name="about_link">http://www.videolan.org</string>
+    <string name="about_link">https://www.videolan.org</string>
     <string name="about_vlc_min">Vlc min version: %1$s</string>
     <!-- About tabs -->
     <string name="tab_about">About</string>

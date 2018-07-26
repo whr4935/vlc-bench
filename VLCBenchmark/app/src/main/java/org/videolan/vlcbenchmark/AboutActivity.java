@@ -75,7 +75,9 @@ public class AboutActivity extends AppCompatActivity {
         TextView minVlc = (TextView) aboutLayout.findViewById(R.id.vlc_min_version);
         minVlc.setText(String.format(getString(R.string.about_vlc_min),  BuildConfig.VLC_VERSION));
 
-        licenceWebView.loadData(Util.readAsset("licence.htm", getResources().getAssets()), "text/html", "UTF8");
+        licenceWebView.loadData(Util.readAsset("licence.htm",
+                getResources().getAssets()).replace("!COMMITID!",
+                getString(R.string.build_revision)), "text/html", "UTF8");
 
         View[] views = new View[]{aboutLayout, licenceWebView};
         String[] titles = new String[]{tab_about, tab_licence};
