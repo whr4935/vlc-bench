@@ -50,7 +50,7 @@ public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
             connection.disconnect();
         } catch (IOException e) {
             Log.e(TAG, e.toString());
-            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet);
+            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_upload);
             success = false;
         }
         return success;
