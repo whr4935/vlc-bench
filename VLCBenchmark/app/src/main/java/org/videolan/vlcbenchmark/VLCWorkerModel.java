@@ -384,6 +384,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 fillCurrentTestInfo(null, true, resultCode);
                 return;
             }
+            //TODO in result handling refactor -> handle vlc crash cause
             String errorMessage;
             if (data == null) {
                 try {
@@ -396,13 +397,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             } else {
                 errorMessage = vlcErrorCodeToString(resultCode, data);
             }
-
-            onVlcCrashed(errorMessage, new Runnable() {
-                @Override
-                public void run() {
-                    fillCurrentTestInfo(data, true, Constants.ResultCodes.RESULT_VLC_CRASH);
-                }
-            });
+            fillCurrentTestInfo(data, true, Constants.ResultCodes.RESULT_VLC_CRASH);
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
             fragment.onActivityResult(requestCode, resultCode, data);
