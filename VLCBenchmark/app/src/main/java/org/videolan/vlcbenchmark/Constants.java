@@ -31,9 +31,13 @@ public class Constants {
 
     public static class ResultCodes {
         public static final int RESULT_OK = -1;
-        public static final int RESULT_FAILED = 0;
+        public static final int RESULT_CANCELED = 0;
         public static final int RESULT_NO_HW = 1;
-        public static final int RESULT_VLC_CRASH = 2;
+        public static final int RESULT_CONNECTION_FAILED = 2;
+        public static final int RESULT_PLAYBACK_ERROR = 3;
+        public static final int RESULT_HARDWARE_ACCELERATION_ERROR = 4;
+        public static final int RESULT_VIDEO_TRACK_LOST = 5;
+        public static final int RESULT_VLC_CRASH = 6;
     }
 
 }

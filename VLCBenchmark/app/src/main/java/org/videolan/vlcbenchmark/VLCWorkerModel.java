@@ -372,32 +372,12 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) { //TODO refactor all this, lots of useless stuff
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.RequestCodes.VLC) {
+            Log.e(TAG, "onActivityResult: resultCode: " + resultCode );
              if (testIndex.ordinal() == 0) {
                  String name = testFiles.get(fileIndex).getName();
                 lastTestInfo = new TestInfo(name, loopNumber);
             }
-            if (data != null && resultCode == -1) {
-                fillCurrentTestInfo(data, false, resultCode);
-                return;
-            }
-            if (data == null && resultCode != Constants.ResultCodes.RESULT_OK) {
-                fillCurrentTestInfo(null, true, resultCode);
-                return;
-            }
-            //TODO in result handling refactor -> handle vlc crash cause
-            String errorMessage;
-            if (data == null) {
-                try {
-                    Context packageContext = createPackageContext(vlcPackageName, 0);
-                    SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
-                    errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
-                } catch (PackageManager.NameNotFoundException e) {
-                    errorMessage = e.getMessage();
-                }
-            } else {
-                errorMessage = vlcErrorCodeToString(resultCode, data);
-            }
-            fillCurrentTestInfo(data, true, Constants.ResultCodes.RESULT_VLC_CRASH);
+            fillCurrentTestInfo(data, resultCode);
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
             fragment.onActivityResult(requestCode, resultCode, data);
@@ -405,39 +385,54 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     }
 
     /**
-     * Find the appropriate error message according to the result code and Intent.
-     *
-     * @param resultCode the return code of VLC
-     * @param data       the Intent received from VLC
-     * @return The String associated with the code given or the String given through the Intent if the result code is equal to 6
-     */
-    private String vlcErrorCodeToString(int resultCode, Intent data) {
-        switch (resultCode) {
-            case 0:
-                return "No compatible cpu, incorrect VLC abi variant installed";
-            case 2:
-                return "Connection failed to audio service";
-            case 3:
-                return "VLC is not able to play this file, it could be incorrect path/uri, not supported codec or broken file";
-            case 4:
-                return "Error with hardware acceleration, user refused to switch to software decoding";
-            case 5:
-                return "VLC continues playback, but for audio track only. (Audio file detected or user chose to)";
-            case 6:
-                return (data != null ? data.getStringExtra("Error") : "VLC's BenchActivity error");
-        }
-        return "Unknown error code";
-    }
-
-    /**
      * Small factoring function.
      *
      * @param data   Intent contained results from VLC.
-     * @param failed boolean to know if the interpretation of the result of code of VLC indicated that VLC crashed.
+     * @param resultCode Result code from VLC
      */
-    private void fillCurrentTestInfo(Intent data, boolean failed, int resultCode) {
-        if (failed) {
-            lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), resultCode);
+    private void fillCurrentTestInfo(Intent data, int resultCode) {
+        if ( resultCode != Constants.ResultCodes.RESULT_OK) {
+            String errorMessage;
+            switch (resultCode) {
+                case Constants.ResultCodes.RESULT_CANCELED:
+                    errorMessage = getString(R.string.result_canceled);
+                    break;
+                case Constants.ResultCodes.RESULT_NO_HW:
+                    errorMessage = getString(R.string.result_no_hw);
+                    break;
+                case Constants.ResultCodes.RESULT_CONNECTION_FAILED:
+                    errorMessage = getString(R.string.result_connection_failed);
+                    break;
+                case Constants.ResultCodes.RESULT_PLAYBACK_ERROR:
+                    errorMessage = getString(R.string.result_playback_error);
+                    break;
+                case Constants.ResultCodes.RESULT_HARDWARE_ACCELERATION_ERROR:
+                    errorMessage = getString(R.string.result_hardware_acceleration_error);
+                    break;
+                case Constants.ResultCodes.RESULT_VIDEO_TRACK_LOST:
+                    errorMessage = getString(R.string.result_video_track_lost);
+                    break;
+                case Constants.ResultCodes.RESULT_VLC_CRASH:
+                    if (data != null && data.hasExtra("Error")) {
+                        errorMessage = data.getStringExtra("Error");
+                    } else if (data != null) {
+                        errorMessage = getString(R.string.result_vlc_crash);
+                    } else {
+                        try {
+                            Context packageContext = createPackageContext(vlcPackageName, 0);
+                            SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
+                            errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
+                        } catch (PackageManager.NameNotFoundException e) {
+                            errorMessage = e.getMessage();
+                        }
+                    }
+                    break;
+                default:
+                    errorMessage = getString(R.string.result_unknown);
+                    break;
+            }
+            Log.i(TAG, "fillCurrentTestInfo: error: " + errorMessage);
+            lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), errorMessage);
             if (testIndex.isScreenshot()) {
                 // When a quality test fails, there is no screenshot analysis,
                 // hence no delay before re-starting vlc-android.

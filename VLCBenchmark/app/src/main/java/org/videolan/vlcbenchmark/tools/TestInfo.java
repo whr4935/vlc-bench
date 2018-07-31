@@ -197,24 +197,9 @@ public class TestInfo implements Serializable {
         return (isScreenshot ? QUALITY_SFX : PLAYBACK_SFX);
     }
 
-    public void vlcCrashed(boolean isSoftware, boolean isScreenshot, int resultCode) {
-        switch (resultCode) {
-            case Constants.ResultCodes.RESULT_OK:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + OK_STR;
-                break;
-            case Constants.ResultCodes.RESULT_FAILED:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = (isScreenshot ? QUALITY_STR : PLAYBACK_STR);
-                break;
-            case Constants.ResultCodes.RESULT_NO_HW:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) + NO_HW_STR;
-                break;
-            case Constants.ResultCodes.RESULT_VLC_CRASH:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) +VLC_CRASH_STR;
-                break;
-            default:
-                crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] = getSfx(isScreenshot) +UNKNOWN_STR;
-                break;
-        }
+    public void vlcCrashed(boolean isSoftware, boolean isScreenshot, String errorMessage) {
+        crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] =
+                getSfx(isScreenshot) + errorMessage;
         (isSoftware ? software : hardware)[(isScreenshot ? QUALITY : PLAYBACK)] = 0;
     }
 
