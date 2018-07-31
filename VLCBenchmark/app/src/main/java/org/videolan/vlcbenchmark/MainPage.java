@@ -179,6 +179,7 @@ public class MainPage extends VLCWorkerModel implements
         if (checkFilesTask != null) {
             checkFilesTask.cancel(true);
         }
+        dismissDialog();
     }
 
     protected void checkFiles() {
