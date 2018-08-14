@@ -350,7 +350,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
         intent.putExtra("from_start", true);
         Log.i(TAG, "Testing: " + currentFile.getName());
-        Log.i(TAG, "Testing mode" );
+        Log.i(TAG, "Testing mode: " + ( testIndex.isSoftware() ? "Software - " : "Hardware - " )
+            + (testIndex.isScreenshot() ? "Quality" : "Playback"));
         return intent;
     }
 
@@ -372,10 +373,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) { //TODO refactor all this, lots of useless stuff
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.RequestCodes.VLC) {
-            Log.e(TAG, "onActivityResult: resultCode: " + resultCode );
+            Log.i(TAG, "onActivityResult: resultCode: " + resultCode );
              if (testIndex.ordinal() == 0) {
                  String name = testFiles.get(fileIndex).getName();
-                lastTestInfo = new TestInfo(name, loopNumber);
+                 lastTestInfo = new TestInfo(name, loopNumber);
             }
             fillCurrentTestInfo(data, resultCode);
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
