@@ -119,13 +119,13 @@
     <string name="detail_warning_number">Number of warnings: %1$d</string>
 
     <!-- VLC Results string equivalence-->
-    <string name="result_canceled">No compatible cpu, incorrect VLC abi variant installed</string>
+    <string name="result_canceled">VLC has crashed</string>
     <string name="result_no_hw">No hardware decoder</string>
     <string name="result_connection_failed">Connection failed to audio service</string>
     <string name="result_playback_error">VLC is not able to play this file, it could be incorrect path/uri, not supported codec or broken file"</string>
     <string name="result_hardware_acceleration_error">Error with hardware acceleration, user refused to switch to software decoding</string>
     <string name="result_video_track_lost">VLC continues playback, but for audio track only. (Audio file detected or user chose to)</string>
-    <string name="result_vlc_crash">VLC has crashed</string>
+    <string name="result_vlc_crash">VLC Benchmark has crashed</string>
     <string name="result_unknown">Unknown problem</string>
 
     <string name="server_client_id">226055421863-nihio8lr2m2o4fh68pgd0c2qh9l9s2s3.apps.googleusercontent.com</string>
