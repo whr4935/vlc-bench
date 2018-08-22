@@ -349,6 +349,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
         intent.putExtra("from_start", true);
+        if (testIndex.isSoftware() && testIndex.isScreenshot())
+            Log.d(TAG, "onActivityResult: ===========================================================================================================" );
         Log.i(TAG, "Testing: " + currentFile.getName());
         Log.i(TAG, "Testing mode: " + ( testIndex.isSoftware() ? "Software - " : "Hardware - " )
             + (testIndex.isScreenshot() ? "Quality" : "Playback"));
