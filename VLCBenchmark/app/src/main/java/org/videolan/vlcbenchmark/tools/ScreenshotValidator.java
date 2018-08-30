@@ -37,10 +37,9 @@ public class ScreenshotValidator {
 
     private final static String TAG = ScreenshotValidator.class.getName();
 
-    /* Error margin on color difference percentage */
-    /* It is set quite high for now to balance differences between devices */
-    //TODO find source of differences / better algorithm
-    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 20.0;
+    /* Error margin on color difference cumulative percentage */
+    /* here set fairly high as to handle frame difference due to vlc imprecision */
+    private static final double MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT = 55.0;
 
     /* number of blocks in image width */
     private final static int wbNumber = 6;
@@ -116,10 +115,7 @@ public class ScreenshotValidator {
      * @return color difference percentage
      */
     private static double getDiffPercentage(int colorValue, int reference) {
-        double valuePercent = colorValue / 255d * 100d;
-        double refPercent = reference / 255d * 100d;
-        double color = Math.abs(valuePercent / refPercent * 100d);
-        return Math.abs(100d - color);
+        return Math.abs(reference - colorValue) / 255d * 100d;
     }
 
     /**
@@ -136,10 +132,10 @@ public class ScreenshotValidator {
     }
 
     /**
-     * Compares screenshot blocks and reference blocks and computes the average difference
+     * Compares screenshot blocks and reference blocks and computes the cumulative difference
      * @param colorValues screenshot array of block's RGB arrays
      * @param reference reference array block's RGB arrays
-     * @return average color difference between screenshot and reference
+     * @return cumulative color difference between screenshot and reference
      */
     private static double compareImageBlocks(int[][] colorValues, int[][] reference) {
         if (colorValues.length != reference.length) {
@@ -151,7 +147,6 @@ public class ScreenshotValidator {
         for (int i = 0 ; i < colorValues.length ; i++) {
             diff += compareBlockColorValues(colorValues[i], reference[i]);
         }
-        diff /= colorValues.length;
 
         return diff;
     }
