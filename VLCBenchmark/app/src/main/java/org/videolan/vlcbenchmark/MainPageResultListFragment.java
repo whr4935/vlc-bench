@@ -104,7 +104,7 @@ public class MainPageResultListFragment extends Fragment {
                                     return;
                                 }
                                 final String text = String.format(getResources().getString(R.string.result_score),
-                                        format2Dec(TestInfo.getGlobalScore(test)), format2Dec(test.size() * 2 * TestInfo.SCORE_TOTAL));
+                                        format2Dec(TestInfo.getGlobalScore(test)));
                                 Util.runInUiThread(new Runnable() {
                                     @Override
                                     public void run() {
