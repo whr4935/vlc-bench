@@ -94,7 +94,7 @@
     <string name="specs_memory">Memory</string>
     <string name="explanation_title">BENCHMARK</string>
     <string name="explanation_text">
-        This benchmark will test your device\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 and get the average results with the right button below.
+        This benchmark will test your device\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 benchmarks and get the average results with the right button below.
     </string>
 
     <string name="missing_samples">Missing test samples.</string>
