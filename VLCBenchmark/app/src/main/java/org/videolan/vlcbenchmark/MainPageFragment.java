@@ -93,6 +93,20 @@ public class MainPageFragment extends Fragment {
         mListener.launchTests(testNumber);
     }
 
+    private void startTestWarning(final int testNumber) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(getString(R.string.dialog_title_warning))
+                .setMessage(getString(R.string.dialog_text_no_touch_warning))
+                .setNeutralButton(getString(R.string.dialog_btn_cancel), null)
+                .setNegativeButton(getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startTestDialog(testNumber);
+                    }
+                })
+                .show();
+    }
+
     private void checkForTestStart(final int testNumber) {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = getContext().registerReceiver(null, ifilter);
@@ -117,12 +131,12 @@ public class MainPageFragment extends Fragment {
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            startTestDialog(testNumber);
+                            startTestWarning(testNumber);
                         }
                     })
                     .show();
         } else {
-            startTestDialog(testNumber);
+            startTestWarning(testNumber);
         }
     }
 

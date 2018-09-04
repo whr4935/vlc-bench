@@ -79,6 +79,7 @@
     <string name="dialog_text_no_wifi">You are not connected to wifi</string>
     <string name="dialog_text_invalid_file">This file is corrupted.\nPlease restart the download to replace it.</string>
     <string name="dialog_text_vlc_failed">Failed to start VLC.</string>
+    <string name="dialog_text_no_touch_warning">The benchmark is about to start, and will now alternate between VLC Android and the benchmark app. During the VLC Android phases, the interface will not be responsive</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>
