@@ -75,6 +75,9 @@ public class MainPage extends VLCWorkerModel implements
      */
     public void setFilesChecked(boolean hasDownloaded) {
         this.hasChecked = true;
+        if (currentTestFragment != null) {
+            currentTestFragment.dismiss();
+        }
         setFilesDownloaded(hasDownloaded);
     }
 
@@ -125,10 +128,6 @@ public class MainPage extends VLCWorkerModel implements
                     fragment = new SettingsFragment();
                     toolbar.setTitle(getResources().getString(R.string.settings_page));
                     break;
-                case R.id.spinner_layout:
-                    fragment = new SpinnerFragment();
-                    toolbar.setTitle(R.string.app_name);
-                    break;
                 default:
                     return false;
             }
@@ -162,7 +161,7 @@ public class MainPage extends VLCWorkerModel implements
                 }
         );
         if (savedInstanceState == null || !hasChecked) {
-            setCurrentFragment(R.id.spinner_layout);
+            setCurrentFragment(R.id.home_nav);
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
@@ -183,6 +182,12 @@ public class MainPage extends VLCWorkerModel implements
     }
 
     protected void checkFiles() {
+        CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
+        fragment.setCancelable(false);
+        Bundle args = new Bundle();
+        args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_FILECHECK);
+        fragment.setArguments(args);
+        fragment.show(getSupportFragmentManager(), "FileCheck dialog");
         checkFilesTask = new CheckFilesTask(this);
         checkFilesTask.execute();
     }
@@ -258,9 +263,22 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    public void cancelFileCheck() {
+        if (currentPageFragment instanceof MainPageDownloadFragment
+                && currentTestFragment.getMode() == CurrentTestFragment.MODE_FILECHECK) {
+            checkFilesTask.cancel(true);
+        }
+    }
+
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
             currentTestFragment.updatePercent(percent, bitRate);
+        }
+    }
+
+    public void updateFileCheckProgress(int file, int total) {
+        if (currentTestFragment != null) {
+            currentTestFragment.updateFileCheckProgress(file, total);
         }
     }
 

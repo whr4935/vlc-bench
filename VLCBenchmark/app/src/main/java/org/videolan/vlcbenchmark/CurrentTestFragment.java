@@ -24,6 +24,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +47,10 @@ public class CurrentTestFragment extends DialogFragment {
     private TextView currentSample = null;
     private ProgressBar progressBar = null;
 
+    private int mMode = 0;
     public static final int MODE_DOWNLOAD = 1;
     public static final int MODE_BENCHMARK = 2;
+    public static final int MODE_FILECHECK = 3;
 
     public static final String ARG_MODE = "MODE";
 
@@ -56,26 +59,27 @@ public class CurrentTestFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        int mode;
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_current_test, container, false);
         Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
 
         if (getArguments() != null) {
-            mode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
+            mMode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
         } else {
-            mode = MODE_BENCHMARK;
+            mMode = MODE_BENCHMARK;
         }
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         currentSample = (TextView) view.findViewById(R.id.current_sample);
         percentText = (TextView) view.findViewById(R.id.percentText);
         TextView title = (TextView) view.findViewById(R.id.test_dialog_title);
-        if (mode == MODE_DOWNLOAD) {
+        if (mMode == MODE_DOWNLOAD) {
             title.setText(R.string.dialog_title_downloading);
-        } else {
+        } else if (mMode == MODE_BENCHMARK){
             title.setText(R.string.dialog_title_testing);
+        } else {
+            title.setText(getString(R.string.dialog_title_checking_files));
         }
-        if (mode == MODE_BENCHMARK) {
+        if (mMode == MODE_BENCHMARK) {
             cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -83,11 +87,19 @@ public class CurrentTestFragment extends DialogFragment {
                     dismiss();
                 }
             });
-        } else {
+        } else if (mMode == MODE_DOWNLOAD){
             cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mListener.cancelDownload();
+                    dismiss();
+                }
+            });
+        } else {
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.cancelFileCheck();
                     dismiss();
                 }
             });
@@ -119,11 +131,24 @@ public class CurrentTestFragment extends DialogFragment {
         super.onDetach();
     }
 
+    public int getMode() {
+        return mMode;
+    }
+
     public void setUiToDefault() {
         progressBar.setProgress(0);
         progressBar.setMax(100);
         percentText.setText(R.string.default_percent_value);
         currentSample.setText("");
+    }
+
+    public void updateFileCheckProgress(int file, int total) {
+        double percent = (double)file / (double)total * 100d;
+        String strPercent;
+
+        progressBar.setProgress((int) Math.round(percent));
+        strPercent = String.format(getString(R.string.dialog_text_file_check_progress), file, total);
+        percentText.setText(strPercent);
     }
 
     public void updatePercent(double percent, long bitRate) {
@@ -161,5 +186,6 @@ public class CurrentTestFragment extends DialogFragment {
         void setDialogFragment(CurrentTestFragment fragment);
         void cancelBench();
         void cancelDownload();
+        void cancelFileCheck();
     }
 }

@@ -53,6 +53,7 @@
     <string name="dialog_title_file_deletion">File deletion</string>
     <string name="dialog_title_sample_deletion">Sample deletion</string>
     <string name="dialog_title_downloading">Downloading &#8230;</string>
+    <string name="dialog_title_checking_files">Checking files</string>
     <string name="dialog_title_success">Success</string>
 
     <!-- dialog texts -->
@@ -106,6 +107,7 @@
     <string name="dialog_text_starting">Starting benchmark</string>
     <string name="progress_text_format">%1$s %% | file %2$d/%3$d | test %4$d</string>
     <string name="progress_text_format_loop">%1$s %% | file %2$d/%3$d | test %4$d | loop %5$d/%6$d</string>
+    <string name="dialog_text_file_check_progress">File: %1$d/%2$d </string>
 
     <!-- result list -->
     <string name="score">Score: </string>

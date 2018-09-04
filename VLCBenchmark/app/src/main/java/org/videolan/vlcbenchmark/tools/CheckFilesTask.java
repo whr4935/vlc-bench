@@ -3,6 +3,7 @@ package org.videolan.vlcbenchmark.tools;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 import org.videolan.vlcbenchmark.MainPage;
 import org.videolan.vlcbenchmark.R;
@@ -15,7 +16,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CheckFilesTask extends AsyncTask<Void, Void, Boolean> {
+public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
 
     private final String TAG = CheckFilesTask.class.getName();
     private DialogInstance errDialog;
@@ -30,6 +31,7 @@ public class CheckFilesTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
+        int counter = 0;
         if (!Util.hasWifiAndLan(activity)) {
             Log.e(TAG, "There is no wifi.");
             errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet);
@@ -47,6 +49,8 @@ public class CheckFilesTask extends AsyncTask<Void, Void, Boolean> {
             File[] files = dir.listFiles();
             filesToDownload = new ArrayList<>();
             for (MediaInfo mediaFile : mFilesInfo) {
+                publishProgress(new Pair<>(counter, mFilesInfo.size()));
+                counter += 1;
                 if (isCancelled()) {
                     Log.w(TAG, "doInBackground: was cancelled");
                     return false;
@@ -84,6 +88,17 @@ public class CheckFilesTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected void onProgressUpdate(Pair... values) {
+        super.onProgressUpdate(values);
+        if (activity instanceof MainPage && values.length >= 1) {
+            MainPage mainPage = (MainPage) activity;
+            Pair<Integer, Integer> progressValues = values[0];
+            mainPage.updateFileCheckProgress(progressValues.first, progressValues.second);
+        }
+
     }
 
     /**
