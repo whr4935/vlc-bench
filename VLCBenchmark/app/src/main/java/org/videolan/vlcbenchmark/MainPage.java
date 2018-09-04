@@ -190,7 +190,6 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: hasChecked: " + hasChecked);
         if (!hasChecked) {
             checkFiles();
         }
