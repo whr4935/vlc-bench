@@ -35,7 +35,6 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.videolan.vlcbenchmark.service.MediaInfo;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
@@ -44,7 +43,6 @@ import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.UploadResultsTask;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
@@ -122,22 +120,22 @@ public class ResultPage extends AppCompatActivity {
             Log.e(TAG, e.toString());
         }
 
-        /* Sending JSON results to server */
-        /* But need to connect to google first to get user id */
-        Button button = (Button) findViewById(R.id.uploadButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mGoogleConnectionHandler.isConnected()) {
-                    startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
-                            Constants.RequestCodes.OPENGL);
-                } else {
-                    mGoogleConnectionHandler.signIn();
+        if (BuildConfig.BUILD_TYPE.equals("debug") || BuildConfig.BUILD_TYPE.equals("debug_prod")) {
+            /* Sending JSON results to server */
+            /* But need to connect to google first to get user id */
+            Button button = (Button) findViewById(R.id.uploadButton);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mGoogleConnectionHandler.isConnected()) {
+                        startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
+                                Constants.RequestCodes.OPENGL);
+                    } else {
+                        mGoogleConnectionHandler.signIn();
+                    }
                 }
-            }
-        });
+            });
 
-        if (BuildConfig.DEBUG) {
             View separator = findViewById(R.id.result_page_separator);
             separator.setVisibility(View.VISIBLE);
 
