@@ -38,6 +38,7 @@
     <string name="about_revision">Revision:</string>
     <string name="about_compiled_by">This VLCBenchmark version is compiled by:</string>
     <string name="about_link">https://www.videolan.org</string>
+    <string name="about_bench_link">https://bench.videolabs.io/</string>
     <string name="about_vlc_min">Vlc min version: %1$s</string>
     <!-- About tabs -->
     <string name="tab_about">About</string>

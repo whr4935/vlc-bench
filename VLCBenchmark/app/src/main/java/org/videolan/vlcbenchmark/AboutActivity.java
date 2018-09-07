@@ -66,6 +66,9 @@ public class AboutActivity extends AppCompatActivity {
 
         TextView link = (TextView) aboutLayout.findViewById(R.id.about_link);
         link.setText(R.string.about_link);
+        TextView benchLink = (TextView) aboutLayout.findViewById(R.id.about_bench_link);
+        benchLink.setText(R.string.about_bench_link);
+
         TextView revisionText = (TextView) aboutLayout.findViewById(R.id.revision);
         String revisionStr = getString(R.string.about_revision) + " " + getString(R.string.build_revision) +
                 " ( " + getString(R.string.build_time) + " ) " + BuildConfig.BUILD_TYPE;
