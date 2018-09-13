@@ -181,6 +181,14 @@ public class MainPage extends VLCWorkerModel implements
         dismissDialog();
     }
 
+    /* Keeps the phone on during downloads and filecheck */
+    public void setScreenOn() {
+        View view = currentPageFragment.getView();
+        if (view != null) {
+            view.setKeepScreenOn(true);
+        }
+    }
+
     protected void checkFiles() {
         CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
         fragment.setCancelable(false);
@@ -188,6 +196,7 @@ public class MainPage extends VLCWorkerModel implements
         args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_FILECHECK);
         fragment.setArguments(args);
         fragment.show(getSupportFragmentManager(), "FileCheck dialog");
+        setScreenOn();
         checkFilesTask = new CheckFilesTask(this);
         checkFilesTask.execute();
     }

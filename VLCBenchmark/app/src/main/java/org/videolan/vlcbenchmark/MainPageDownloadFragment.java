@@ -54,6 +54,9 @@ public class MainPageDownloadFragment extends Fragment {
     private void startDownload() {
         downloadFilesTask = new DownloadFilesTask(getActivity());
         downloadFilesTask.execute();
+        if (mListener != null) {
+            mListener.setScreenOn();
+        }
         CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
         fragment.setCancelable(false);
         Bundle args = new Bundle();
@@ -151,6 +154,7 @@ public class MainPageDownloadFragment extends Fragment {
 
     public interface IMainPageDownloadFragment {
         boolean getHasChecked();
+        void setScreenOn();
     }
 
 }
