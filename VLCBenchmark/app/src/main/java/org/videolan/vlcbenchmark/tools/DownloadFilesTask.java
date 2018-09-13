@@ -108,6 +108,9 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
             double percent = 0d;
             for (MediaInfo fileData : mFilesInfo) {
+                if (isCancelled()) {
+                    return false;
+                }
                 File localFile = new File(mediaFolder.getPath() + '/' + fileData.getName());
                 if (localFile.exists())
                     if (localFile.isFile() && FileHandler.checkFileSum(localFile, fileData.getChecksum())) {
