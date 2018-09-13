@@ -159,7 +159,8 @@ public class CurrentTestFragment extends DialogFragment {
             percentText.setText(strPercent);
         }
         else {
-            strPercent = FormatStr.format2Dec(percent) + "% (" + FormatStr.bitRateToString(bitRate) + ")";
+            // TODO rework the download speed display
+            strPercent = FormatStr.format2Dec(percent) + "%";
             percentText.setText(strPercent);
         }
     }
