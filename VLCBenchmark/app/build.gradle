@@ -30,8 +30,8 @@ android {
         // debug is to use with local resources
         debug {
             resValue "string", "build_api_address", "http://" + apiAddress() + ":8080/benchmarks"
-            resValue "string", "file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/"
-            resValue "string", "config_file_location_url", "https://raw.githubusercontent.com/Skantes/FileDump/master/config.json"
+            resValue "string", "file_location_url", "ftp://" + apiAddress() + "/"
+            resValue "string", "config_file_location_url", "ftp://" + apiAddress() + "/config.json"
         }
         // debug_prod is debug mode with the urls resources of release
         debug_prod.initWith(buildTypes.debug)
@@ -70,7 +70,8 @@ static def apiAddress() {
     while (interfaces.hasMoreElements()) {
         NetworkInterface anInterface = interfaces.nextElement()
         if (anInterface.displayName.contains("docker") ||
-            anInterface.displayName.contains("virbr")) {
+            anInterface.displayName.contains("virbr") ||
+            anInterface.displayName.contains("br-")) {
             continue
         }
         Enumeration<InetAddress> addresses = anInterface.getInetAddresses()
