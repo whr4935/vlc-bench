@@ -21,6 +21,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
     private final String TAG = CheckFilesTask.class.getName();
     private DialogInstance errDialog;
     private List<MediaInfo> mFilesInfo;
+    private long downloadSize = -1;
 
     //warning fixed in MainPage.onDestroy() -> should not leak;
     private Activity activity;
@@ -52,7 +53,8 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 publishProgress(new Pair<>(counter, mFilesInfo.size()));
                 counter += 1;
                 if (isCancelled()) {
-                    Log.w(TAG, "doInBackground: was cancelled");
+                    downloadSize = -1;
+                    Log.w(TAG, "doInBackground: file check was cancelled");
                     return false;
                 }
                 Log.i(TAG, "doInBackground: checking " + mediaFile.getName());
@@ -65,6 +67,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                                 mediaFile.setLocalUrl(localFile.getAbsolutePath());
                                 FileHandler.delete(localFile);
                                 filesToDownload.add(mediaFile);
+                                downloadSize += mediaFile.getSize();
                             }
                             mediaFile.setLocalUrl(localFile.getAbsolutePath());
                             presence = true;
@@ -75,6 +78,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 if (!presence) {
                     Log.i(TAG, "doInBackground: " + mediaFile.getName() + " file is missing");
                     filesToDownload.add(mediaFile);
+                    downloadSize += mediaFile.getSize();
                 }
             }
         } catch (IOException | GeneralSecurityException e) {
@@ -116,6 +120,8 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
             if (checkState) {
                 mainPageContext.setBenchmarkFiles(mFilesInfo);
                 mainPageContext.setFilesDownloaded(true);
+            } else {
+                mainPageContext.setDownloadSize(downloadSize);
             }
         }
         if (errDialog != null) {

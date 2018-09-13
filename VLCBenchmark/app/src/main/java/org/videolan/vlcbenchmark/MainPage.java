@@ -270,6 +270,12 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
+    public void setDownloadSize(long downloadSize) {
+        if (currentPageFragment instanceof MainPageDownloadFragment) {
+            ((MainPageDownloadFragment)currentPageFragment).setDownloadSize(downloadSize);
+        }
+    }
+
     public void updatePercent(double percent, long bitRate) {
         if (currentTestFragment != null) {
             currentTestFragment.updatePercent(percent, bitRate);

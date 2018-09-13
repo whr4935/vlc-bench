@@ -27,11 +27,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.videolan.vlcbenchmark.tools.DownloadFilesTask;
+import org.videolan.vlcbenchmark.tools.FileHandler;
+import org.videolan.vlcbenchmark.tools.FormatStr;
+
+import java.io.File;
 
 
 /**
@@ -42,6 +47,7 @@ public class MainPageDownloadFragment extends Fragment {
 
     IMainPageDownloadFragment mListener;
     DownloadFilesTask downloadFilesTask;
+    long downloadSize = -1;
 
     public MainPageDownloadFragment() {}
 
@@ -54,6 +60,39 @@ public class MainPageDownloadFragment extends Fragment {
         args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_DOWNLOAD);
         fragment.setArguments(args);
         fragment.show(getFragmentManager(), "Download dialog");
+    }
+
+    private boolean checkDeviceFreeSpace(long size) {
+        String mediaDir = FileHandler.getFolderStr(FileHandler.mediaFolder);
+        if (mediaDir == null)
+            return false;
+        File file = new File(mediaDir);
+        long freeSpace = file.getFreeSpace();
+        if (size > freeSpace) {
+            Log.e("MainPageDownload", "checkDeviceFreeSpace: missing space to download all media files");
+            long spaceNeeded = size - freeSpace;
+            String unit;
+            double space;
+            if (spaceNeeded % 1_000_000_000 > 0) {
+                unit = "Go";
+                space = spaceNeeded / 1_000_000_000d;
+            } else {
+                unit = "Mo";
+                space = spaceNeeded / 1_000_000d;
+            }
+            String msg = String.format(getString(R.string.dialog_text_missing_space), FormatStr.format2Dec(space), unit);
+            new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.dialog_title_warning))
+                    .setMessage(msg)
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_ok), null)
+                    .show();
+            return false;
+        }
+        return true;
+    }
+
+    public void setDownloadSize(long downloadSize) {
+        this.downloadSize = downloadSize;
     }
 
     public void cancelDownload() {
@@ -82,7 +121,9 @@ public class MainPageDownloadFragment extends Fragment {
                         .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                startDownload();
+                                if (checkDeviceFreeSpace(downloadSize)) {
+                                    startDownload();
+                                }
                             }
                         })
                         .show();

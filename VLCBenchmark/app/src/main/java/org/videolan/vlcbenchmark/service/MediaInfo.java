@@ -31,14 +31,16 @@ public class MediaInfo implements Serializable {
     List<int[]> colors;
     String checksum;
     String localUrl;
+    int size;
 
-    public MediaInfo(String url, String name, String checksum, List<Long> timestamps, List<int[]> colors) {
+    public MediaInfo(String url, String name, String checksum, List<Long> timestamps, List<int[]> colors, int size) {
         this.url = url;
         this.name = name;
         this.checksum = checksum;
         this.localUrl = null;
         this.timestamps = timestamps;
         this.colors = colors;
+        this.size = size;
     }
 
     public String getUrl() {
@@ -64,6 +66,8 @@ public class MediaInfo implements Serializable {
     }
 
     public void setLocalUrl(String localUrl ) { this.localUrl = localUrl; }
+
+    public int getSize() { return size; };
 
     @Override
     public String toString() {

@@ -74,6 +74,7 @@ public class JSonParser {
     static MediaInfo readMediaInfo(JsonReader reader) throws IOException {
         String url = null, name = null, checksum = null;
         Pair<ArrayList<Long>, ArrayList<int[]>> snapshot = null;
+        int size = 0;
 
         try {
             reader.beginObject();
@@ -91,6 +92,9 @@ public class JSonParser {
                     case "snapshot":
                         snapshot = readLongArray(reader);
                         break;
+                    case "size":
+                        size = reader.nextInt();
+                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -100,7 +104,7 @@ public class JSonParser {
         } catch (IllegalStateException e) {
             throw new IOException("VLCBenchmark is using a too old version. Update the application to fix: " + e.toString());
         }
-        return new MediaInfo(url, name, checksum, snapshot.first, snapshot.second);
+        return new MediaInfo(url, name, checksum, snapshot.first, snapshot.second, size);
     }
 
     static Pair<ArrayList<Long>, ArrayList<int[]>> readLongArray(JsonReader reader) throws IOException {
