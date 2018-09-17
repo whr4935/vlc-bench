@@ -42,10 +42,10 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
      * @param file     a {@link File} to represent the distant local file that this method will create and fill
      * @param fileData metadata about the media.
      * @param percent  current BenchService's progress ratio in percentage
-     * @param pas      the percentage value of finishing the download of one file.
-     * @throws IOException              if the device is not connected to WIFI or LAN {@link BenchService#hasWifiAndLan(Context)} or if the download failed due to an IO error.
+     * @param totalSize the total size of all file samples to download.
+     * @throws IOException if the device is not connected to WIFI or LAN or if the download failed due to an IO error.
      */
-    private void downloadFile(File file, MediaInfo fileData, double percent, double pas) throws IOException {
+    private void downloadFile(File file, MediaInfo fileData, double percent, long totalSize) throws IOException {
         if (!Util.hasWifiAndLan(activity)) {
             Log.e(TAG, "There is no wifi");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
@@ -56,19 +56,23 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
         InputStream urlStream = null;
         try {
             fileStream = new FileOutputStream(file);
-            percent -= pas;
-            pas /= fileUrl.openConnection().getContentLength();
             urlStream = fileUrl.openStream();
             byte[] buffer = new byte[2048];
             int read;
-            long fromTime = System.nanoTime(), toTime;
+            int passedSize = 0; // one second download size for download speedometer
+            long fromTime = System.nanoTime(), passedTime;
             while ((read = urlStream.read(buffer, 0, 2048)) != -1) {
-                toTime = System.nanoTime();
+                passedTime = System.nanoTime();
                 fileStream.write(buffer, 0, read);
-                percent += pas * read;
-                double bitPerSeconds = read * 1_000_000_000d / (toTime - fromTime);
-                publishProgress(new Pair<Double, Long>(100d * percent, (long)bitPerSeconds));
-                fromTime = System.nanoTime();
+                passedSize += read;
+                /* one second counter:
+                   update interface for download percent and speed */
+                if (passedTime - fromTime >= 1_000_000_000) {
+                    percent += (double)passedSize / (double)totalSize * 100d;
+                    publishProgress(new Pair<Double, Long>(percent, (long)passedSize));
+                    fromTime = System.nanoTime();
+                    passedSize = 0;
+                }
             }
             if (!FileHandler.checkFileSum(file, fileData.getChecksum())) {
                 FileHandler.delete(file);
@@ -98,6 +102,10 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
         }
         try {
             mFilesInfo = JSonParser.getMediaInfos(activity);
+            long totalSize = 0;
+            for (MediaInfo fileData : mFilesInfo) {
+                totalSize += fileData.getSize();
+            }
             String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
             if (mediaFolderStr == null) {
                 Log.e(TAG, "Failed to get media directory");
@@ -120,8 +128,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                     } else {
                         FileHandler.delete(localFile);
                     }
-                percent += 1.0 / mFilesInfo.size();
-                downloadFile(localFile, fileData, percent, 1.0 / mFilesInfo.size());
+                downloadFile(localFile, fileData, percent, totalSize);
+                percent += (double)fileData.getSize() / (double)totalSize * 100d;
                 fileData.setLocalUrl(localFile.getAbsolutePath());
             }
             for (File toRemove : unusedFiles) {

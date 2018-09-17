@@ -154,13 +154,12 @@ public class CurrentTestFragment extends DialogFragment {
     public void updatePercent(double percent, long bitRate) {
         String strPercent;
         progressBar.setProgress((int) Math.round(percent));
-        if (bitRate < 0) {
+        if (bitRate <= 0) {
             strPercent = FormatStr.format2Dec(percent) + "%";
             percentText.setText(strPercent);
         }
         else {
-            // TODO rework the download speed display
-            strPercent = FormatStr.format2Dec(percent) + "%";
+            strPercent = FormatStr.format2Dec(percent) + "% (" + FormatStr.bitRateToString(bitRate) + ")";
             percentText.setText(strPercent);
         }
     }
