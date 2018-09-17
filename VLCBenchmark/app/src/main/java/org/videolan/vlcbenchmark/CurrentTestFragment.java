@@ -166,19 +166,21 @@ public class CurrentTestFragment extends DialogFragment {
     }
 
     public void updateTestProgress(String sampleName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
-        progressBar.setProgress((numberOfFiles * 4) * (loopNumber - 1) + ((fileIndex - 1) * 4) + testNumber);
-        progressBar.setMax(numberOfFiles * numberOfLoops * 4);
+        int max = numberOfFiles * 4 * numberOfLoops;
+        double progress = ((fileIndex - 1)* 4 * loopNumber + testNumber) / (double)max* 100d;
+        progressBar.setProgress((int) Math.round(progress));
+        progressBar.setMax(100);
         currentSample.setText(sampleName);
         if (numberOfLoops != 1) {
             percentText.setText(String.format(
                     getResources().getString(R.string.progress_text_format_loop),
-                    FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
+                    FormatStr.format2Dec(progress), fileIndex,
                     numberOfFiles, testNumber, loopNumber, numberOfLoops));
         }
         else {
             percentText.setText(
                     String.format(getResources().getString(R.string.progress_text_format),
-                            FormatStr.format2Dec(progressBar.getProgress() * 100.0 / progressBar.getMax()), fileIndex,
+                            FormatStr.format2Dec(progress), fileIndex,
                             numberOfFiles, testNumber));
         }
     }
