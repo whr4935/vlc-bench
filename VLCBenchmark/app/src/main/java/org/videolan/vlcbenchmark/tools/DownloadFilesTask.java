@@ -62,6 +62,9 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             int passedSize = 0; // one second download size for download speedometer
             long fromTime = System.nanoTime(), passedTime;
             while ((read = urlStream.read(buffer, 0, 2048)) != -1) {
+                if (isCancelled()) {
+                    return;
+                }
                 passedTime = System.nanoTime();
                 fileStream.write(buffer, 0, read);
                 passedSize += read;
@@ -119,15 +122,18 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 if (isCancelled()) {
                     return false;
                 }
+                Log.i(TAG, "downloadFiles: downloading: " + fileData.getName());
                 File localFile = new File(mediaFolder.getPath() + '/' + fileData.getName());
-                if (localFile.exists())
+                if (localFile.exists()) {
                     if (localFile.isFile() && FileHandler.checkFileSum(localFile, fileData.getChecksum())) {
                         fileData.setLocalUrl(localFile.getAbsolutePath());
                         unusedFiles.remove(localFile);
+                        percent += (double)fileData.getSize() / (double)totalSize * 100d;
                         continue;
                     } else {
                         FileHandler.delete(localFile);
                     }
+                }
                 downloadFile(localFile, fileData, percent, totalSize);
                 percent += (double)fileData.getSize() / (double)totalSize * 100d;
                 fileData.setLocalUrl(localFile.getAbsolutePath());
