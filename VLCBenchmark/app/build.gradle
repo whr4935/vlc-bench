@@ -10,7 +10,7 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "0.1"
-        buildConfigField("String", "VLC_VERSION", "\"2.1.14\"")
+        buildConfigField("String", "VLC_VERSION", "\"3.0.13\"")
         vectorDrawables.useSupportLibrary = true
         resValue "string", "build_time", buildTime()
         resValue "string", "build_host", hostName()
