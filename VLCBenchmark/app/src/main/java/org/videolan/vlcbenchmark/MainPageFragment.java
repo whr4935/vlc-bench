@@ -39,6 +39,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.ProgressSaver;
+import org.videolan.vlcbenchmark.tools.TestInfo;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,8 +93,34 @@ public class MainPageFragment extends Fragment {
                     .show();
             return;
         }
-        mListener.startCurrentTestFragment();
-        mListener.launchTests(testNumber);
+        checkForPreviousBench(testNumber);
+    }
+
+    private void checkForPreviousBench(final int numberOfTests) {
+        final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
+        if (previousTest == null) {
+            mListener.startCurrentTestFragment();
+            mListener.launchTests(numberOfTests, null);
+        } else {
+            new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.dialog_title_previous_bench))
+                    .setMessage(getResources().getString(R.string.dialog_text_previous_bench))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_discard), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mListener.startCurrentTestFragment();
+                            mListener.launchTests(numberOfTests, null);
+                        }
+                    })
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mListener.startCurrentTestFragment();
+                            mListener.launchTests(0, previousTest);
+                        }
+                    })
+                    .show();
+        }
     }
 
     private void startTestWarning(final int testNumber) {
@@ -199,7 +229,7 @@ public class MainPageFragment extends Fragment {
 
     public interface IMainPageFragment {
         void startCurrentTestFragment();
-        void launchTests(int number);
+        void launchTests(int number, List<TestInfo>[] previousBench);
         boolean checkSignature();
         boolean checkVlcVersion();
         void dismissDialog();

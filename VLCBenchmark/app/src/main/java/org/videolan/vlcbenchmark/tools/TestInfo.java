@@ -274,17 +274,19 @@ public class TestInfo implements Serializable {
         return test;
     }
 
-    public void transferInJSon(JSONObject holder) throws JSONException {
-        holder.put("name", name);
-        holder.put("hardware_score", new JSONArray(hardware));
-        holder.put("software_score", new JSONArray(software));
-        holder.put("loop_number", loopNumber);
-        holder.put("frames_dropped", new JSONArray(framesDropped));
-        holder.put("percent_of_bad_screenshot", new JSONArray(percentOfBadScreenshots));
-        holder.put("number_of_warning", new JSONArray(numberOfWarnings));
+    public JSONObject jsonDump() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", name);
+        jsonObject.put("hardware_score", new JSONArray(hardware));
+        jsonObject.put("software_score", new JSONArray(software));
+        jsonObject.put("loop_number", loopNumber);
+        jsonObject.put("frames_dropped", new JSONArray(framesDropped));
+        jsonObject.put("percent_of_bad_screenshot", new JSONArray(percentOfBadScreenshots));
+        jsonObject.put("number_of_warning", new JSONArray(numberOfWarnings));
         JSONArray array = new JSONArray();
         array.put(new JSONArray(crashed[0]));
         array.put(new JSONArray(crashed[1]));
-        holder.put("crashed", array);
+        jsonObject.put("crashed", array);
+        return jsonObject;
     }
 }

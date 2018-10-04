@@ -56,6 +56,7 @@
     <string name="dialog_title_downloading">Downloading &#8230;</string>
     <string name="dialog_title_checking_files">Checking files</string>
     <string name="dialog_title_success">Success</string>
+    <string name="dialog_title_previous_bench">Previous benchmark</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
@@ -83,11 +84,13 @@
     <string name="dialog_text_vlc_failed">Failed to start VLC.</string>
     <string name="dialog_text_no_touch_warning">The benchmark is about to start, and will now alternate between VLC Android and the benchmark app. During the VLC Android phases, the interface will not be responsive</string>
     <string name="dialog_text_missing_space">Can\'t download files, you are missing %1$s %2$s of free space</string>
+    <string name="dialog_text_previous_bench">There is a previous benchmark that was interrupted. Do you want to continue or discard it?</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>
     <string name="dialog_btn_cancel">Cancel</string>
     <string name="dialog_btn_ok">OK</string>
+    <string name="dialog_btn_discard">Discard</string>
 
     <!-- main page -->
     <string name="specs_title">DEVICE</string>

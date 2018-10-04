@@ -46,6 +46,7 @@ import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
+import org.videolan.vlcbenchmark.tools.ProgressSaver;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.Util;
@@ -276,23 +277,32 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @param numberOfTests number of repetition of all the tests. must be 1 or 3 other values are ignored.
      */
     @UiThread
-    final public void launchTests(int numberOfTests) {
-        if (numberOfTests == 1) {
-            this.numberOfTests = 1;
-            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>()};
-        } else if (numberOfTests == 3) {
-            this.numberOfTests = 3;
-            resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
+    final public void launchTests(int numberOfTests, List<TestInfo>[] previousTest) {
+        resultsTest = previousTest;
+        if (resultsTest == null) {
+            if (numberOfTests == 1) {
+                this.numberOfTests = 1;
+                resultsTest = new ArrayList[]{new ArrayList<TestInfo>()};
+            } else if (numberOfTests == 3) {
+                this.numberOfTests = 3;
+                resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
+            } else {
+                Log.e(TAG, "Wrong number of tests to start: " + numberOfTests);
+                return;
+            }
+            fileIndex = 0;
+            loopNumber = 0;
         } else {
-            Log.e(TAG, "Wrong number of tests to start: " + numberOfTests);
-            return;
+            this.numberOfTests = resultsTest.length;
+            int i = 0;
+            while (i < this.numberOfTests && resultsTest[i].size() != 0)
+                i += 1;
+            loopNumber = i - 1;
+            fileIndex = resultsTest[loopNumber].size();
         }
-
-        fileIndex = 0;
         testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-        loopNumber = 0;
 
-        MediaInfo currentFile = testFiles.get(0);
+        MediaInfo currentFile = testFiles.get(fileIndex);
         try {
             running = true;
             Intent intent = createIntentForVlc(currentFile);
@@ -515,6 +525,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 resultsTest[loopNumber].add(lastTestInfo);
                 lastTestInfo = null;
                 fileIndex++;
+                Log.e(TAG, "launchNextTest: fileIndex: " + fileIndex );
                 if (fileIndex >= testFiles.size()) {
                     loopNumber++;
                     fileIndex = 0;
@@ -523,6 +534,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                     onTestsFinished(resultsTest);
                     return;
                 }
+                ProgressSaver.save(this, resultsTest);
             }
             testIndex = testIndex.next();
             MediaInfo currentFile = testFiles.get(fileIndex);
@@ -558,6 +570,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         finalResults = TestInfo.mergeTests(results);
         dismissDialog();
         running = false;
+        ProgressSaver.discard(this);
         Util.runInBackground(new Runnable() {
             @Override
             public void run() {

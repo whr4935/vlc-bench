@@ -171,12 +171,11 @@ public class JsonHandler {
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    private static JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) throws JSONException {
+    public static JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) throws JSONException {
         JSONArray testInfoArray = new JSONArray();
 
         for (TestInfo element : testInfoList) {
-            JSONObject testInfo = new JSONObject();
-            element.transferInJSon(testInfo);
+            JSONObject testInfo = element.jsonDump();
             testInfoArray.put(testInfo);
         }
         return testInfoArray;
