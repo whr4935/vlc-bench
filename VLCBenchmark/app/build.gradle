@@ -26,12 +26,14 @@ android {
             resValue "string", "build_api_address", "https://bench.videolabs.io/api/benchmarks"
             resValue "string", "file_location_url", "https://streams.videolan.org/benchmark/"
             resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
+            resValue "string", "vlc_package_name", "org.videolan.vlc"
         }
         // debug is to use with local resources
         debug {
             resValue "string", "build_api_address", "http://" + apiAddress() + ":8080/benchmarks"
             resValue "string", "file_location_url", "ftp://" + apiAddress() + "/"
             resValue "string", "config_file_location_url", "ftp://" + apiAddress() + "/config.json"
+            resValue "string", "vlc_package_name", "org.videolan.vlc.debug"
         }
         // debug_prod is debug mode with the urls resources of release
         debug_prod.initWith(buildTypes.debug)

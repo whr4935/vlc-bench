@@ -128,8 +128,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         }
     }
 
-    private static final String VLC_PACKAGE_NAME = "org.videolan.vlc";
-    private static final String VLC_DEBUG_PACKAGE_NAME = "org.videolan.vlc.debug";
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
     private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
@@ -152,7 +150,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String STATE_CUR_LOOP_NUMBER = "STATE_CUR_LOOP_NUMBER";
     private static final String STATE_RESULT_TEST = "STATE_RESULT_TEST";
     private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
-    private String vlcPackageName;
 
     /* Permissions request codes */
     private static final int PERMISSION_REQUEST_READ = 1;
@@ -219,14 +216,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             SharedPreferences.Editor editor= sharedPref.edit();
             editor.putBoolean(SHARED_PREFERENCE_WARNING, true);
             editor.apply();
-        }
-
-        /* Getting vlc normal or debug package name, *
-         * according to our application's state */
-        if (BuildConfig.DEBUG) {
-            vlcPackageName = VLC_DEBUG_PACKAGE_NAME;
-        } else {
-            vlcPackageName = VLC_PACKAGE_NAME;
         }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
@@ -351,7 +340,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             return null;
         }
         Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
-                .setComponent(new ComponentName(vlcPackageName, BENCH_ACTIVITY))
+                .setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY))
                 .putExtra("item_location", Uri.parse("file://" + currentFile.getLocalUrl()));
         if (testIndex.isSoftware())
             intent = intent.putExtra("disable_hardware", true);
@@ -432,7 +421,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                         errorMessage = getString(R.string.result_vlc_crash);
                     } else {
                         try {
-                            Context packageContext = createPackageContext(vlcPackageName, 0);
+                            Context packageContext = createPackageContext(getString(R.string.vlc_package_name), 0);
                             SharedPreferences preferences = packageContext.getSharedPreferences(SHARED_PREFERENCE, Context.MODE_PRIVATE);
                             errorMessage = preferences.getString(SHARED_PREFERENCE_STACK_TRACE, null);
                         } catch (PackageManager.NameNotFoundException e) {
@@ -612,7 +601,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     public boolean checkVlcVersion() {
         if (!BuildConfig.DEBUG) {
             try { // tmp during the VLCBenchmark alpha, using the vlc beta
-                if (checkVersion(this.getPackageManager().getPackageInfo(vlcPackageName, 0).versionName, BuildConfig.VLC_VERSION) < 0) {
+                if (checkVersion(this.getPackageManager().getPackageInfo(getString(R.string.vlc_package_name), 0).versionName, BuildConfig.VLC_VERSION) < 0) {
                     return false;
                 }
             } catch (PackageManager.NameNotFoundException e) {
@@ -649,7 +638,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
         /* Getting vlc's signature */
         try {
-            sigs_vlc = this.getPackageManager().getPackageInfo(vlcPackageName, PackageManager.GET_SIGNATURES).signatures;
+            sigs_vlc = this.getPackageManager().getPackageInfo(getString(R.string.vlc_package_name), PackageManager.GET_SIGNATURES).signatures;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
