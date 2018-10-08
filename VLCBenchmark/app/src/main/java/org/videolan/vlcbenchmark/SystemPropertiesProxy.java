@@ -20,6 +20,9 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.app.Activity;
+import android.util.DisplayMetrics;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -167,5 +170,11 @@ public class SystemPropertiesProxy {
      */
     public static String getCpuCoreNumber() {
         return Integer.toString(Runtime.getRuntime().availableProcessors());
+    }
+
+    public static String getResolution(Activity context) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        context.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+        return metrics.widthPixels + "x" + metrics.heightPixels;
     }
 }

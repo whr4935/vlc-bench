@@ -176,12 +176,14 @@ public class MainPageFragment extends Fragment {
         TextView cpu = (TextView) view.findViewById(R.id.specs_cpu_text);
         TextView cpuspeed = (TextView) view.findViewById(R.id.specs_cpuspeed_text);
         TextView memory = (TextView) view.findViewById(R.id.specs_memory_text);
+        TextView resolution = (TextView) view.findViewById(R.id.specs_resolution_text);
 
         model.setText(Build.MODEL);
         android.setText(Build.VERSION.RELEASE);
         cpu.setText(SystemPropertiesProxy.getCpuModel());
         cpuspeed.setText(SystemPropertiesProxy.getCpuMinFreq() + " - " + SystemPropertiesProxy.getCpuMaxFreq());
         memory.setText(SystemPropertiesProxy.getRamTotal());
+        resolution.setText(SystemPropertiesProxy.getResolution(getActivity()));
     }
 
     @Override

@@ -99,6 +99,7 @@
     <string name="specs_cpu">CPU</string>
     <string name="specs_cpuspeed">CPU Speed</string>
     <string name="specs_memory">Memory</string>
+    <string name="specs_resolution">Resolution</string>
     <string name="explanation_title">BENCHMARK</string>
     <string name="explanation_text">
         This benchmark will test your device\'s video capabilities using the VLC Media Player.\nYou can start a benchmark with the left button below, or start 3 benchmarks and get the average results with the right button below.
