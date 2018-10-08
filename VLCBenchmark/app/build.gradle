@@ -47,7 +47,7 @@ android {
     applicationVariants.all { variant ->
         //Custom APK name
         variant.outputs.all { output ->
-            outputFileName = "VLCBenchmark-" + variant.versionName + ".apk"
+            outputFileName = "VLCBenchmark-" + variant.versionName + "_" + variant.baseName + ".apk"
         }
     }
 }
