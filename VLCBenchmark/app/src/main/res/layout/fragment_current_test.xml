@@ -39,7 +39,8 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_below="@+id/current_sample"/>
+            android:layout_below="@+id/current_sample"
+            android:background="@color/black"/>
 
         <TextView
             android:layout_width="wrap_content"
