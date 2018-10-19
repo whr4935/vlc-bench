@@ -95,13 +95,11 @@ public class ResultPage extends AppCompatActivity {
         RecyclerView.Adapter mAdapter;
 
         TextView softView = (TextView) findViewById(R.id.softAvg);
-        String softText = "Software score : " + format2Dec(TestInfo.getSoftScore(results)) +
-                " / " + format2Dec(TestInfo.SCORE_TOTAL * results.size());
+        String softText = "Software score : " + format2Dec(TestInfo.getSoftScore(results));
         softView.setText(softText);
 
         TextView hardView = (TextView) findViewById(R.id.hardAvg);
-        String hardText = "Hardware score : " + format2Dec(TestInfo.getHardScore(results)) +
-                " / " + format2Dec(TestInfo.SCORE_TOTAL * results.size());
+        String hardText = "Hardware score : " + format2Dec(TestInfo.getHardScore(results));
         hardView.setText(hardText);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.test_result_list);
