@@ -62,6 +62,10 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
         ArrayList<MediaInfo> filesToDownload;
         try {
             mFilesInfo = JSonParser.getMediaInfos(activity);
+            if (mFilesInfo == null) {
+                errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_connect);
+                return false;
+            }
             String dirStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
             if (dirStr == null) {
                 errDialog = new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_file_creation_failure);
@@ -102,9 +106,13 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                     downloadSize += mediaFile.getSize();
                 }
             }
-        } catch (IOException | GeneralSecurityException e) {
-            Log.e(TAG, "doInBackground: Failed to check files: " + e.toString());
-            errDialog = new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_sample);
+        } catch (IOException e) {
+            Log.e(TAG, "downloadFiles: " + e.toString());
+            errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_conf);
+            return false;
+        } catch (GeneralSecurityException e) {
+            Log.e(TAG, "downloadFiles: " + e.toString());
+            errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_sample);
             return false;
         }
         Log.i(TAG, "doInBackground: End of file check");

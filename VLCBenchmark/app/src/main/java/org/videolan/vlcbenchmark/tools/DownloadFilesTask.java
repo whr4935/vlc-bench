@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -162,9 +163,17 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             for (File toRemove : unusedFiles) {
                 FileHandler.delete(toRemove);
             }
-        } catch (Exception e) {
+        } catch (ConnectException e) {
             Log.e(TAG, "downloadFiles: " + e.toString());
+            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_connect);
             return false;
+        } catch (IOException e) {
+            Log.e(TAG, "downloadFiles: " + e.toString());
+            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_io);
+            return false;
+        } catch (GeneralSecurityException e) {
+            Log.e(TAG, "downloadFiles: " + e.toString());
+            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_download_error);
         }
         return true;
     }
