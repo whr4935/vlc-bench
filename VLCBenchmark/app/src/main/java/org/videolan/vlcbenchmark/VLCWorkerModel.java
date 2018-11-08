@@ -528,9 +528,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
             testIndex = testIndex.next();
             MediaInfo currentFile = testFiles.get(fileIndex);
-            Intent intent = createIntentForVlc(currentFile);
+            final Intent intent = createIntentForVlc(currentFile);
             if (intent == null) {
-                Log.e(TAG, "launchNextTest: " + getString(R.string.dialog_text_invalid_file ));
+                Log.e(TAG, "launchNextTest: " + getString(R.string.dialog_text_invalid_file));
                 dismissDialog();
                 running = false;
                 new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
@@ -538,7 +538,14 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 setCurrentFragment(R.id.home_nav);
                 return;
             }
-            startActivityForResult(intent, Constants.RequestCodes.VLC);
+            // Add delay for vlc to finish correctly
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startActivityForResult(intent, Constants.RequestCodes.VLC);
+                }
+            }, 4000);
         } else {
             Log.e(TAG, "launchNextTest was called but running is false.");
         }
