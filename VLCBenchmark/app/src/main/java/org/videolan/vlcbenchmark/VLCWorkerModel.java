@@ -41,7 +41,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import org.json.JSONException;
-import org.videolan.vlcbenchmark.service.MediaInfo;
+import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FileHandler;

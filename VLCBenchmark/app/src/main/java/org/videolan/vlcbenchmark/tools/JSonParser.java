@@ -19,13 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-package org.videolan.vlcbenchmark.service;
+package org.videolan.vlcbenchmark.tools;
 
 import android.content.Context;
 import android.util.JsonReader;
 import android.util.Pair;
 
 import org.videolan.vlcbenchmark.R;
+import org.videolan.vlcbenchmark.tools.MediaInfo;
 
 import java.io.IOException;
 import java.io.InputStream;

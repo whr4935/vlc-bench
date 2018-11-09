@@ -28,8 +28,6 @@ import android.util.Pair;
 
 import org.videolan.vlcbenchmark.MainPage;
 import org.videolan.vlcbenchmark.R;
-import org.videolan.vlcbenchmark.service.JSonParser;
-import org.videolan.vlcbenchmark.service.MediaInfo;
 
 import java.io.File;
 import java.io.IOException;
