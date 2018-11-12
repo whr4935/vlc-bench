@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     signingConfigs {
@@ -81,8 +82,8 @@ static def apiAddress() {
     while (interfaces.hasMoreElements()) {
         NetworkInterface anInterface = interfaces.nextElement()
         if (anInterface.displayName.contains("docker") ||
-            anInterface.displayName.contains("virbr") ||
-            anInterface.displayName.contains("br-")) {
+                anInterface.displayName.contains("virbr") ||
+                anInterface.displayName.contains("br-")) {
             continue
         }
         Enumeration<InetAddress> addresses = anInterface.getInetAddresses()

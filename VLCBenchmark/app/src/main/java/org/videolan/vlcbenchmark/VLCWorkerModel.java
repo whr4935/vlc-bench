@@ -137,10 +137,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
-    private static final String SHARED_PREFERENCE_WARNING = "org.videolan.vlc.gui.video.benchmark.WARNING";
-    private static final String WARNING_MESSAGE = "VLCBenchmark will extensively test your phone's video capabilities." +
-            "\n\nIt will download a large amount of files and will run for several hours." +
-            "\nFurthermore, it will need the permission to access external storage";
 
     /* State keys */
     private static final String STATE_RUNNING = "STATE_RUNNING";
@@ -151,10 +147,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String STATE_CUR_LOOP_NUMBER = "STATE_CUR_LOOP_NUMBER";
     private static final String STATE_RESULT_TEST = "STATE_RESULT_TEST";
     private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
-
-    /* Permissions request codes */
-    private static final int PERMISSION_REQUEST_READ = 1;
-    private static final int PERMISSION_REQUEST_WRITE = 2;
 
     public abstract void setFilesChecked(boolean hasChecked);
 
@@ -203,59 +195,13 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
         CrashHandler.setCrashHandler();
 
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        boolean hasWarned = sharedPref.getBoolean(SHARED_PREFERENCE_WARNING, false);
-
         if (savedInstanceState != null) {
             running = savedInstanceState.getBoolean(STATE_RUNNING);
         }
 
         setupUiMembers(savedInstanceState);
 
-        if (!hasWarned) {
-            new AlertDialog.Builder(this).setTitle("WARNING").setMessage(WARNING_MESSAGE).setNeutralButton(android.R.string.ok, null).show();
-            SharedPreferences.Editor editor= sharedPref.edit();
-            editor.putBoolean(SHARED_PREFERENCE_WARNING, true);
-            editor.apply();
-        }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-
         GoogleConnectionHandler.getInstance();
-    }
-
-    /**
-     * This methods will be called once the user authorized the application to read files on the external storage.
-     * If he didn't we create a dialog and kill the application once that dialog has been closed.
-     *
-     * @param requestCode ignored
-     * @param permissions ignored
-     * @param grantResults use this to check whether or not the {@link android.Manifest.permission#READ_EXTERNAL_STORAGE} permission has been granted.
-     */
-    @Override
-    final public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // check for grantResult size. On some devices this callback is called before responding to the dialog
-        if ((requestCode == PERMISSION_REQUEST_WRITE || requestCode == PERMISSION_REQUEST_READ) &&
-                grantResults.length >= 1 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog dialog = new AlertDialog.Builder(this).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    finishAndRemoveTask();
-                }
-            }).create();
-            dialog.setCancelable(false);
-            dialog.setTitle("Bad permission");
-            dialog.setMessage("Cannot proceed without asked permission.\n\nExiting...");
-            dialog.show();
-        }
-        if (requestCode == PERMISSION_REQUEST_READ && grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITE);
-        } else if (requestCode == PERMISSION_REQUEST_WRITE && grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            checkFiles();
-        }
     }
 
     /**

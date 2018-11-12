@@ -57,6 +57,7 @@
     <string name="dialog_title_checking_files">Checking files</string>
     <string name="dialog_title_success">Success</string>
     <string name="dialog_title_previous_bench">Previous benchmark</string>
+    <string name="dialog_title_hello">Hello</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
@@ -88,6 +89,8 @@
     <string name="dialog_text_error_connect">Could not connect to our database. Please try again later.</string>
     <string name="dialog_text_error_io">There was a problem while storing the downloaded media.</string>
     <string name="dialog_text_error_conf">There was a problem fetching configuration files.</string>
+    <string name="dialog_text_initial_warning">VLCBenchmark will extensively test your phone\'s video capabilities.\n\nIt will download a large amount of files and will run for several hours.\nFurthermore, it will need the permission to access external storage"</string>
+    <string name="dialog_text_error_permission">This application can\'t operate without the requested permissions</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>
@@ -141,5 +144,6 @@
     <string name="result_unknown">Unknown problem</string>
 
     <string name="server_client_id">226055421863-nihio8lr2m2o4fh68pgd0c2qh9l9s2s3.apps.googleusercontent.com</string>
+    <string name="title_activity_splash">SplashActivity</string>
 
 </resources>
