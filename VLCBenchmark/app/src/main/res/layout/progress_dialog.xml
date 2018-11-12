@@ -14,23 +14,23 @@
             android:text="@string/dialog_title_testing"
             android:textColor="@color/black"
             android:textStyle="bold"
-            android:id="@+id/test_dialog_title"
+            android:id="@+id/progress_dialog_title"
             android:textSize="18sp"
             android:layout_margin="@dimen/default_margin"/>
 
         <TextView
-            android:id="@+id/current_sample"
+            android:id="@+id/progress_dialog_current_sample"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/default_margin"
             android:text=""
-            android:layout_below="@+id/test_dialog_title"
+            android:layout_below="@+id/progress_dialog_title"
             android:textColor="@color/black"/>
 
         <ProgressBar
+            android:id="@+id/progress_dialog_bar"
             android:layout_width="fill_parent"
             android:layout_height="8dp"
-            android:id="@+id/progressBar"
             android:layout_gravity="center_horizontal"
             android:max="100"
             android:minWidth="200dp"
@@ -39,15 +39,15 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_below="@+id/current_sample"
+            android:layout_below="@+id/progress_dialog_current_sample"
             android:background="@color/black"/>
 
         <TextView
+            android:id="@+id/progress_dialog_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
             android:textAlignment="center"
-            android:id="@+id/percentText"
             android:freezesText="true"
             android:text="@string/default_percent_value"
             android:layout_marginTop="@dimen/default_margin"
@@ -55,15 +55,15 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/progressBar"/>
+            android:layout_below="@+id/progress_dialog_bar"/>
 
         <Button
-            android:id="@+id/current_test_cancel"
+            android:id="@+id/progress_dialog_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dialog_btn_cancel"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_below="@id/percentText"
+            android:layout_below="@id/progress_dialog_text"
             android:layout_alignParentEnd="true" />
 
     </RelativeLayout>

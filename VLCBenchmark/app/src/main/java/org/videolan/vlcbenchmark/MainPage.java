@@ -98,7 +98,7 @@ public class MainPage extends VLCWorkerModel implements
         currentTestFragment = fragment;
     }
 
-    public void startCurrentTestFragment() {
+    public void startProgressDialog() {
         CurrentTestFragment fragment = new CurrentTestFragment( );
         fragment.setCancelable(false);
         fragment.show(getSupportFragmentManager(), "Current test");
@@ -167,7 +167,7 @@ public class MainPage extends VLCWorkerModel implements
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
             if (running) {
-                startCurrentTestFragment();
+                startProgressDialog();
             }
         }
     }
@@ -340,7 +340,7 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void onStart() {
         if (running && currentTestFragment == null) {
-            startCurrentTestFragment();
+            startProgressDialog();
         }
         super.onStart();
     }

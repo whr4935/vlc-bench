@@ -100,7 +100,7 @@ public class MainPageFragment extends Fragment {
     private void checkForPreviousBench(final int numberOfTests) {
         final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
         if (previousTest == null) {
-            mListener.startCurrentTestFragment();
+            mListener.startProgressDialog();
             mListener.launchTests(numberOfTests, null);
         } else {
             new AlertDialog.Builder(getContext())
@@ -109,14 +109,14 @@ public class MainPageFragment extends Fragment {
                     .setNeutralButton(getResources().getString(R.string.dialog_btn_discard), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            mListener.startCurrentTestFragment();
+                            mListener.startProgressDialog();
                             mListener.launchTests(numberOfTests, null);
                         }
                     })
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            mListener.startCurrentTestFragment();
+                            mListener.startProgressDialog();
                             mListener.launchTests(0, previousTest);
                         }
                     })
@@ -231,7 +231,7 @@ public class MainPageFragment extends Fragment {
     }
 
     public interface IMainPageFragment {
-        void startCurrentTestFragment();
+        void startProgressDialog();
         void launchTests(int number, List<TestInfo>[] previousBench);
         boolean checkSignature();
         boolean checkVlcVersion();

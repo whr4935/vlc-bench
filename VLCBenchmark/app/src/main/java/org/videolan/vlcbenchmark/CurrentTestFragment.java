@@ -25,7 +25,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,18 +60,18 @@ public class CurrentTestFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_current_test, container, false);
-        Button cancel = (Button) view.findViewById(R.id.current_test_cancel);
+        View view = inflater.inflate(R.layout.progress_dialog, container, false);
+        Button cancel = (Button) view.findViewById(R.id.progress_dialog_cancel);
 
         if (getArguments() != null) {
             mMode = getArguments().getInt(ARG_MODE, MODE_BENCHMARK);
         } else {
             mMode = MODE_BENCHMARK;
         }
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        currentSample = (TextView) view.findViewById(R.id.current_sample);
-        percentText = (TextView) view.findViewById(R.id.percentText);
-        TextView title = (TextView) view.findViewById(R.id.test_dialog_title);
+        progressBar = (ProgressBar) view.findViewById(R.id.progress_dialog_bar);
+        currentSample = (TextView) view.findViewById(R.id.progress_dialog_current_sample);
+        percentText = (TextView) view.findViewById(R.id.progress_dialog_text);
+        TextView title = (TextView) view.findViewById(R.id.progress_dialog_title);
         if (mMode == MODE_DOWNLOAD) {
             title.setText(R.string.dialog_title_downloading);
         } else if (mMode == MODE_BENCHMARK){
