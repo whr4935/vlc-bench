@@ -28,6 +28,10 @@ android {
             resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
             resValue "string", "vlc_package_name", "org.videolan.vlc"
         }
+        release_alpha.initWith(buildTypes.release)
+        release_alpha {
+            resValue "string", "vlc_package_name", "org.videolan.vlc.bench_alpha"
+        }
         // debug is to use with local resources
         debug {
             resValue "string", "build_api_address", "http://" + apiAddress() + ":8080/benchmarks"
