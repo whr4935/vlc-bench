@@ -67,6 +67,12 @@ class SplashActivity : AppCompatActivity() {
 
     }
 
+    private fun startMainPage() {
+        val intent = Intent(this, MainPage::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
     private fun requestPermissions() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             mPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -78,7 +84,7 @@ class SplashActivity : AppCompatActivity() {
             val arrayPermissions: Array<String> = mPermissions.toTypedArray()
             ActivityCompat.requestPermissions(this, arrayPermissions, PERMISSION_REQUEST)
         } else {
-            startActivity(Intent(this, MainPage::class.java))
+            startMainPage()
         }
     }
 
@@ -99,7 +105,7 @@ class SplashActivity : AppCompatActivity() {
                     })
                     .show()
             } else {
-                startActivity(Intent(this, MainPage::class.java))
+               startMainPage()
             }
         }
     }
