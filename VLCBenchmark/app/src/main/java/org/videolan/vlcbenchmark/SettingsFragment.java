@@ -21,7 +21,6 @@
 
 package org.videolan.vlcbenchmark;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,8 +41,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private static String TAG = SettingsFragment.class.getName();
 
     GoogleConnectionHandler mGoogleConnectionHandler;
-
-    ISettingsFragment mListener;
 
     @Override
     public void onResume() {
@@ -73,7 +70,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         }
         dialog.display(getActivity());
-        mListener.resetDownload();
     }
 
     private void deleteResults() {
@@ -168,20 +164,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onPause() {
         mGoogleConnectionHandler.unsetGoogleSignInClient();
         super.onPause();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof ISettingsFragment) {
-            mListener = (ISettingsFragment) context;
-        } else {
-            throw new RuntimeException(context.toString());
-        }
-    }
-
-    public interface ISettingsFragment {
-        void resetDownload();
     }
 
 }

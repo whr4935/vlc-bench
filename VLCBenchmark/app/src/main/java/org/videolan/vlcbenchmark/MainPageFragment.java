@@ -27,9 +27,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -39,20 +41,34 @@ import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.videolan.vlcbenchmark.tools.CheckFilesTask;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.DownloadFilesTask;
+import org.videolan.vlcbenchmark.tools.FormatStr;
+import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ProgressSaver;
 import org.videolan.vlcbenchmark.tools.TestInfo;
+import org.videolan.vlcbenchmark.tools.VLCProxy;
 
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment where the user can start the benchmark
+ * When started VLCBenchmark will check:
+ * - If the user has VLC
+ * - If the user has the right version
+ * - Check the battery level
+ * - Check file integrity / download if missing
+ * - Check the presence of a previous benchmark that was interrupted
  */
 public class MainPageFragment extends Fragment {
 
     private final static String TAG = MainPageFragment.class.getName();
 
     IMainPageFragment mListener;
+    private AsyncTask task;
+    private int mTestNumber = 0;
+    CurrentTestFragment currentTestFragment;
 
     public MainPageFragment() {}
 
@@ -63,9 +79,19 @@ public class MainPageFragment extends Fragment {
         startActivity(viewIntent);
     }
 
-    private void startTestDialog(int testNumber) {
-        if (!mListener.checkSignature()) {
-            Log.e(TAG, "Could not find VLC Media Player");
+    private void checkForVLC() {
+        if (getActivity() == null) {
+            Log.e(TAG, "checkForVLC: null context");
+            return;
+        }
+        Boolean vlcSignature = VLCProxy.Companion.checkSignature(getActivity());
+        Boolean vlcVersion = VLCProxy.Companion.checkVlcVersion(getActivity());
+        if (!vlcSignature || !vlcVersion) {
+            if (!vlcSignature) {
+                Log.e(TAG, "Could not find VLC Media Player");
+            } else {
+                Log.e(TAG, "Outdated VLC Media Player");
+            }
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_missing_vlc))
                     .setMessage(getResources().getString(R.string.dialog_text_missing_vlc))
@@ -79,68 +105,16 @@ public class MainPageFragment extends Fragment {
                     .show();
             return;
         }
-        if (!mListener.checkVlcVersion()) {
-            Log.e(TAG, "Outdated version of VLC Media Player detected");
-            new AlertDialog.Builder(getContext())
-                    .setTitle(getResources().getString(R.string.dialog_title_outdated_vlc))
-                    .setMessage(getResources().getString(R.string.dialog_text_outdated_vlc))
-                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
-                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            redirectToVlcStore();
-                        }
-                    })
-                    .show();
+        checkBattery();
+    }
+
+    private void checkBattery() {
+        if (getContext() == null) {
+            Log.e(TAG, "checkBattery: null context");
             return;
         }
-        checkForPreviousBench(testNumber);
-    }
-
-    private void checkForPreviousBench(final int numberOfTests) {
-        final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
-        if (previousTest == null) {
-            mListener.startProgressDialog();
-            mListener.launchTests(numberOfTests, null);
-        } else {
-            new AlertDialog.Builder(getContext())
-                    .setTitle(getResources().getString(R.string.dialog_title_previous_bench))
-                    .setMessage(getResources().getString(R.string.dialog_text_previous_bench))
-                    .setNeutralButton(getResources().getString(R.string.dialog_btn_discard), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mListener.startProgressDialog();
-                            mListener.launchTests(numberOfTests, null);
-                        }
-                    })
-                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mListener.startProgressDialog();
-                            mListener.launchTests(0, previousTest);
-                        }
-                    })
-                    .show();
-        }
-    }
-
-    private void startTestWarning(final int testNumber) {
-        new AlertDialog.Builder(getContext())
-                .setTitle(getString(R.string.dialog_title_warning))
-                .setMessage(getString(R.string.dialog_text_no_touch_warning))
-                .setNeutralButton(getString(R.string.dialog_btn_cancel), null)
-                .setNegativeButton(getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startTestDialog(testNumber);
-                    }
-                })
-                .show();
-    }
-
-    private void checkForTestStart(final int testNumber) {
-        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = getContext().registerReceiver(null, ifilter);
+        IntentFilter intentfilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = getContext().registerReceiver(null, intentfilter);
         if (batteryStatus == null) {
             Log.e(TAG, "checkForTestStart: battery intent is null");
             new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_oups).display(getActivity());
@@ -162,22 +136,114 @@ public class MainPageFragment extends Fragment {
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            startTestWarning(testNumber);
+                            checkFiles();
                         }
                     })
                     .show();
         } else {
-            startTestWarning(testNumber);
+            checkFiles();
+        }
+    }
+
+    private void checkFiles() {
+        task = new CheckFilesTask(this);
+        ((CheckFilesTask)task).execute();
+    }
+
+    public void onFilesChecked(long size) {
+        if (size > 0) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.dialog_title_warning))
+                    .setMessage(String.format(getString(R.string.dialog_text_download_warning), FormatStr.sizeToString(size)))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            downloadFiles();
+                        }
+                    })
+                    .show();
+        } else {
+            downloadFiles();
+        }
+    }
+
+    private void downloadFiles() {
+        task = new DownloadFilesTask(this);
+        ((DownloadFilesTask)task).execute();
+        currentTestFragment = new CurrentTestFragment(); // tmp
+        currentTestFragment.setCancelable(false);
+        Bundle args = new Bundle();
+        args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_DOWNLOAD);
+        currentTestFragment.setArguments(args);
+        currentTestFragment.show(getFragmentManager(), "Download dialog");
+    }
+
+    public void onFilesDownloaded(List<MediaInfo> files) {
+        if (mTestNumber == 1 || mTestNumber == 3) {
+            mListener.setBenchmarkFiles(files);
+            int testNumber = mTestNumber;
+            mTestNumber = 0;
+            checkForPreviousBench(testNumber);
+        } else {
+            Log.e(TAG, "onFilesDownloaded: invalid test number: " + mTestNumber);
+            mTestNumber = 0;
+        }
+    }
+
+    private void checkForPreviousBench(final int numberOfTests) {
+        final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
+        if (previousTest == null) {
+            mListener.startProgressDialog();
+            mListener.launchTests(numberOfTests, null);
+        } else {
+            new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.dialog_title_previous_bench))
+                    .setMessage(getResources().getString(R.string.dialog_text_previous_bench))
+                    .setNeutralButton(getResources().getString(R.string.dialog_btn_discard), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startTestWarning(numberOfTests);
+                        }
+                    })
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mListener.startProgressDialog();
+                            mListener.launchTests(0, previousTest);
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    private void startTestWarning(final int testNumber) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(getString(R.string.dialog_title_warning))
+                .setMessage(getString(R.string.dialog_text_no_touch_warning))
+                .setNeutralButton(getString(R.string.dialog_btn_cancel), null)
+                .setNegativeButton(getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mListener.launchTests(testNumber, null);
+                    }
+                })
+                .show();
+    }
+
+    public void updatePercent(double percent, long bitRate) {
+        if (currentTestFragment != null) {
+            currentTestFragment.updatePercent(percent, bitRate);
         }
     }
 
     private void fillDeviceLayout(View view) {
-        TextView model = (TextView) view.findViewById(R.id.specs_model_text);
-        TextView android = (TextView) view.findViewById(R.id.specs_android_text);
-        TextView cpu = (TextView) view.findViewById(R.id.specs_cpu_text);
-        TextView cpuspeed = (TextView) view.findViewById(R.id.specs_cpuspeed_text);
-        TextView memory = (TextView) view.findViewById(R.id.specs_memory_text);
-        TextView resolution = (TextView) view.findViewById(R.id.specs_resolution_text);
+        TextView model = view.findViewById(R.id.specs_model_text);
+        TextView android = view.findViewById(R.id.specs_android_text);
+        TextView cpu = view.findViewById(R.id.specs_cpu_text);
+        TextView cpuspeed = view.findViewById(R.id.specs_cpuspeed_text);
+        TextView memory = view.findViewById(R.id.specs_memory_text);
+        TextView resolution = view.findViewById(R.id.specs_resolution_text);
 
         model.setText(Build.MODEL);
         android.setText(Build.VERSION.RELEASE);
@@ -188,36 +254,57 @@ public class MainPageFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_main_page, container, false);
 
-        FloatingActionButton oneTest = (FloatingActionButton) view.findViewById(R.id.fab_test_x1);
+        FloatingActionButton oneTest = view.findViewById(R.id.fab_test_x1);
         oneTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkForTestStart(1);
+                mTestNumber = 1;
+                checkForVLC();
             }
         });
 
-        FloatingActionButton threeTest = (FloatingActionButton) view.findViewById(R.id.fab_test_x3);
+        FloatingActionButton threeTest = view.findViewById(R.id.fab_test_x3);
         threeTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkForTestStart(3);
+                mTestNumber = 3;
+                checkForVLC();
             }
         });
 
-        ScrollView specs = (ScrollView) view.findViewById(R.id.specs_scrollview);
+        ScrollView specs = view.findViewById(R.id.specs_scrollview);
         specs.setFocusable(false);
 
-        ScrollView explanations = (ScrollView) view.findViewById(R.id.test_explanation_scrollview);
+        ScrollView explanations = view.findViewById(R.id.test_explanation_scrollview);
         explanations.setFocusable(false);
 
         fillDeviceLayout(view);
 
         return view;
+    }
+
+    public void cancelDownload() {
+        if (task != null) {
+            task.cancel(true);
+        }
+    }
+
+    public void dismissDialog() {
+        if (currentTestFragment != null) {
+            currentTestFragment.dismiss();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (task != null) {
+            task.cancel(true);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -232,9 +319,8 @@ public class MainPageFragment extends Fragment {
 
     public interface IMainPageFragment {
         void startProgressDialog();
+        void setBenchmarkFiles(List<MediaInfo> files);
         void launchTests(int number, List<TestInfo>[] previousBench);
-        boolean checkSignature();
-        boolean checkVlcVersion();
         void dismissDialog();
     }
 

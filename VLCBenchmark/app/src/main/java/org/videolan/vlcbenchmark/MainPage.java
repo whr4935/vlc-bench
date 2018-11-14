@@ -32,31 +32,18 @@ import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import org.videolan.vlcbenchmark.tools.CheckFilesTask;
-import org.videolan.vlcbenchmark.tools.DialogInstance;
-
 public class MainPage extends VLCWorkerModel implements
         CurrentTestFragment.TestView,
-        MainPageFragment.IMainPageFragment,
-        MainPageDownloadFragment.IMainPageDownloadFragment,
-        SettingsFragment.ISettingsFragment {
+        MainPageFragment.IMainPageFragment {
 
     private static final String TAG = MainPage.class.getName();
 
     private Toolbar toolbar = null;
 
-    /**
-     * hasDownloaded is used to see what to display
-     * between MainPageDownloadFragment and MainPageFragment
-     */
-    private boolean hasDownloaded = false;
-    private boolean hasChecked = false;
     private int mMenuItemId = 0;
     private Fragment currentPageFragment;
     private CurrentTestFragment currentTestFragment = null;
     private BottomNavigationView bottomNavigationView = null;
-
-    private CheckFilesTask checkFilesTask;
 
     /* TV input handling */
     private int navigationIndex;
@@ -67,31 +54,6 @@ public class MainPage extends VLCWorkerModel implements
         //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.toolbar, menu);
         return true;
-    }
-
-    /**
-     * Called after a file check, sets hasChecked bool to true,
-     * and specifies if the files are present.
-     * @param hasDownloaded file presence
-     */
-    public void setFilesChecked(boolean hasDownloaded) {
-        this.hasChecked = true;
-        if (currentTestFragment != null) {
-            currentTestFragment.dismiss();
-        }
-        setFilesDownloaded(hasDownloaded);
-    }
-
-    /**
-     * After successful download, removes download dialog and sets MainPageFragment
-     * @param hasDownloaded boolean on download success
-     */
-    public void setFilesDownloaded(boolean hasDownloaded) {
-        this.hasDownloaded = hasDownloaded;
-        if (currentTestFragment != null) {
-            currentTestFragment.dismiss();
-        }
-        setCurrentFragment(R.id.home_nav);
     }
 
     public void setDialogFragment(CurrentTestFragment fragment) {
@@ -105,20 +67,12 @@ public class MainPage extends VLCWorkerModel implements
         currentTestFragment = fragment; //TODO redundant with setDialogFragment called from the fragment
     }
 
-    public boolean getHasChecked() {
-        return hasChecked;
-    }
-
     protected boolean setCurrentFragment(int itemId) {
         Fragment fragment;
         if (findViewById(R.id.main_page_fragment_holder) != null) {
             switch (itemId) {
                 case R.id.home_nav:
-                    if (hasDownloaded) {
-                        fragment = new MainPageFragment();
-                    } else {
-                        fragment = new MainPageDownloadFragment();
-                    }
+                    fragment = new MainPageFragment();
                     toolbar.setTitle(getResources().getString(R.string.app_name));
                     break;
                 case R.id.results_nav:
@@ -145,14 +99,9 @@ public class MainPage extends VLCWorkerModel implements
     protected void setupUiMembers(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main_page);
 
-        if (savedInstanceState != null) {
-            hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
-            hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
-        }
-
-        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation_bar);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_bar);
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -161,7 +110,7 @@ public class MainPage extends VLCWorkerModel implements
                     }
                 }
         );
-        if (savedInstanceState == null || !hasChecked) {
+        if (savedInstanceState == null) {
             setCurrentFragment(R.id.home_nav);
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
@@ -175,39 +124,7 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // makes sure that the asyncTask doesn't survive the activity (leak)
-        if (checkFilesTask != null) {
-            checkFilesTask.cancel(true);
-        }
         dismissDialog();
-    }
-
-    /* Keeps the phone on during downloads and filecheck */
-    public void setScreenOn() {
-        View view = currentPageFragment.getView();
-        if (view != null) {
-            view.setKeepScreenOn(true);
-        }
-    }
-
-    protected void checkFiles() {
-        CurrentTestFragment fragment = new CurrentTestFragment(); // tmp
-        fragment.setCancelable(false);
-        Bundle args = new Bundle();
-        args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_FILECHECK);
-        fragment.setArguments(args);
-        fragment.show(getSupportFragmentManager(), "FileCheck dialog");
-        setScreenOn();
-        checkFilesTask = new CheckFilesTask(this);
-        checkFilesTask.execute();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (!hasChecked) {
-            checkFiles();
-        }
     }
 
     /**
@@ -263,56 +180,11 @@ public class MainPage extends VLCWorkerModel implements
         Log.i(TAG, "Benchmark was stopped by the user");
     }
 
-    /**
-     * If the cancel button is pressed on the currentTestFragment during download
-     * this method is called
-     */
-    public void cancelDownload() {
-        if (currentPageFragment instanceof MainPageDownloadFragment) {
-            ((MainPageDownloadFragment)currentPageFragment).cancelDownload();
-        }
-    }
-
-    public void cancelFileCheck() {
-        if (currentPageFragment instanceof MainPageDownloadFragment
-                && currentTestFragment.getMode() == CurrentTestFragment.MODE_FILECHECK) {
-            checkFilesTask.cancel(true);
-        }
-    }
-
-    public void setDownloadSize(long downloadSize) {
-        if (currentPageFragment instanceof MainPageDownloadFragment) {
-            ((MainPageDownloadFragment)currentPageFragment).setDownloadSize(downloadSize);
-        }
-    }
-
-    public void updatePercent(double percent, long bitRate) {
-        if (currentTestFragment != null) {
-            currentTestFragment.updatePercent(percent, bitRate);
-        }
-    }
-
-    public void updateFileCheckProgress(int file, int total) {
-        if (currentTestFragment != null) {
-            currentTestFragment.updateFileCheckProgress(file, total);
-        }
-    }
-
-    @Override
-    public void resetDownload() {
-        hasDownloaded = false;
-        hasChecked = false;
-    }
-
     @Override
     protected void updateTestProgress(String testName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
         if (currentTestFragment != null) {
             currentTestFragment.updateTestProgress(testName, fileIndex, numberOfFiles, testNumber, loopNumber, numberOfLoops);
         }
-    }
-
-    @Override
-    protected void onVlcCrashed(String errorMessage, final Runnable continueTesting) {
     }
 
     @Override
@@ -325,17 +197,9 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
-        savedInstanceState.putBoolean("HAS_DOWNLOADED", hasDownloaded);
-        savedInstanceState.putBoolean("HAS_CHECKED", hasChecked);
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        hasDownloaded = savedInstanceState.getBoolean("HAS_DOWNLOADED");
-        hasChecked = savedInstanceState.getBoolean("HAS_CHECKED");
-        super.onRestoreInstanceState(savedInstanceState);
-    }
 
     @Override
     protected void onStart() {

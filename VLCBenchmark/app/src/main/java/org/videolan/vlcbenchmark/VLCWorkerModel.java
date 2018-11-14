@@ -21,22 +21,16 @@
 
 package org.videolan.vlcbenchmark;
 
-import android.Manifest;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -148,22 +142,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String STATE_RESULT_TEST = "STATE_RESULT_TEST";
     private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
 
-    public abstract void setFilesChecked(boolean hasChecked);
-
     protected abstract boolean setCurrentFragment(int itemId);
 
     public abstract void dismissDialog();
 
-    public abstract void resetDownload();
     /**
      * Is called during the {@link VLCWorkerModel#onCreate(Bundle)}.
      */
     protected abstract void setupUiMembers(Bundle savedInstanceState);
 
-    /**
-     * Called when ready to check presence and integrity of media files;
-     */
-    protected abstract void checkFiles();
     /**
      * Called to update the test dialog.
      * @param testName the name of the test (ex : screenshot software, ...)
@@ -174,14 +161,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @param numberOfLoops the total number of time we have to repeat
      */
     protected abstract void updateTestProgress(String testName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
-
-    /**
-     * Is called if VLC stopped due to an uncaught exception while testing.
-     *
-     * @param errorMessage a String representing the issue that caused VLC to crash.
-     * @param resume needs to be called if the implementation needs to continue testing other files.
-     */
-    protected abstract void onVlcCrashed(String errorMessage, Runnable resume);
 
     /**
      * Initialization of the Activity.
@@ -248,7 +227,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 running = false;
                 Log.e(TAG, "launchTests: " + getString(R.string.dialog_text_invalid_file ));
                 new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
-                resetDownload();
                 setCurrentFragment(R.id.home_nav);
                 return;
             }
@@ -480,7 +458,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 dismissDialog();
                 running = false;
                 new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
-                resetDownload();
                 setCurrentFragment(R.id.home_nav);
                 return;
             }
@@ -533,77 +510,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
         });
 
-    }
-
-    private int checkVersion(String str1, String str2) {
-        String[] vals1 = str1.split("\\.");
-        String[] vals2 = str2.split("\\.");
-        int i = 0;
-
-        while (i < vals1.length && i < vals2.length && vals1[i].equals(vals2[i])) {
-            i++;
-        }
-
-        if (i < vals1.length && i < vals2.length) {
-            int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
-            return Integer.signum(diff);
-        }
-
-        return Integer.signum(vals1.length - vals2.length);
-    }
-
-    public boolean checkVlcVersion() {
-        if (!BuildConfig.DEBUG) {
-            try { // tmp during the VLCBenchmark alpha, using the vlc beta
-                if (checkVersion(this.getPackageManager().getPackageInfo(getString(R.string.vlc_package_name), 0).versionName, BuildConfig.VLC_VERSION) < 0) {
-                    return false;
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Tool method to check if VLC's signature and ours match.
-     *
-     * @return true if VLC's signature matches our else false
-     */
-    public boolean checkSignature() {
-        String benchPackageName = this.getPackageName();
-        Signature[] sigs_vlc = null;
-        Signature[] sigs = null;
-        int vlcSignature;
-        int benchSignature;
-
-        /* Getting application signature*/
-        try {
-            sigs = this.getPackageManager().getPackageInfo(benchPackageName, PackageManager.GET_SIGNATURES).signatures;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-
-        /* Checking to see if there is any signature */
-        if (sigs != null && sigs.length > 0)
-            benchSignature = sigs[0].hashCode();
-        else
-            return false;
-
-        /* Getting vlc's signature */
-        try {
-            sigs_vlc = this.getPackageManager().getPackageInfo(getString(R.string.vlc_package_name), PackageManager.GET_SIGNATURES).signatures;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-
-        /* checking to see if there is are any signatures */
-        if (sigs_vlc != null && sigs_vlc.length > 0)
-            vlcSignature = sigs_vlc[0].hashCode();
-        else
-            return false;
-
-        return benchSignature == vlcSignature;
     }
 
     /**

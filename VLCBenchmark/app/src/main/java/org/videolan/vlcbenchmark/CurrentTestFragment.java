@@ -50,7 +50,6 @@ public class CurrentTestFragment extends DialogFragment {
     private int mMode = 0;
     public static final int MODE_DOWNLOAD = 1;
     public static final int MODE_BENCHMARK = 2;
-    public static final int MODE_FILECHECK = 3;
 
     public static final String ARG_MODE = "MODE";
 
@@ -91,20 +90,15 @@ public class CurrentTestFragment extends DialogFragment {
             cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mListener.cancelDownload();
-                    dismiss();
-                }
-            });
-        } else {
-            cancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mListener.cancelFileCheck();
-                    dismiss();
+                    if (getParentFragment() instanceof MainPageFragment) {
+                        ((MainPageFragment) getParentFragment()).cancelDownload();
+                        dismiss();
+                    }
                 }
             });
         }
         setUiToDefault();
+        view.setKeepScreenOn(true);
         return view;
     }
 
@@ -140,15 +134,6 @@ public class CurrentTestFragment extends DialogFragment {
         progressBar.setMax(100);
         percentText.setText(R.string.default_percent_value);
         currentSample.setText("");
-    }
-
-    public void updateFileCheckProgress(int file, int total) {
-        double percent = (double)file / (double)total * 100d;
-        String strPercent;
-
-        progressBar.setProgress((int) Math.round(percent));
-        strPercent = String.format(getString(R.string.dialog_text_file_check_progress), file, total);
-        percentText.setText(strPercent);
     }
 
     public void updatePercent(double percent, long bitRate) {
@@ -187,7 +172,5 @@ public class CurrentTestFragment extends DialogFragment {
     public interface TestView {
         void setDialogFragment(CurrentTestFragment fragment);
         void cancelBench();
-        void cancelDownload();
-        void cancelFileCheck();
     }
 }

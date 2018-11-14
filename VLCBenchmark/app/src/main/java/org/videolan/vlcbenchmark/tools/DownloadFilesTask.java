@@ -21,13 +21,13 @@
 
 package org.videolan.vlcbenchmark.tools;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 
-import org.videolan.vlcbenchmark.MainPage;
+import org.videolan.vlcbenchmark.MainPageFragment;
 import org.videolan.vlcbenchmark.R;
 
 import java.io.File;
@@ -48,10 +48,10 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
     private DialogInstance dialog;
     private List<MediaInfo> mFilesInfo;
 
-    private Activity activity;
+    private Fragment fragment;
 
-    public DownloadFilesTask(Activity activity) {
-        this.activity = activity;
+    public DownloadFilesTask(Fragment fragment) {
+        this.fragment = fragment;
     }
 
     /**
@@ -66,12 +66,17 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
      * @throws IOException if the device is not connected to WIFI or LAN or if the download failed due to an IO error.
      */
     private void downloadFile(File file, MediaInfo fileData, double percent, long totalSize) throws IOException {
-        if (!Util.hasWifiAndLan(activity)) {
+        if (fragment.getActivity() == null) {
+            Log.e(TAG, "downloadFile: null activity");
+            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_oups);
+            return;
+        }
+        if (!Util.hasWifiAndLan(fragment.getActivity())) {
             Log.e(TAG, "There is no wifi");
             throw new IOException("Cannot download the videos without WIFI, please connect to wifi and retry");
         }
         file.createNewFile();
-        URL fileUrl = new URL(activity.getString(R.string.file_location_url) + fileData.getUrl());
+        URL fileUrl = new URL(fragment.getString(R.string.file_location_url) + fileData.getUrl());
         FileOutputStream fileStream = null;
         InputStream urlStream = null;
         try {
@@ -118,13 +123,18 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
      * then check if they are already on the device and if so if the video is valid.
      */
     private boolean downloadFiles() {
-        if (!Util.hasWifiAndLan(activity)) {
+        if (fragment.getActivity() == null) {
+            Log.e(TAG, "downloadFiles: activity null");
+            dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_oups);
+            return false;
+        }
+        if (!Util.hasWifiAndLan(fragment.getActivity())) {
             Log.e(TAG, "downloadFiles: no wifi");
             dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_wifi);
             return false;
         }
         try {
-            mFilesInfo = JSonParser.getMediaInfos(activity);
+            mFilesInfo = JSonParser.getMediaInfos(fragment.getActivity());
             long totalSize = 0;
             for (MediaInfo fileData : mFilesInfo) {
                 totalSize += fileData.getSize();
@@ -179,10 +189,10 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
     @Override
     protected void onProgressUpdate(Pair... values) {
         super.onProgressUpdate(values);
-        if (activity instanceof MainPage && values.length >= 1) {
-            MainPage mainPage = (MainPage) activity;
+        if (fragment instanceof MainPageFragment && values.length >= 1) {
+            MainPageFragment mainPageFragment = (MainPageFragment) fragment;
             Pair<Double, Long> progressValues = values[0];
-            mainPage.updatePercent(progressValues.first, progressValues.second);
+            mainPageFragment.updatePercent(progressValues.first, progressValues.second);
         }
     }
 
@@ -194,14 +204,14 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         super.onPostExecute(success);
-        if (activity instanceof MainPage) {
-            ((MainPage) activity).setFilesDownloaded(success);
+        if (fragment instanceof MainPageFragment) {
+            ((MainPageFragment) fragment).dismissDialog();
             if (success) {
-                ((MainPage) activity).setBenchmarkFiles(mFilesInfo);
+                ((MainPageFragment) fragment).onFilesDownloaded(mFilesInfo);
             }
         }
         if (dialog != null) {
-            dialog.display(activity);
+            dialog.display(fragment.getActivity());
         }
     }
 }

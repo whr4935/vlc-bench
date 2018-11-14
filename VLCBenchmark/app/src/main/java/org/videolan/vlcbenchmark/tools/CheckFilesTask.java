@@ -21,17 +21,17 @@
 
 package org.videolan.vlcbenchmark.tools;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 
-import org.videolan.vlcbenchmark.MainPage;
+import org.videolan.vlcbenchmark.MainPageFragment;
 import org.videolan.vlcbenchmark.R;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,23 +43,28 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
     private long downloadSize = -1;
 
     //warning fixed in MainPage.onDestroy() -> should not leak;
-    private Activity activity;
+    private Fragment fragment;
 
-    public CheckFilesTask(Activity activity) {
-        this.activity = activity;
+    public CheckFilesTask(Fragment fragment) {
+        this.fragment = fragment;
     }
 
     @Override
     protected Boolean doInBackground(Void... voids) {
         int counter = 0;
-        if (!Util.hasWifiAndLan(activity)) {
+        if (fragment.getActivity() == null) {
+            Log.e(TAG, "doInBackground: null activity");
+            errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_oups);
+            return false;
+        }
+        if (!Util.hasWifiAndLan(fragment.getActivity())) {
             Log.e(TAG, "There is no wifi.");
             errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_no_internet);
             return false;
         }
         ArrayList<MediaInfo> filesToDownload;
         try {
-            mFilesInfo = JSonParser.getMediaInfos(activity);
+            mFilesInfo = JSonParser.getMediaInfos(fragment.getActivity());
             if (mFilesInfo == null) {
                 errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_connect);
                 return false;
@@ -85,13 +90,6 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 if (files != null) {
                     for (File localFile : files) {
                         if (localFile.getName().equals(mediaFile.getName())) {
-                            if (!FileHandler.checkFileSum(localFile, mediaFile.getChecksum())) {
-                                Log.i(TAG, "doInBackground: " + mediaFile.getName() + " file is corrupted");
-                                mediaFile.setLocalUrl(localFile.getAbsolutePath());
-                                FileHandler.delete(localFile);
-                                filesToDownload.add(mediaFile);
-                                downloadSize += mediaFile.getSize();
-                            }
                             mediaFile.setLocalUrl(localFile.getAbsolutePath());
                             presence = true;
                             break;
@@ -108,28 +106,33 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
             Log.e(TAG, "downloadFiles: " + e.toString());
             errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_conf);
             return false;
-        } catch (GeneralSecurityException e) {
-            Log.e(TAG, "downloadFiles: " + e.toString());
-            errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_sample);
-            return false;
         }
         Log.i(TAG, "doInBackground: End of file check");
         if (filesToDownload.size() != 0) {
             Log.i(TAG, "doInBackground: Missing " + filesToDownload.size() + " files");
-            return false;
         }
         return true;
     }
 
-    @Override
-    protected void onProgressUpdate(Pair... values) {
-        super.onProgressUpdate(values);
-        if (activity instanceof MainPage && values.length >= 1) {
-            MainPage mainPage = (MainPage) activity;
-            Pair<Integer, Integer> progressValues = values[0];
-            mainPage.updateFileCheckProgress(progressValues.first, progressValues.second);
+    private boolean checkDeviceFreeSpace(long size) {
+        String mediaDir = FileHandler.getFolderStr(FileHandler.mediaFolder);
+        if (mediaDir == null)
+            return false;
+        File file = new File(mediaDir);
+        long freeSpace = file.getFreeSpace();
+        if (size > freeSpace) {
+            Log.e("MainPageDownload", "checkDeviceFreeSpace: missing space to download all media files");
+            long spaceNeeded = size - freeSpace;
+            String space = FormatStr.sizeToString(spaceNeeded);
+            String msg = String.format(fragment.getString(R.string.dialog_text_missing_space), space);
+            new AlertDialog.Builder(fragment.getContext())
+                    .setTitle(fragment.getString(R.string.dialog_title_warning))
+                    .setMessage(msg)
+                    .setNegativeButton(fragment.getString(R.string.dialog_btn_ok), null)
+                    .show();
+            return false;
         }
-
+        return true;
     }
 
     /**
@@ -141,18 +144,16 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
     @Override
     protected void onPostExecute(Boolean checkState) {
         super.onPostExecute(checkState);
-        if (activity instanceof MainPage) {
-            MainPage mainPageContext = (MainPage) activity;
-            mainPageContext.setFilesChecked(checkState);
+
+        if (fragment instanceof MainPageFragment) {
             if (checkState) {
-                mainPageContext.setBenchmarkFiles(mFilesInfo);
-                mainPageContext.setFilesDownloaded(true);
-            } else {
-                mainPageContext.setDownloadSize(downloadSize);
+                if (checkDeviceFreeSpace(downloadSize)) {
+                    ((MainPageFragment) fragment).onFilesChecked(downloadSize);
+                }
             }
         }
         if (errDialog != null) {
-            errDialog.display(activity);
+            errDialog.display(fragment.getActivity());
         }
     }
 
