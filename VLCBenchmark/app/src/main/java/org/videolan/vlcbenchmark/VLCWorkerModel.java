@@ -35,6 +35,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
@@ -153,14 +154,12 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     /**
      * Called to update the test dialog.
-     * @param testName the name of the test (ex : screenshot software, ...)
-     * @param fileIndex the index of the current file
-     * @param numberOfFiles the total number of files
-     * @param testNumber the index of the current test ({@link TEST_TYPES#ordinal()}
-     * @param loopNumber the number of times we've repeated all tests
-     * @param numberOfLoops the total number of time we have to repeat
+     * @param progress benchmark progress percentage
+     * @param progressText text recaping the progress state of the benchmark:
+     *                     file index, loop number, etc
+     * @param sampleName the name of the test (ex : screenshot software, ...)
      */
-    protected abstract void updateTestProgress(String testName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops);
+    protected abstract void updateProgress(double progress, String progressText, String sampleName);
 
     /**
      * Initialization of the Activity.
@@ -371,6 +370,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        Log.w(TAG, "fillCurrentTestInfo: run: calling next test");
                         launchNextTest();
                     }
                 }, 2000);
@@ -416,6 +416,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.w(TAG, "testScreenshot: run: calling testScreenshot");
                         launchNextTest();
                     }
                 });
@@ -434,6 +435,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * Otherwise we launch VLC's BenchActivity with the counters' new values.
      */
     private void launchNextTest() {
+        Log.w(TAG, "launchNextTest: running: " + running);
         if (running) {
             if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
                 resultsTest[loopNumber].add(lastTestInfo);
@@ -463,9 +465,11 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
             // Add delay for vlc to finish correctly
             Handler handler = new Handler();
+            Log.w(TAG, "launchNextTest: about to start vlc");
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    Log.w(TAG, "run: starting vlc");
                     startActivityForResult(intent, Constants.RequestCodes.VLC);
                 }
             }, 4000);
@@ -487,6 +491,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     }
 
     private void onTestsFinished(List<TestInfo>[] results) {
+        Log.w(TAG, "onTestsFinished: ");
         finalResults = TestInfo.mergeTests(results);
         dismissDialog();
         running = false;
@@ -545,14 +550,26 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         lastTestInfo = (TestInfo) savedInstanceState.getSerializable(STATE_LAST_TEST_INFO);
     }
 
+    private String progressToString() {
+        int max = testFiles.size() * 4 * numberOfTests;
+        double progress = ((fileIndex - 1)* 4 * loopNumber + testIndex.ordinal() + 1) / (double)max* 100d;
+        return String.format(
+                getResources().getString(R.string.progress_text_format_loop),
+                FormatStr.format2Dec(progress), fileIndex,
+                testFiles.size(), testIndex.ordinal() + 1, loopNumber, numberOfTests);
+    }
+
     @Override
     protected void onResume() {
         if (running) {
             String name = testFiles.get(fileIndex).getName();
-            updateTestProgress(name, fileIndex + 1, testFiles.size(), testIndex.ordinal() + 1, loopNumber + 1, numberOfTests);
+            int max = testFiles.size() * 4 * numberOfTests;
+            double progress = ((fileIndex - 1)* 4 * loopNumber + testIndex.ordinal() + 1) / (double)max* 100d;
+            updateProgress(progress, progressToString(), name);
             /* case where no screenshots */
             /* if screenshots, launchNextTest called from Screenshot Validation thread */
             if (!testIndex.isScreenshot()) {
+                Log.w(TAG, "onResume: calling nextTest");
                 launchNextTest();
             }
         }

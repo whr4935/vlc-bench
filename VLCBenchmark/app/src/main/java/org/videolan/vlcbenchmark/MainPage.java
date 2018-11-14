@@ -32,8 +32,9 @@ import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import kotlin.Unit;
+
 public class MainPage extends VLCWorkerModel implements
-        CurrentTestFragment.TestView,
         MainPageFragment.IMainPageFragment {
 
     private static final String TAG = MainPage.class.getName();
@@ -42,7 +43,7 @@ public class MainPage extends VLCWorkerModel implements
 
     private int mMenuItemId = 0;
     private Fragment currentPageFragment;
-    private CurrentTestFragment currentTestFragment = null;
+    private ProgressDialog progressDialog;
     private BottomNavigationView bottomNavigationView = null;
 
     /* TV input handling */
@@ -56,15 +57,13 @@ public class MainPage extends VLCWorkerModel implements
         return true;
     }
 
-    public void setDialogFragment(CurrentTestFragment fragment) {
-        currentTestFragment = fragment;
-    }
-
     public void startProgressDialog() {
-        CurrentTestFragment fragment = new CurrentTestFragment( );
-        fragment.setCancelable(false);
-        fragment.show(getSupportFragmentManager(), "Current test");
-        currentTestFragment = fragment; //TODO redundant with setDialogFragment called from the fragment
+        ProgressDialog dialog = new ProgressDialog();
+        dialog.setCancelable(false);
+        dialog.setTitle(R.string.dialog_title_testing);
+        dialog.setCancelCallback(this::cancelBench);
+        dialog.show(getSupportFragmentManager(), "Benchmark");
+        progressDialog = dialog; //TODO redundant with setDialogFragment called from the fragment
     }
 
     protected boolean setCurrentFragment(int itemId) {
@@ -121,12 +120,6 @@ public class MainPage extends VLCWorkerModel implements
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        dismissDialog();
-    }
-
     /**
      * dispatchKeyEvent is an override to integrate the bottomNavigationView in
      * the input flow on AndroidTV and allow to interact with it. It isn't handled natively.
@@ -175,35 +168,42 @@ public class MainPage extends VLCWorkerModel implements
      * Sets the running boolean to false, indicating to the UI that the current test dialog
      * is no longer needed.
      */
-    public void cancelBench() {
+    public Unit cancelBench() {
         running = false;
+        progressDialog.dismiss();
+        progressDialog = null;
         Log.i(TAG, "Benchmark was stopped by the user");
+        return Unit.INSTANCE;
     }
 
     @Override
-    protected void updateTestProgress(String testName, int fileIndex, int numberOfFiles, int testNumber, int loopNumber, int numberOfLoops) {
-        if (currentTestFragment != null) {
-            currentTestFragment.updateTestProgress(testName, fileIndex, numberOfFiles, testNumber, loopNumber, numberOfLoops);
+    protected void updateProgress(double progress, String progressText, String sampleName) {
+        if (progressDialog != null) {
+            progressDialog.updateProgress(progress, progressText, sampleName);
         }
     }
 
     @Override
     public void dismissDialog() {
-        if (currentTestFragment != null) {
-            currentTestFragment.dismiss();
+        Log.w(TAG, "dismissDialog: ");
+        if (progressDialog != null) {
+            Log.w(TAG, "dismissDialog: setting null");
+            progressDialog.dismiss();
+            progressDialog = null;
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
+        dismissDialog();
         super.onSaveInstanceState(savedInstanceState);
     }
 
 
     @Override
     protected void onStart() {
-        if (running && currentTestFragment == null) {
+        if (running && progressDialog == null) {
             startProgressDialog();
         }
         super.onStart();

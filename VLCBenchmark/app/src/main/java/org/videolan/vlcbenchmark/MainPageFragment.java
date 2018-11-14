@@ -68,7 +68,7 @@ public class MainPageFragment extends Fragment {
     IMainPageFragment mListener;
     private AsyncTask task;
     private int mTestNumber = 0;
-    CurrentTestFragment currentTestFragment;
+    ProgressDialog progressDialog;
 
     public MainPageFragment() {}
 
@@ -171,12 +171,10 @@ public class MainPageFragment extends Fragment {
     private void downloadFiles() {
         task = new DownloadFilesTask(this);
         ((DownloadFilesTask)task).execute();
-        currentTestFragment = new CurrentTestFragment(); // tmp
-        currentTestFragment.setCancelable(false);
-        Bundle args = new Bundle();
-        args.putInt(CurrentTestFragment.ARG_MODE, CurrentTestFragment.MODE_DOWNLOAD);
-        currentTestFragment.setArguments(args);
-        currentTestFragment.show(getFragmentManager(), "Download dialog");
+        progressDialog = new ProgressDialog(); // tmp
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(R.string.dialog_title_downloading);
+        progressDialog.show(getFragmentManager(), "Download dialog");
     }
 
     public void onFilesDownloaded(List<MediaInfo> files) {
@@ -194,8 +192,7 @@ public class MainPageFragment extends Fragment {
     private void checkForPreviousBench(final int numberOfTests) {
         final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
         if (previousTest == null) {
-            mListener.startProgressDialog();
-            mListener.launchTests(numberOfTests, null);
+            startTestWarning(numberOfTests);
         } else {
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_previous_bench))
@@ -225,15 +222,16 @@ public class MainPageFragment extends Fragment {
                 .setNegativeButton(getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        mListener.startProgressDialog();
                         mListener.launchTests(testNumber, null);
                     }
                 })
                 .show();
     }
 
-    public void updatePercent(double percent, long bitRate) {
-        if (currentTestFragment != null) {
-            currentTestFragment.updatePercent(percent, bitRate);
+    public void updateProgress(double progress, String progressText, String sampleName) {
+        if (progressDialog != null) {
+            progressDialog.updateProgress(progress, progressText, sampleName);
         }
     }
 
@@ -294,8 +292,8 @@ public class MainPageFragment extends Fragment {
     }
 
     public void dismissDialog() {
-        if (currentTestFragment != null) {
-            currentTestFragment.dismiss();
+        if (progressDialog != null) {
+            progressDialog.dismiss();
         }
     }
 
