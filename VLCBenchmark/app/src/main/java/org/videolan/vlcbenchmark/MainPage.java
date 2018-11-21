@@ -185,9 +185,7 @@ public class MainPage extends VLCWorkerModel implements
 
     @Override
     public void dismissDialog() {
-        Log.w(TAG, "dismissDialog: ");
         if (progressDialog != null) {
-            Log.w(TAG, "dismissDialog: setting null");
             progressDialog.dismiss();
             progressDialog = null;
         }

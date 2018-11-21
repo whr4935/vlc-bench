@@ -21,18 +21,22 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import org.json.JSONException;
 import org.videolan.vlcbenchmark.tools.FormatStr;
@@ -82,6 +86,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private TestInfo lastTestInfo = null;
     protected int numberOfTests;
     protected boolean running = false;
+
+    private Intent mData = null;
+    private int mResultCode = -2;
 
     /**
      * Enum tool used internally only to iterate simply
@@ -302,8 +309,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
              if (testIndex.ordinal() == 0) {
                  String name = testFiles.get(fileIndex).getName();
                  lastTestInfo = new TestInfo(name, loopNumber);
-            }
-            fillCurrentTestInfo(data, resultCode);
+             }
+             mData = data;
+             mResultCode = resultCode;
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
             fragment.onActivityResult(requestCode, resultCode, data);
@@ -359,25 +367,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
             Log.i(TAG, "fillCurrentTestInfo: error: " + errorMessage);
             lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), errorMessage);
-            if (testIndex.isScreenshot()) {
-                // When a quality test fails, there is no screenshot analysis,
-                // hence no delay before re-starting vlc-android.
-                // That sometimes doesn't let vlc-android exit properly before being recreated.
-                // For that specific case a delay was introduced.
-                // But the class should be refactored as to not start anything in onActivityResult()
-                // but rather later, in onResume() for example.
-                Handler mHandler = new Handler();
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.w(TAG, "fillCurrentTestInfo: run: calling next test");
-                        launchNextTest();
-                    }
-                }, 2000);
-            }
-        } else if (testIndex.isScreenshot()) {
-            testScreenshot();
-        } else {
+        } else if (!testIndex.isScreenshot()) {
             lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
             lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), testIndex.isSoftware());
         }
@@ -416,7 +406,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.w(TAG, "testScreenshot: run: calling testScreenshot");
                         launchNextTest();
                     }
                 });
@@ -441,7 +430,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 resultsTest[loopNumber].add(lastTestInfo);
                 lastTestInfo = null;
                 fileIndex++;
-                Log.e(TAG, "launchNextTest: fileIndex: " + fileIndex );
                 if (fileIndex >= testFiles.size()) {
                     loopNumber++;
                     fileIndex = 0;
@@ -465,11 +453,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
             // Add delay for vlc to finish correctly
             Handler handler = new Handler();
-            Log.w(TAG, "launchNextTest: about to start vlc");
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Log.w(TAG, "run: starting vlc");
                     startActivityForResult(intent, Constants.RequestCodes.VLC);
                 }
             }, 4000);
@@ -561,19 +547,29 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
         if (running) {
             String name = testFiles.get(fileIndex).getName();
             int max = testFiles.size() * 4 * numberOfTests;
-            double progress = ((fileIndex - 1)* 4 * loopNumber + testIndex.ordinal() + 1) / (double)max* 100d;
+            double progress = ((fileIndex - 1) * 4 * loopNumber + testIndex.ordinal() + 1) / (double) max * 100d;
             updateProgress(progress, progressToString(), name);
-            /* case where no screenshots */
-            /* if screenshots, launchNextTest called from Screenshot Validation thread */
-            if (!testIndex.isScreenshot()) {
-                Log.w(TAG, "onResume: calling nextTest");
-                launchNextTest();
+
+            // -2 isn't return by vlc-android
+            // small hack to stop the benchmark from restarting vlc if there is a
+            // configuration change between onResume and vlc starting
+            if (mResultCode != -2) {
+                fillCurrentTestInfo(mData, mResultCode);
+                /* case where no screenshots */
+                /* if screenshots, launchNextTest called from Screenshot Validation thread */
+                if (testIndex.isScreenshot() && mResultCode == Constants.ResultCodes.RESULT_OK) {
+                    mResultCode = -2;
+                    testScreenshot();
+                } else {
+                    mResultCode = -2;
+                    launchNextTest();
+                }
             }
         }
-        super.onResume();
     }
 
 }
