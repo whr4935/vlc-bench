@@ -21,7 +21,6 @@
 
 package org.videolan.vlcbenchmark;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,6 +36,8 @@ import androidx.annotation.UiThread;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.videolan.vlcbenchmark.benchmark.BenchmarkViewModel;
+import org.videolan.vlcbenchmark.benchmark.TestTypes;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
@@ -79,59 +80,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     private final static String TAG = "VLCWorkerModel";
 
-    private List<TestInfo>[] resultsTest;
-    private List<MediaInfo> testFiles;
-    private ArrayList<TestInfo> finalResults;
-    private TEST_TYPES testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
-    private int fileIndex = 0;
-    private int loopNumber = 0;
-    private TestInfo lastTestInfo = null;
-    protected int numberOfTests;
-    protected boolean running = false;
-
     private Intent mData = null;
     private int mResultCode = -2;
 
-    /**
-     * Enum tool used internally only to iterate simply
-     * over the different types of tests.
-     */
-    private enum TEST_TYPES {
-        SOFTWARE_SCREENSHOT,
-        SOFTWARE_PLAYBACK,
-        HARDWARE_SCREENSHOT,
-        HARDWARE_PLAYBACK;
-
-        /**
-         * Allows to use this enum as an incrementing type that loops once it reached its last value.
-         * @return the next enum in ordinal order after the current one. If none are after it will return the first.
-         */
-        public TEST_TYPES next() {
-            return values()[(ordinal() + 1) % values().length];
-        }
-
-        /**
-         * @return true if the ordinal of the current enum represents a test software
-         */
-        public boolean isSoftware() {
-            return (ordinal() / 2) % 2 == 0;
-        }
-
-        /**
-         * @return true if the ordinal of the current enum represned a screenshot test
-         */
-        public boolean isScreenshot() {
-            return ordinal() % 2 == 0;
-        }
-
-        /**
-         * @return a human readable version of the enum's value by replacing underscores with spaces and passing the string to low case.
-         */
-        @Override
-        public String toString() {
-            return super.toString().replace("_", " ").toLowerCase();
-        }
-    }
+    protected BenchmarkViewModel model;
 
     private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
@@ -141,16 +93,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
-
-    /* State keys */
-    private static final String STATE_RUNNING = "STATE_RUNNING";
-    private static final String STATE_TEST_FILES = "STATE_TEST_FILES";
-    private static final String STATE_TEST_INDEX = "STATE_TEST_INDEX";
-    private static final String STATE_FILE_INDEX = "STATE_FILE_INDEX";
-    private static final String STATE_TEST_NUMBER = "STATE_TEST_NUMBER";
-    private static final String STATE_CUR_LOOP_NUMBER = "STATE_CUR_LOOP_NUMBER";
-    private static final String STATE_RESULT_TEST = "STATE_RESULT_TEST";
-    private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
 
     protected abstract boolean setCurrentFragment(int itemId);
 
@@ -181,10 +123,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         CrashHandler.setCrashHandler();
-
-        if (savedInstanceState != null) {
-            running = savedInstanceState.getBoolean(STATE_RUNNING);
-        }
+        model = ViewModelProviders.of(this).get(BenchmarkViewModel.class);
 
         setupUiMembers(savedInstanceState);
 
@@ -201,48 +140,47 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      */
     @UiThread
     final public void launchTests(int numberOfTests, List<TestInfo>[] previousTest) {
-        resultsTest = previousTest;
-        if (resultsTest == null) {
+        if (previousTest == null) {
             if (numberOfTests == 1) {
-                this.numberOfTests = 1;
-                resultsTest = new ArrayList[]{new ArrayList<TestInfo>()};
+                model.setLoopTotal(1);
+                model.testResults = new ArrayList[]{new ArrayList<TestInfo>()};
             } else if (numberOfTests == 3) {
-                this.numberOfTests = 3;
-                resultsTest = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
+                model.setLoopTotal(3);
+                model.testResults = new ArrayList[]{new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>(), new ArrayList<MediaInfo>()};
             } else {
                 Log.e(TAG, "Wrong number of tests to start: " + numberOfTests);
                 return;
             }
-            fileIndex = 0;
-            loopNumber = 0;
+            model.setFileIndex(0);
+            model.setLoopNumber(0);
         } else {
-            this.numberOfTests = resultsTest.length;
+            model.testResults = previousTest;
+            model.setLoopTotal(model.testResults.length);
             int i = 0;
-            while (i < this.numberOfTests && resultsTest[i].size() != 0)
+            while (i < model.getLoopTotal() && model.testResults[i].size() != 0)
                 i += 1;
-            loopNumber = i - 1;
-            fileIndex = resultsTest[loopNumber].size();
+            model.setLoopNumber(i - 1);
+            model.setFileIndex(model.testResults[model.getLoopNumber()].size());
         }
-        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
+        Log.w(TAG, "launchTests: " + model.testIndex + " - " + model.testIndex.ordinal());
 
-        MediaInfo currentFile = testFiles.get(fileIndex);
+        MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
         try {
-            running = true;
             Intent intent = createIntentForVlc(currentFile);
             /* In case of failure due to an invalid file, stop benchmark, and display download page */
             if (intent == null) {
                 dismissDialog();
-                running = false;
                 Log.e(TAG, "launchTests: " + getString(R.string.dialog_text_invalid_file ));
                 new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
                 setCurrentFragment(R.id.home_nav);
                 return;
             }
+            model.setRunning(true);
             startActivityForResult(intent, Constants.RequestCodes.VLC);
         } catch (ActivityNotFoundException e) {
             new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_vlc_failed).display(this);
             Log.e(TAG, "launchTests: Failed to start VLC");
-            return;
         }
     }
 
@@ -252,8 +190,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @param files list of metadata for all the video/media to test.
      */
     public void setBenchmarkFiles(List<MediaInfo> files) {
-        testFiles = files;
-        testIndex = TEST_TYPES.SOFTWARE_SCREENSHOT;
+        Log.w(TAG, "setBenchmarkFiles: ");
+        model.testFiles = files;
+        model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
     }
 
     /**
@@ -272,20 +211,22 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             Log.e(TAG, "createIntentForVlc: Invalid file");
             return null;
         }
-        Intent intent = new Intent(testIndex.isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
+
+        Intent intent = new Intent(model.getTestIndex().isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
                 .setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY))
                 .putExtra("item_location", Uri.parse("file://" + currentFile.getLocalUrl()));
-        if (testIndex.isSoftware())
+        if (model.getTestIndex().isSoftware())
             intent = intent.putExtra("disable_hardware", true);
-        if (testIndex.isScreenshot())
+        if (model.getTestIndex().isScreenshot())
             intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
         intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
         intent.putExtra("from_start", true);
-        if (testIndex.isSoftware() && testIndex.isScreenshot())
+
+        if (model.getTestIndex().isSoftware() && model.getTestIndex().isScreenshot())
             Log.d(TAG, "onActivityResult: ===========================================================================================================" );
         Log.i(TAG, "Testing: " + currentFile.getName());
-        Log.i(TAG, "Testing mode: " + ( testIndex.isSoftware() ? "Software - " : "Hardware - " )
-            + (testIndex.isScreenshot() ? "Quality" : "Playback"));
+        Log.i(TAG, "Testing mode: " + ( model.getTestIndex().isSoftware() ? "Software - " : "Hardware - " )
+            + (model.getTestIndex().isScreenshot() ? "Quality" : "Playback"));
         return intent;
     }
 
@@ -308,9 +249,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.RequestCodes.VLC) {
             Log.i(TAG, "onActivityResult: resultCode: " + resultCode );
-             if (testIndex.ordinal() == 0) {
-                 String name = testFiles.get(fileIndex).getName();
-                 lastTestInfo = new TestInfo(name, loopNumber);
+             if (model.getTestIndex().ordinal() == 0) {
+                 String name = model.getTestFiles().get(model.getFileIndex()).getName();
+                 model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
              }
              mData = data;
              mResultCode = resultCode;
@@ -368,10 +309,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                     break;
             }
             Log.i(TAG, "fillCurrentTestInfo: error: " + errorMessage);
-            lastTestInfo.vlcCrashed(testIndex.isSoftware(), testIndex.isScreenshot(), errorMessage);
-        } else if (!testIndex.isScreenshot()) {
-            lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), testIndex.isSoftware());
-            lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), testIndex.isSoftware());
+            model.lastTestInfo.vlcCrashed(model.getTestIndex().isSoftware(), model.getTestIndex().isScreenshot(), errorMessage);
+        } else if (!model.getTestIndex().isScreenshot()) {
+            model.lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), model.getTestIndex().isSoftware());
+            model.lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), model.getTestIndex().isSoftware());
         }
     }
 
@@ -386,8 +327,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      */
     private void testScreenshot() {
         final String screenshotFolder = FileHandler.getFolderStr(FileHandler.screenshotFolder);
-        final int numberOfScreenshot = testFiles.get(fileIndex).getColors().size();
-        final List<int[]> colors = testFiles.get(fileIndex).getColors();
+        final int numberOfScreenshot = model.getTestFiles().get(model.getFileIndex()).getColors().size();
+        final List<int[]> colors = model.getTestFiles().get(model.getFileIndex()).getColors();
 
         new Thread() {
             @Override
@@ -404,7 +345,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                     if (exists && !file.delete())
                         Log.e(TAG, "Failed to delete screenshot");
                 }
-                lastTestInfo.setBadScreenshot(100.0 * badScreenshots / numberOfScreenshot, testIndex.isSoftware());
+                model.lastTestInfo.setBadScreenshot(100.0 * badScreenshots / numberOfScreenshot, model.getTestIndex().isSoftware());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -426,29 +367,32 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * Otherwise we launch VLC's BenchActivity with the counters' new values.
      */
     private void launchNextTest() {
-        Log.w(TAG, "launchNextTest: running: " + running);
-        if (running) {
-            if (testIndex == TEST_TYPES.HARDWARE_PLAYBACK) {
-                resultsTest[loopNumber].add(lastTestInfo);
-                lastTestInfo = null;
-                fileIndex++;
-                if (fileIndex >= testFiles.size()) {
-                    loopNumber++;
-                    fileIndex = 0;
+        Log.w(TAG, "launchNextTest: running: " + model.getRunning());
+        if (model.getRunning()) {
+            if (model.getTestIndex() == TestTypes.HARDWARE_PLAYBACK) {
+                model.testResults[model.getLoopNumber()].add(model.lastTestInfo);
+                model.lastTestInfo = null;
+                model.setFileIndex(model.getFileIndex() + 1);
+                if (model.getFileIndex() >= model.getTestFiles().size()) {
+                    model.setLoopNumber(model.getLoopNumber() + 1);
+                    model.setFileIndex(0);
                 }
-                if (loopNumber >= numberOfTests) {
-                    onTestsFinished(resultsTest);
+                if (model.getLoopNumber() >= model.getLoopTotal()) {
+                    onTestsFinished(model.testResults);
                     return;
                 }
-                ProgressSaver.save(this, resultsTest);
+                ProgressSaver.save(this, model.testResults);
             }
-            testIndex = testIndex.next();
-            MediaInfo currentFile = testFiles.get(fileIndex);
+            Log.w(TAG, "launchNextTest: " + Thread.currentThread().getName());
+            Log.w(TAG, "launchNextTest: testIndex: " + model.getTestIndex() + " - " + model.getTestIndex().ordinal());
+            model.setTestIndex(model.getTestIndex().next());
+            Log.w(TAG, "launchNextTest: testIndex: " + model.getTestIndex() + " - " + model.getTestIndex().ordinal());
+            MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
             final Intent intent = createIntentForVlc(currentFile);
             if (intent == null) {
                 Log.e(TAG, "launchNextTest: " + getString(R.string.dialog_text_invalid_file));
                 dismissDialog();
-                running = false;
+                model.setRunning(false);
                 new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
                 setCurrentFragment(R.id.home_nav);
                 return;
@@ -458,12 +402,16 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    startActivityForResult(intent, Constants.RequestCodes.VLC);
+                    if (model.getRunning()) {
+                        unlockOrientation();
+                        startActivityForResult(intent, Constants.RequestCodes.VLC);
+                    }
                 }
             }, 4000);
         } else {
             Log.e(TAG, "launchNextTest was called but running is false.");
         }
+        Log.w(TAG, "launchNextTest: end");
     }
 
     void startResultPage(String name) {
@@ -480,10 +428,11 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     private void onTestsFinished(List<TestInfo>[] results) {
         Log.w(TAG, "onTestsFinished: ");
-        finalResults = TestInfo.mergeTests(results);
+        ArrayList<TestInfo> finalResults = TestInfo.mergeTests(results);
         dismissDialog();
-        running = false;
+        model.setRunning(false);
         ProgressSaver.discard(this);
+        unlockOrientation();
         Util.runInBackground(new Runnable() {
             @Override
             public void run() {
@@ -505,55 +454,47 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     }
 
-    /**
-     * Save all the fields of the current instance
-     *
-     * @param savedInstanceState Bundle in which we save said data
-     */
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(STATE_RUNNING, running);
-        savedInstanceState.putSerializable(STATE_TEST_FILES, (Serializable) testFiles);
-        savedInstanceState.putInt(STATE_TEST_INDEX, testIndex.ordinal());
-        savedInstanceState.putInt(STATE_FILE_INDEX, fileIndex);
-        savedInstanceState.putInt(STATE_TEST_NUMBER, numberOfTests);
-        savedInstanceState.putInt(STATE_CUR_LOOP_NUMBER, loopNumber);
-        savedInstanceState.putSerializable(STATE_RESULT_TEST, (Serializable) resultsTest);
-        savedInstanceState.putSerializable(STATE_LAST_TEST_INFO, lastTestInfo);
-    }
-
-    /**
-     * Restore all the members of the current instance previously saved inside a Bundle
-     *
-     * @param savedInstanceState Bundle from which we retrieve said data
-     */
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        testFiles = (List<MediaInfo>) savedInstanceState.getSerializable(STATE_TEST_FILES);
-        testIndex = TEST_TYPES.values()[savedInstanceState.getInt(STATE_TEST_INDEX)];
-        fileIndex = savedInstanceState.getInt(STATE_FILE_INDEX);
-        numberOfTests = savedInstanceState.getInt(STATE_TEST_NUMBER);
-        loopNumber = savedInstanceState.getInt(STATE_CUR_LOOP_NUMBER);
-        resultsTest = (List<TestInfo>[]) savedInstanceState.getSerializable(STATE_RESULT_TEST);
-        lastTestInfo = (TestInfo) savedInstanceState.getSerializable(STATE_LAST_TEST_INFO);
-    }
-
     private String progressToString() {
-        int max = testFiles.size() * 4 * numberOfTests;
-        double progress = ((fileIndex - 1)* 4 * loopNumber + testIndex.ordinal() + 1) / (double)max* 100d;
+        int max = model.getTestFiles().size() * 4 * model.getLoopTotal();
+        double progress = ((model.getFileIndex() - 1)* 4 * model.getLoopNumber() +
+                model.getTestIndex().ordinal() + 1) / (double)max* 100d;
         return String.format(
                 getResources().getString(R.string.progress_text_format_loop),
-                FormatStr.format2Dec(progress), fileIndex,
-                testFiles.size(), testIndex.ordinal() + 1, loopNumber, numberOfTests);
+                FormatStr.format2Dec(progress), model.getFileIndex(),
+                model.getTestFiles().size(), model.getTestIndex().ordinal() + 1,
+                model.getLoopNumber(), model.getLoopTotal());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.w(TAG, "onPause: ");
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.w(TAG, "onConfigurationChanged: ");
+        super.onConfigurationChanged(newConfig);
+    }
+
+    private void lockOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+    }
+
+    private void unlockOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 
     @Override
     protected void onResume() {
+        Log.w(TAG, "onResume: ");
         super.onResume();
-        if (running) {
-            String name = testFiles.get(fileIndex).getName();
-            int max = testFiles.size() * 4 * numberOfTests;
-            double progress = ((fileIndex - 1) * 4 * loopNumber + testIndex.ordinal() + 1) / (double) max * 100d;
+        if (model.getRunning()) {
+            lockOrientation();
+            String name = model.getTestFiles().get(model.getFileIndex()).getName();
+            int max = model.getTestFiles().size() * 4 * model.getLoopTotal();
+            double progress = ((model.getFileIndex() - 1) * 4 * model.getLoopNumber() +
+                    model.getTestIndex().ordinal() + 1) / (double) max * 100d;
             updateProgress(progress, progressToString(), name);
 
             // -2 isn't return by vlc-android
@@ -563,7 +504,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 fillCurrentTestInfo(mData, mResultCode);
                 /* case where no screenshots */
                 /* if screenshots, launchNextTest called from Screenshot Validation thread */
-                if (testIndex.isScreenshot() && mResultCode == Constants.ResultCodes.RESULT_OK) {
+                if (model.getTestIndex().isScreenshot() && mResultCode == Constants.ResultCodes.RESULT_OK) {
                     mResultCode = -2;
                     testScreenshot();
                 } else {

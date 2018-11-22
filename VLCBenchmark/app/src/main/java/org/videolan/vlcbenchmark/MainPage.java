@@ -115,7 +115,7 @@ public class MainPage extends VLCWorkerModel implements
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
-            if (running) {
+            if (model.getRunning()) {
                 startProgressDialog();
             }
         }
@@ -170,7 +170,7 @@ public class MainPage extends VLCWorkerModel implements
      * is no longer needed.
      */
     public Unit cancelBench() {
-        running = false;
+        model.setRunning(false);
         progressDialog.dismiss();
         progressDialog = null;
         Log.i(TAG, "Benchmark was stopped by the user");
@@ -202,7 +202,7 @@ public class MainPage extends VLCWorkerModel implements
 
     @Override
     protected void onStart() {
-        if (running && progressDialog == null) {
+        if (model.getRunning() && progressDialog == null) {
             startProgressDialog();
         }
         super.onStart();
