@@ -23,9 +23,6 @@ package org.videolan.vlcbenchmark;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.*;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -44,6 +41,12 @@ import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.UploadResultsTask;
 
 import java.util.ArrayList;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 

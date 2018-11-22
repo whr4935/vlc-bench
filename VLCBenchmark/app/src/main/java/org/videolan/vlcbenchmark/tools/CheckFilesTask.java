@@ -23,7 +23,7 @@ package org.videolan.vlcbenchmark.tools;
 
 import android.app.AlertDialog;
 import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 

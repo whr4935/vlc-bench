@@ -23,7 +23,7 @@ package org.videolan.vlcbenchmark.tools;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;

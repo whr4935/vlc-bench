@@ -22,9 +22,9 @@
 package org.videolan.vlcbenchmark;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.ViewTreeObserver;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  *  Class intented to instanciate an GLSurfaceView

@@ -33,10 +33,8 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.UiThread;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.UiThread;
 import android.util.Log;
-import android.view.View;
 
 import org.json.JSONException;
 import org.videolan.vlcbenchmark.tools.FormatStr;
@@ -55,6 +53,10 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 /**
  * Created by penava_b on 16/08/16.
@@ -313,7 +315,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
              mData = data;
              mResultCode = resultCode;
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
-            android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
             fragment.onActivityResult(requestCode, resultCode, data);
         }
     }
