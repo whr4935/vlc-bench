@@ -26,9 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,9 +62,6 @@ import androidx.lifecycle.ViewModelProviders;
  * <p>
  * Main class of the project.
  * This class handle the whole logic/algorithm side of the application.
- * <p>
- * It launches BenchService and retrieve the List<MediaInfo> from its result;
- * but also handles the launch of VLC's BenchActivity, the retrieval of its results and their interpretation.
  * <p>
  * It extends from Activity yet it doesn't touch anything related to UI except {@link VLCWorkerModel#onActivityResult(int, int, Intent)}
  * and at some specific points the termination of the activity.
@@ -132,11 +127,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     /**
      * Entry point of the class.
-     * Calling this method will result in the creation and launch of {@link org.videolan.vlcbenchmark.service.BenchService}.
-     * Launch that will result, if everything goes well, in the call of {@link VLCWorkerModel#doneReceived(List)} which will
-     * start VLC.
+     * Calling this method will initiate benchmark variables and then start vlc.
      *
      * @param numberOfTests number of repetition of all the tests. must be 1 or 3 other values are ignored.
+     * @param previousTest testResults of a previous interrupted benchmark, or null if starting from scratch.
      */
     @UiThread
     final public void launchTests(int numberOfTests, List<TestInfo>[] previousTest) {
@@ -163,8 +157,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             model.setFileIndex(model.testResults[model.getLoopNumber()].size());
         }
         model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
-        Log.w(TAG, "launchTests: " + model.testIndex + " - " + model.testIndex.ordinal());
-
         MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
         try {
             Intent intent = createIntentForVlc(currentFile);
@@ -190,7 +182,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @param files list of metadata for all the video/media to test.
      */
     public void setBenchmarkFiles(List<MediaInfo> files) {
-        Log.w(TAG, "setBenchmarkFiles: ");
         model.testFiles = files;
         model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
     }
@@ -257,7 +248,11 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
              mResultCode = resultCode;
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_page_fragment_holder);
-            fragment.onActivityResult(requestCode, resultCode, data);
+            if (fragment != null) {
+                fragment.onActivityResult(requestCode, resultCode, data);
+            } else {
+                Log.e(TAG, "onActivityResult: GOOGLE_CONNECTION: fragment is null");
+            }
         }
     }
 
@@ -323,7 +318,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * <p>
      * Every time said conditions are not met a counter is incremented.
      * At the end of the Thread we update call {@link TestInfo#setBadScreenshot(double, boolean)} with said number
-     * and call {@link VLCWorkerModel#launchTests(int)} on the UI thread.
+     * and call {@link VLCWorkerModel#launchNextTest()} on the UI thread.
      */
     private void testScreenshot() {
         final String screenshotFolder = FileHandler.getFolderStr(FileHandler.screenshotFolder);
@@ -346,12 +341,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                         Log.e(TAG, "Failed to delete screenshot");
                 }
                 model.lastTestInfo.setBadScreenshot(100.0 * badScreenshots / numberOfScreenshot, model.getTestIndex().isSoftware());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        launchNextTest();
-                    }
-                });
+                runOnUiThread(() -> launchNextTest());
             }
         }.start();
     }
@@ -367,11 +357,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * Otherwise we launch VLC's BenchActivity with the counters' new values.
      */
     private void launchNextTest() {
-        Log.w(TAG, "launchNextTest: running: " + model.getRunning());
         if (model.getRunning()) {
             if (model.getTestIndex() == TestTypes.HARDWARE_PLAYBACK) {
                 model.testResults[model.getLoopNumber()].add(model.lastTestInfo);
-                model.lastTestInfo = null;
                 model.setFileIndex(model.getFileIndex() + 1);
                 if (model.getFileIndex() >= model.getTestFiles().size()) {
                     model.setLoopNumber(model.getLoopNumber() + 1);
@@ -383,14 +371,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 }
                 ProgressSaver.save(this, model.testResults);
             }
-            Log.w(TAG, "launchNextTest: " + Thread.currentThread().getName());
-            Log.w(TAG, "launchNextTest: testIndex: " + model.getTestIndex() + " - " + model.getTestIndex().ordinal());
             model.setTestIndex(model.getTestIndex().next());
-            Log.w(TAG, "launchNextTest: testIndex: " + model.getTestIndex() + " - " + model.getTestIndex().ordinal());
             MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
             final Intent intent = createIntentForVlc(currentFile);
             if (intent == null) {
-                Log.e(TAG, "launchNextTest: " + getString(R.string.dialog_text_invalid_file));
                 dismissDialog();
                 model.setRunning(false);
                 new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
@@ -399,19 +383,14 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             }
             // Add delay for vlc to finish correctly
             Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (model.getRunning()) {
-                        unlockOrientation();
-                        startActivityForResult(intent, Constants.RequestCodes.VLC);
-                    }
+            handler.postDelayed(() -> {
+                if (model.getRunning()) {
+                    startActivityForResult(intent, Constants.RequestCodes.VLC);
                 }
             }, 4000);
         } else {
             Log.e(TAG, "launchNextTest was called but running is false.");
         }
-        Log.w(TAG, "launchNextTest: end");
     }
 
     void startResultPage(String name) {
@@ -427,29 +406,19 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     }
 
     private void onTestsFinished(List<TestInfo>[] results) {
-        Log.w(TAG, "onTestsFinished: ");
         ArrayList<TestInfo> finalResults = TestInfo.mergeTests(results);
         dismissDialog();
         model.setRunning(false);
         ProgressSaver.discard(this);
-        unlockOrientation();
-        Util.runInBackground(new Runnable() {
-            @Override
-            public void run() {
-                String savedName = null;
-                try {
-                    savedName = JsonHandler.save(finalResults);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to save test : " + e.toString());
-                }
-                final String name = savedName;
-                Util.runInUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        startResultPage(name);
-                    }
-                });
+        Util.runInBackground(() -> {
+            String savedName = null;
+            try {
+                savedName = JsonHandler.save(finalResults);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to save test : " + e.toString());
             }
+            final String name = savedName;
+            Util.runInUiThread(() -> startResultPage(name));
         });
 
     }
@@ -466,31 +435,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        Log.w(TAG, "onPause: ");
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        Log.w(TAG, "onConfigurationChanged: ");
-        super.onConfigurationChanged(newConfig);
-    }
-
-    private void lockOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-    }
-
-    private void unlockOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
-
-    @Override
     protected void onResume() {
-        Log.w(TAG, "onResume: ");
         super.onResume();
         if (model.getRunning()) {
-            lockOrientation();
             String name = model.getTestFiles().get(model.getFileIndex()).getName();
             int max = model.getTestFiles().size() * 4 * model.getLoopTotal();
             double progress = ((model.getFileIndex() - 1) * 4 * model.getLoopNumber() +
