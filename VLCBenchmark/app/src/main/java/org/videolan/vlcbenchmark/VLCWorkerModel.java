@@ -423,13 +423,21 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     }
 
+    private int getMaxValue() {
+        return model.getTestFiles().size() * 4 * model.getLoopTotal();
+    }
+
+    private double getProgressValue() {
+        return ((model.getTestFiles().size() * 4 * (model.getLoopNumber())) +
+                (model.getFileIndex() * 4) +
+                (model.getTestIndex().ordinal() + 1)) /
+                (double)getMaxValue() * 100d;
+    }
+
     private String progressToString() {
-        int max = model.getTestFiles().size() * 4 * model.getLoopTotal();
-        double progress = ((model.getFileIndex() - 1)* 4 * model.getLoopNumber() +
-                model.getTestIndex().ordinal() + 1) / (double)max* 100d;
         return String.format(
                 getResources().getString(R.string.progress_text_format_loop),
-                FormatStr.format2Dec(progress), model.getFileIndex(),
+                FormatStr.format2Dec(getProgressValue()), model.getFileIndex(),
                 model.getTestFiles().size(), model.getTestIndex().ordinal() + 1,
                 model.getLoopNumber(), model.getLoopTotal());
     }
@@ -439,10 +447,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         super.onResume();
         if (model.getRunning()) {
             String name = model.getTestFiles().get(model.getFileIndex()).getName();
-            int max = model.getTestFiles().size() * 4 * model.getLoopTotal();
-            double progress = ((model.getFileIndex() - 1) * 4 * model.getLoopNumber() +
-                    model.getTestIndex().ordinal() + 1) / (double) max * 100d;
-            updateProgress(progress, progressToString(), name);
+            updateProgress(getProgressValue(), progressToString(), name);
 
             // -2 isn't return by vlc-android
             // small hack to stop the benchmark from restarting vlc if there is a
