@@ -54,11 +54,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 /**
- * Created by penava_b on 16/08/16.
  * <p>
  * Main class of the project.
  * This class handle the whole logic/algorithm side of the application.
@@ -80,11 +80,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
     protected BenchmarkViewModel model;
 
-    private static final String SCREENSHOTS_EXTRA = "org.videolan.vlc.gui.video.benchmark.TIMESTAMPS";
     private static final String BENCH_ACTIVITY = "org.videolan.vlc.gui.video.benchmark.BenchActivity";
-    private static final String SCREENSHOT_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_SCREENSHOTS";
-    private static final String PLAYBACK_ACTION = "org.videolan.vlc.gui.video.benchmark.ACTION_PLAYBACK";
-    private static final String INTENT_SCREENSHOT_DIR = "SCREENSHOT_DIR";
+    private static final String EXTRA_TIMESTAMPS = "extra_benchmark_timestamps";
+    private static final String EXTRA_ACTION_QUALITY = "extra_benchmark_action_quality";
+    private static final String EXTRA_ACTION_PLAYBACK = "extra_benchmark_action_playback";
+    private static final String EXTRA_SCREENSHOT_DIR = "extra_benchmark_screenshot_dir";
+    private static final String EXTRA_ACTION = "extra_benchmark_action";
+    private static final String EXTRA_BENCHMARK = "extra_benchmark";
+    private static final String EXTRA_HARDWARE = "extra_benchmark_disable_hardware";
+    private static final String EXTRA_FROM_START = "from_start";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
@@ -203,22 +207,32 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             return null;
         }
 
-        Intent intent = new Intent(model.getTestIndex().isScreenshot() ? SCREENSHOT_ACTION : PLAYBACK_ACTION)
-                .setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY))
-                .putExtra("item_location", Uri.parse("file://" + currentFile.getLocalUrl()));
-        if (model.getTestIndex().isSoftware())
-            intent = intent.putExtra("disable_hardware", true);
-        if (model.getTestIndex().isScreenshot())
-            intent = intent.putExtra(SCREENSHOTS_EXTRA, (Serializable) currentFile.getSnapshot());
-        intent.putExtra(INTENT_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
-        intent.putExtra("from_start", true);
+        File mediaFile = new File(currentFile.getLocalUrl());
+        Uri uri = FileProvider.getUriForFile(this,  "org.videolan.vlcbenchmark.benchmark.VLCBenchmarkFileProvider", mediaFile);
+
+        Intent vlcIntent = new Intent(Intent.ACTION_VIEW);
+        vlcIntent.setPackage(getString(R.string.vlc_package_name));
+        vlcIntent.setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY));
+        Log.w(TAG, "createIntentForVlc: " + mediaFile.getPath());
+        Log.w(TAG, "createIntentForVlc: uri: " + uri.getPath());
+        vlcIntent.setDataAndTypeAndNormalize(uri, "video/*");
+        vlcIntent.putExtra(EXTRA_BENCHMARK, true);
+        vlcIntent.putExtra(EXTRA_ACTION, model.getTestIndex().isScreenshot( ) ? EXTRA_ACTION_QUALITY : EXTRA_ACTION_PLAYBACK);
+        vlcIntent.putExtra(EXTRA_HARDWARE, model.getTestIndex().isSoftware());
+        if (model.getTestIndex().isScreenshot()) {
+            vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getSnapshot());
+            vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
+        }
+        vlcIntent.putExtra(EXTRA_FROM_START, true);
+        vlcIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (model.getTestIndex().isSoftware() && model.getTestIndex().isScreenshot())
             Log.d(TAG, "onActivityResult: ===========================================================================================================" );
         Log.i(TAG, "Testing: " + currentFile.getName());
         Log.i(TAG, "Testing mode: " + ( model.getTestIndex().isSoftware() ? "Software - " : "Hardware - " )
             + (model.getTestIndex().isScreenshot() ? "Quality" : "Playback"));
-        return intent;
+
+        return vlcIntent;
     }
 
     /**
