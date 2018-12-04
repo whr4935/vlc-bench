@@ -195,7 +195,6 @@ public class MainPage extends VLCWorkerModel implements
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt("MENU_ITEM_ID", mMenuItemId);
-        dismissDialog();
         super.onSaveInstanceState(savedInstanceState);
     }
 
