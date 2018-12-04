@@ -40,7 +40,8 @@
             android:layout_marginEnd="@dimen/default_margin"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_below="@+id/progress_dialog_current_sample"
-            android:background="@color/black"/>
+            android:progressBackgroundTint="@color/black"
+            android:progressTint="@color/colorPrimary"/>
 
         <TextView
             android:id="@+id/progress_dialog_text"
