@@ -159,6 +159,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                         fileData.setLocalUrl(localFile.getAbsolutePath());
                         unusedFiles.remove(localFile);
                         percent += (double)fileData.getSize() / (double)totalSize * 100d;
+                        publishProgress(new Pair<Double, Long>(percent, 0L));
                         continue;
                     } else {
                         FileHandler.delete(localFile);
