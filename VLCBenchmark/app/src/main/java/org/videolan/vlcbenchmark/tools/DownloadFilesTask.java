@@ -193,7 +193,6 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
         if (fragment instanceof MainPageFragment && values.length >= 1) {
             MainPageFragment mainPageFragment = (MainPageFragment) fragment;
             Pair<Double, Long> progressValues = values[0];
-            Log.w(TAG, "onProgressUpdate: progress value 1: " + progressValues.first);
             String progressString = String.format(
                     fragment.getString(R.string.dialog_text_download_progress),
                     FormatStr.format2Dec(progressValues.first), FormatStr.bitRateToString(progressValues.second));

@@ -33,6 +33,8 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import kotlin.Unit;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -175,6 +177,7 @@ public class MainPageFragment extends Fragment {
         progressDialog = new ProgressDialog(); // tmp
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_title_downloading);
+        progressDialog.setCancelCallback(this::cancelDownload);
         progressDialog.show(getFragmentManager(), "Download dialog");
     }
 
@@ -286,10 +289,11 @@ public class MainPageFragment extends Fragment {
         return view;
     }
 
-    public void cancelDownload() {
+    private Unit cancelDownload() {
         if (task != null) {
             task.cancel(true);
         }
+        return Unit.INSTANCE;
     }
 
     public void dismissDialog() {
