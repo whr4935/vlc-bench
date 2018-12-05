@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:src="@drawable/ic_icon_benchmark"
         android:scaleType="fitCenter"
-        android:adjustViewBounds="true"/>
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"/>
 
 </LinearLayout>
