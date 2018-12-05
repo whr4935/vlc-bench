@@ -37,7 +37,11 @@ class ProgressDialog : DialogFragment() {
         mCurrentSample = view.findViewById(R.id.progress_dialog_current_sample)
         mProgressBar = view.findViewById(R.id.progress_dialog_bar)
 
-        mTitle.setText(mTitleId)
+        if (mTitleId == 0) {
+            this.dismiss()
+        } else {
+            mTitle.setText(mTitleId)
+        }
         mProgressBar.progress = 0
         mProgressBar.max = 100
         mText.setText(R.string.default_percent_value)

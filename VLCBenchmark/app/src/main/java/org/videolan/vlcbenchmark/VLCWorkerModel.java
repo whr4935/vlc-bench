@@ -213,8 +213,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         Intent vlcIntent = new Intent(Intent.ACTION_VIEW);
         vlcIntent.setPackage(getString(R.string.vlc_package_name));
         vlcIntent.setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY));
-        Log.w(TAG, "createIntentForVlc: " + mediaFile.getPath());
-        Log.w(TAG, "createIntentForVlc: uri: " + uri.getPath());
         vlcIntent.setDataAndTypeAndNormalize(uri, "video/*");
         vlcIntent.putExtra(EXTRA_BENCHMARK, true);
         vlcIntent.putExtra(EXTRA_ACTION, model.getTestIndex().isScreenshot( ) ? EXTRA_ACTION_QUALITY : EXTRA_ACTION_PLAYBACK);
