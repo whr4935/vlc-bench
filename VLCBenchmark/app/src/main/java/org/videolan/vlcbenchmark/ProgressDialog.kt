@@ -37,6 +37,8 @@ class ProgressDialog : DialogFragment() {
         mCurrentSample = view.findViewById(R.id.progress_dialog_current_sample)
         mProgressBar = view.findViewById(R.id.progress_dialog_bar)
 
+        view.keepScreenOn = true
+
         if (mTitleId == 0) {
             this.dismiss()
         } else {
