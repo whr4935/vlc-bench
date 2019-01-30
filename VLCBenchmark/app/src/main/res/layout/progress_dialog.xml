@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
-            android:textAlignment="center"
+            android:textAlignment="textStart"
             android:freezesText="true"
             android:text="@string/default_percent_value"
             android:layout_marginTop="@dimen/default_margin"

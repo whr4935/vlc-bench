@@ -118,8 +118,8 @@
     </string>
 
     <string name="dialog_text_starting">Starting benchmark</string>
-    <string name="progress_text_format">%1$s %% | file %2$d/%3$d | test %4$d</string>
-    <string name="progress_text_format_loop">%1$s %% | file %2$d/%3$d | test %4$d | loop %5$d/%6$d</string>
+    <string name="progress_text_format">%1$s %%\nFile: %2$d/%3$d\nTest mode: %4$s</string>
+    <string name="progress_text_format_loop">%1$s %% \n File: %2$d/%3$d \n Test mode: %4$s | Loop %5$d/%6$d</string>
     <string name="dialog_text_file_check_progress">File: %1$d/%2$d </string>
 
     <!-- result list -->

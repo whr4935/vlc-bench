@@ -447,11 +447,18 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     }
 
     private String progressToString() {
-        return String.format(
-                getResources().getString(R.string.progress_text_format_loop),
-                FormatStr.format2Dec(getProgressValue()), model.getFileIndex(),
-                model.getTestFiles().size(), model.getTestIndex().ordinal() + 1,
-                model.getLoopNumber(), model.getLoopTotal());
+        if (model.getLoopTotal() > 1) {
+            return String.format(
+                    getResources().getString(R.string.progress_text_format_loop),
+                    FormatStr.format2Dec(getProgressValue()), model.getFileIndex() + 1,
+                    model.getTestFiles().size(), model.getTestIndex(),
+                    model.getLoopNumber() + 1, model.getLoopTotal());
+        } else {
+            return String.format(
+                    getResources().getString(R.string.progress_text_format),
+                    FormatStr.format2Dec(getProgressValue()), model.getFileIndex() + 1,
+                    model.getTestFiles().size(), model.getTestIndex());
+        }
     }
 
     @Override
