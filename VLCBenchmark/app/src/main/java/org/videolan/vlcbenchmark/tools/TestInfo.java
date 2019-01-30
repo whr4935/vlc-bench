@@ -173,7 +173,7 @@ public class TestInfo implements Serializable {
         double[] tmp = (isSoftware ? software : hardware);
 
         percentOfBadScreenshots[isSoftware ? SOFT : HARD] = percent;
-        tmp[QUALITY] = (1.0 - (percent / 100.0)) * tmp[QUALITY];
+        tmp[QUALITY] = Math.floor((1.0 - (percent / 100.0)) * tmp[QUALITY]);
     }
 
     public void setBadFrames(int number, boolean isSoftware) {
