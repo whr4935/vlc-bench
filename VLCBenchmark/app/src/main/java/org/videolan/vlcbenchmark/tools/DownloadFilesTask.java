@@ -47,6 +47,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
     private final String TAG = DownloadFilesTask.class.getName();
     private DialogInstance dialog;
     private List<MediaInfo> mFilesInfo;
+    private long mTotalFileSize = 0;
 
     private Fragment fragment;
 
@@ -61,11 +62,10 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
      *
      * @param file     a {@link File} to represent the distant local file that this method will create and fill
      * @param fileData metadata about the media.
-     * @param percent  current BenchService's progress ratio in percentage
-     * @param totalSize the total size of all file samples to download.
+     * @param downloadedSize the total size that was already downloaded
      * @throws IOException if the device is not connected to WIFI or LAN or if the download failed due to an IO error.
      */
-    private void downloadFile(File file, MediaInfo fileData, double percent, long totalSize) throws IOException {
+    private void downloadFile(File file, MediaInfo fileData, long downloadedSize) throws IOException {
         if (fragment.getActivity() == null) {
             Log.e(TAG, "downloadFile: null activity");
             dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_oups);
@@ -84,8 +84,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             urlStream = fileUrl.openStream();
             byte[] buffer = new byte[2048];
             int read;
-            int passedSize = 0; // one second download size for download speedometer
             long fromTime = System.nanoTime(), passedTime;
+            long passedSize = 0;
             while ((read = urlStream.read(buffer, 0, 2048)) != -1) {
                 if (isCancelled()) {
                     return;
@@ -96,8 +96,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 /* one second counter:
                    update interface for download percent and speed */
                 if (passedTime - fromTime >= 1_000_000_000) {
-                    percent += (double)passedSize / (double)totalSize * 100d;
-                    publishProgress(new Pair<Double, Long>(percent, (long)passedSize));
+                    downloadedSize += passedSize;
+                    publishProgress(new Pair<>(downloadedSize, passedSize));
                     fromTime = System.nanoTime();
                     passedSize = 0;
                 }
@@ -135,9 +135,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
         }
         try {
             mFilesInfo = JSonParser.getMediaInfos(fragment.getActivity());
-            long totalSize = 0;
             for (MediaInfo fileData : mFilesInfo) {
-                totalSize += fileData.getSize();
+                mTotalFileSize += fileData.getSize();
             }
             String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
             if (mediaFolderStr == null) {
@@ -147,7 +146,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             }
             File mediaFolder = new File(mediaFolderStr);
             HashSet<File> unusedFiles = new HashSet<>(Arrays.asList(mediaFolder.listFiles()));
-            double percent = 0d;
+            long downloadedSize = 0;
             for (MediaInfo fileData : mFilesInfo) {
                 if (isCancelled()) {
                     return false;
@@ -158,15 +157,15 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                     if (localFile.isFile() && FileHandler.checkFileSum(localFile, fileData.getChecksum())) {
                         fileData.setLocalUrl(localFile.getAbsolutePath());
                         unusedFiles.remove(localFile);
-                        percent += (double)fileData.getSize() / (double)totalSize * 100d;
-                        publishProgress(new Pair<Double, Long>(percent, 0L));
+                        downloadedSize += fileData.getSize();
+                        publishProgress(new Pair<>(downloadedSize, 0L));
                         continue;
                     } else {
                         FileHandler.delete(localFile);
                     }
                 }
-                downloadFile(localFile, fileData, percent, totalSize);
-                percent += (double)fileData.getSize() / (double)totalSize * 100d;
+                downloadFile(localFile, fileData, downloadedSize);
+                downloadedSize += fileData.getSize();
                 fileData.setLocalUrl(localFile.getAbsolutePath());
             }
             for (File toRemove : unusedFiles) {
@@ -192,11 +191,15 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
         super.onProgressUpdate(values);
         if (fragment instanceof MainPageFragment && values.length >= 1) {
             MainPageFragment mainPageFragment = (MainPageFragment) fragment;
-            Pair<Double, Long> progressValues = values[0];
+            Pair<Long, Long> progressValues = values[0];
+            long downloadedSize = progressValues.first;
+            long downloadedSpeed = progressValues.second;
+            double percent = (double)downloadedSize / (double)mTotalFileSize * 100d;
             String progressString = String.format(
                     fragment.getString(R.string.dialog_text_download_progress),
-                    FormatStr.format2Dec(progressValues.first), FormatStr.bitRateToString(progressValues.second));
-            mainPageFragment.updateProgress(progressValues.first, progressString, "");
+                    FormatStr.format2Dec(percent), FormatStr.bitRateToString(downloadedSpeed),
+                    FormatStr.sizeToString(downloadedSize), FormatStr.sizeToString(mTotalFileSize));
+            mainPageFragment.updateProgress(percent, progressString, "");
         }
     }
 

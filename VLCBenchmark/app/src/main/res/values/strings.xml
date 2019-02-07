@@ -91,7 +91,7 @@
     <string name="dialog_text_initial_warning">VLCBenchmark will extensively test your phone\'s video capabilities.\n\nIt will download a large amount of files and will run for several hours.\nFurthermore, it will need the permission to access external storage"</string>
     <string name="dialog_text_error_permission">This application can\'t operate without the requested permissions</string>
     <string name="dialog_text_download_warning">You are about to download %1$s of samples. Do you want to continue ?</string>
-    <string name="dialog_text_download_progress">%1$s %% (%2$s)</string>
+    <string name="dialog_text_download_progress">%1$s %% (%2$s)\n%3$s / %4$s</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>

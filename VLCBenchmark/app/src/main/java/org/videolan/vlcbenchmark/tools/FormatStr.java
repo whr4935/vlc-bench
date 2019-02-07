@@ -109,8 +109,6 @@ public class FormatStr {
     public static String sizeToString(long size) {
         String unit;
         double prettySize;
-        Log.w(TAG, "sizeToString: size: " + size);
-        Log.w(TAG, "sizeToString: size % 1_000_000_000: " + size / 1_000_000_000 );
         if (size / 1_000_000_000 > 0) {
             unit = "Go";
             prettySize = size / 1_000_000_000d;
