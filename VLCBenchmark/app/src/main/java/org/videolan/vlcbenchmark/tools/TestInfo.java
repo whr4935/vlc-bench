@@ -276,13 +276,17 @@ public class TestInfo implements Serializable {
     }
 
     public JSONObject jsonDump() throws JSONException {
+        int[] jsonSoftware = {(int)software[QUALITY], (int)software[PLAYBACK]};
+        int[] jsonHardware = {(int)hardware[QUALITY], (int)hardware[PLAYBACK]};
+        int[] jsonPercent = {(int)percentOfBadScreenshots[QUALITY],
+                (int)percentOfBadScreenshots[PLAYBACK]};
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name", name);
-        jsonObject.put("hardware_score", new JSONArray(hardware));
-        jsonObject.put("software_score", new JSONArray(software));
+        jsonObject.put("hardware_score", new JSONArray(jsonHardware));
+        jsonObject.put("software_score", new JSONArray(jsonSoftware));
         jsonObject.put("loop_number", loopNumber);
         jsonObject.put("frames_dropped", new JSONArray(framesDropped));
-        jsonObject.put("percent_of_bad_screenshot", new JSONArray(percentOfBadScreenshots));
+        jsonObject.put("percent_of_bad_screenshot", new JSONArray(jsonPercent));
         jsonObject.put("number_of_warning", new JSONArray(numberOfWarnings));
         JSONArray array = new JSONArray();
         array.put(new JSONArray(crashed[0]));
