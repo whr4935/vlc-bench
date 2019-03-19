@@ -23,7 +23,11 @@ class VLCProxy {
             }
 
             if (i < vals1.size && i < vals2.size) {
-                val diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]))
+                // Removes potential "-RCx" at the end of the version string
+                val cmp1 = vals1[i].split("-")[0]
+                val cmp2 = vals2[i].split("-")[0]
+
+                val diff = Integer.valueOf(cmp1).compareTo(Integer.valueOf(cmp2))
                 return Integer.signum(diff)
             }
 
