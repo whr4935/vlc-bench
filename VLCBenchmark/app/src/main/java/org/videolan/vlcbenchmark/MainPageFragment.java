@@ -97,7 +97,7 @@ public class MainPageFragment extends Fragment {
             }
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_missing_vlc))
-                    .setMessage(getResources().getString(R.string.dialog_text_missing_vlc))
+                    .setMessage(String.format(getResources().getString(R.string.dialog_text_missing_vlc), BuildConfig.VLC_VERSION))
                     .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override

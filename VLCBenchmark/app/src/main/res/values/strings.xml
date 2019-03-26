@@ -68,7 +68,7 @@
     <string name="dialog_text_downloading">Downloading &#8230;</string>
     <string name="dialog_text_testing">Testing &#8230;</string>
     <string name="dialog_text_download_error">There was an error during download</string>
-    <string name="dialog_text_missing_vlc">You need the latest VLC Media Player to start a benchmark.\nPlease install it to continue.</string>
+    <string name="dialog_text_missing_vlc">You need the latest VLC Media Player to start a benchmark (VLC-Android %1$s)a.\nPlease install it to continue.</string>
     <string name="dialog_text_oups">There was an unexpected problem</string>
     <string name="dialog_text_battery_warning">You only have %1$d %% of battery charge left, you should plug your phone</string>
     <string name="dialog_text_file_deletion_success">Deleted all benchmark results</string>
