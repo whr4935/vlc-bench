@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
@@ -172,6 +173,7 @@ public class MainPageFragment extends Fragment {
     }
 
     private void downloadFiles() {
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         task = new DownloadFilesTask(this);
         ((DownloadFilesTask)task).execute();
         progressDialog = new ProgressDialog(); // tmp
@@ -182,6 +184,7 @@ public class MainPageFragment extends Fragment {
     }
 
     public void onFilesDownloaded(List<MediaInfo> files) {
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         if (mTestNumber == 1 || mTestNumber == 3) {
             mListener.setBenchmarkFiles(files);
             int testNumber = mTestNumber;
@@ -292,6 +295,7 @@ public class MainPageFragment extends Fragment {
     private Unit cancelDownload() {
         if (task != null) {
             task.cancel(true);
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
         return Unit.INSTANCE;
     }
