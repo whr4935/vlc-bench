@@ -45,8 +45,7 @@
         <activity android:name=".ResultDetailPage" />
         <activity android:name=".BenchGLActivity" />
         <activity android:name=".AboutActivity" />
-        <activity
-            android:name=".SplashActivity">
+        <activity android:name=".onboarding.OnboardingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>

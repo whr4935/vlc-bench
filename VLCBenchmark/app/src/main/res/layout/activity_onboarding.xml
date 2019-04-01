@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+tools:context="org.videolan.vlcbenchmark.onboarding.OnboardingActivity"
+    android:focusable="false">
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/onboardding_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/onboarding_bottom_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:focusable="false"
+        android:descendantFocusability="blocksDescendants"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/onboarding_bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageButton
+            android:id="@+id/onboarding_btn_previous"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="fitXY"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_widget_onboarding_previous_w"
+            android:onClick="clickPreviousPage"
+            android:focusable="true"
+            android:contentDescription="@string/onboarding_btn_previous"
+            android:nextFocusUp="@id/onboarding_btn_previous"/>
+
+        <LinearLayout
+            android:id="@+id/onboarding_linearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/onboarding_btn_previous"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/onboarding_btn_previous"
+            android:focusable="false">
+
+            <View
+                android:id="@+id/onboarding_indicator_0"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/onboarding_position_circle" />
+
+            <View
+                android:id="@+id/onboarding_indicator_1"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/onboarding_position_circle" />
+
+            <View
+                android:id="@+id/onboarding_indicator_2"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/onboarding_position_circle" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/onboarding_btn_next"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/transparent"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_widget_onboarding_next_w"
+            android:onClick="clickNextPage"
+            android:focusable="true"
+            android:contentDescription="@string/onboarding_btn_next"
+            android:nextFocusUp="@id/onboarding_btn_next"/>
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:id="@+id/onboarding_btn_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/dialog_btn_done"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/text_very_imp_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="invisible"
+            android:onClick="clickDone"
+            android:focusable="true"
+            android:nextFocusUp="@id/onboarding_btn_done"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

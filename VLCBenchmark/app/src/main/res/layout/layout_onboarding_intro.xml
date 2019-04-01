@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout_onboarding_intro"
+    android:padding="@dimen/default_margin"
+    android:focusable="false"
+    android:descendantFocusability="blocksDescendants"
+    >
+
+    <TextView
+        android:id="@+id/onboarding_title_intro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/onboarding_title_intro"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/text_title_size"
+        android:textStyle="bold"
+        android:layout_margin="@dimen/default_margin"
+        android:paddingTop="@dimen/default_margin"
+        />
+
+    <ImageView
+        android:id="@+id/onboarding_img_intro"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/ic_icon_benchmark"
+        android:contentDescription="@string/onboarding_img_intro"
+        android:scaleType="fitXY"
+        android:layout_below="@id/onboarding_title_intro"
+        android:layout_centerInParent="true"
+        android:layout_margin="@dimen/default_margin"
+        />
+
+    <TextView
+        android:id="@+id/onboarding_text_intro"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/onboarding_text_intro"
+        android:gravity="center"
+        android:layout_below="@id/onboarding_img_intro"
+        android:textSize="@dimen/text_imp_size"
+        />
+
+
+</RelativeLayout>

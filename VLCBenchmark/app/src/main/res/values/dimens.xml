@@ -14,4 +14,9 @@
     <dimen name="text_imp_size">16sp</dimen>
     <dimen name="text_size">12sp</dimen>
 
+    <!-- onboarding -->
+    <dimen name="unselected_indicator">12dp</dimen>
+    <dimen name="selected_indicator">20dp</dimen>
+    <dimen name="indicator_margin">2dp</dimen>
+
 </resources>

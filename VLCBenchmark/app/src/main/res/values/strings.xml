@@ -98,6 +98,7 @@
     <string name="dialog_btn_cancel">Cancel</string>
     <string name="dialog_btn_ok">OK</string>
     <string name="dialog_btn_discard">Discard</string>
+    <string name="dialog_btn_done">Done</string>
 
     <!-- main page -->
     <string name="specs_title">DEVICE</string>
@@ -143,6 +144,19 @@
     <string name="result_video_track_lost">VLC continues playback, but for audio track only. (Audio file detected or user chose to)</string>
     <string name="result_vlc_crash">VLC Benchmark has crashed</string>
     <string name="result_unknown">Unknown problem</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_intro">Welcome</string>
+    <string name="onboarding_img_intro">Onboarding introduction icon</string>
+    <string name="onboarding_text_intro">VLCBenchmark will extensively test your phone\'s video capabilities by playing many video samples using VLC Android\n\nIt is better to use a new device for this, as an old one would see its performance impacted by use.</string>
+    <string name="onboarding_title_download">File download</string>
+    <string name="onboarding_img_download">Onboarding download icon</string>
+    <string name="onboarding_text_download">To run tests, VLC Benchmark will need to download a large amount of files (approximately 4GB). Because of that, we have to request Read and Write permission.</string>
+    <string name="onboarding_title_warnings">Warning</string>
+    <string name="onboarding_img_warnings">Onboarding warnings icon</string>
+    <string name="onboarding_text_warnings">This benchmark takes around 2h30 to run because of the amount of samples to test. You should to keep you phone connected to a power supply\n\nThis benchmark may cause your telephone to reboot.</string>
+    <string name="onboarding_btn_previous">Previous button</string>
+    <string name="onboarding_btn_next">Next button</string>q
 
     <string name="server_client_id">226055421863-nihio8lr2m2o4fh68pgd0c2qh9l9s2s3.apps.googleusercontent.com</string>
     <string name="title_activity_splash">SplashActivity</string>
