@@ -53,6 +53,25 @@ public class FileHandler {
         return folderStr;
     }
 
+    // Adding a nomedia to the media folder stops the vlc medialibrary from indexing the files
+    // in the folder. Stops the benchmark from polluting the user's vlc library
+    public static void setNoMediaFile() {
+        String path = getFolderStr(mediaFolder);
+        if (path == null) {
+            Log.e(TAG, "setNoMediaFile: path is null");
+            return;
+        }
+        path += ".nomedia";
+        File nomediafile = new File(path);
+        try {
+            if (!nomediafile.createNewFile()) {
+                Log.e(TAG, "setNoMediaFile: nomedia file was not created");
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "setNoMediaFile: failed to create nomedia file: " + e.toString());
+        }
+    }
+
     public static boolean checkFolderLocation(String name) {
         File folder = new File(name);
         boolean ret = true;

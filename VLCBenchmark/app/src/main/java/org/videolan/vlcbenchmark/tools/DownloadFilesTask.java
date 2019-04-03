@@ -134,6 +134,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             return false;
         }
         try {
+            // Add nomedia file to stop vlc medialibrary from indexing the benchmark files
+            FileHandler.setNoMediaFile();
             mFilesInfo = JSonParser.getMediaInfos(fragment.getActivity());
             for (MediaInfo fileData : mFilesInfo) {
                 mTotalFileSize += fileData.getSize();
@@ -160,7 +162,9 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                         downloadedSize += fileData.getSize();
                         publishProgress(new Pair<>(downloadedSize, 0L));
                         continue;
-                    } else {
+                    } else if (!localFile.getPath().contains(".nomedia")) {
+                        // Check not to remove the nomedia file
+                        FileHandler.delete(localFile);
                         FileHandler.delete(localFile);
                     }
                 }
@@ -169,7 +173,10 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 fileData.setLocalUrl(localFile.getAbsolutePath());
             }
             for (File toRemove : unusedFiles) {
-                FileHandler.delete(toRemove);
+                // Check not to remove the nomedia file
+                if (!toRemove.getPath().contains(".nomedia")) {
+                    FileHandler.delete(toRemove);
+                }
             }
         } catch (ConnectException e) {
             Log.e(TAG, "downloadFiles: " + e.toString());
