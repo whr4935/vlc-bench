@@ -93,6 +93,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
 
+    private static final String STATE_RUNNING = "STATE_RUNNING";
+    private static final String STATE_TEST_FILES = "STATE_TEST_FILES";
+    private static final String STATE_TEST_INDEX = "STATE_TEST_INDEX";
+    private static final String STATE_FILE_INDEX = "STATE_FILE_INDEX";
+    private static final String STATE_LOOP_NUMBER = "STATE_LOOP_NUMBER";
+    private static final String STATE_TEST_RESULTS= "STATE_TEST_RESULTS";
+    private static final String STATE_LAST_TEST_INFO = "STATE_LAST_TEST_INFO";
+    private static final String STATE_LOOP_TOTAL = "STATE_LOOP_TOTAL";
+
     protected abstract boolean setCurrentFragment(int itemId);
 
     public abstract void dismissDialog();
@@ -160,6 +169,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             model.setLoopNumber(i - 1);
             model.setFileIndex(model.testResults[model.getLoopNumber()].size());
         }
+        String name = model.getTestFiles().get(model.getFileIndex()).getName();
+        model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
         model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
         try {
@@ -252,10 +263,6 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.RequestCodes.VLC) {
             Log.i(TAG, "onActivityResult: resultCode: " + resultCode );
-             if (model.getTestIndex().ordinal() == 0) {
-                 String name = model.getTestFiles().get(model.getFileIndex()).getName();
-                 model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
-             }
              mData = data;
              mResultCode = resultCode;
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
@@ -384,6 +391,10 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 ProgressSaver.save(this, model.testResults);
             }
             model.setTestIndex(model.getTestIndex().next());
+            if (model.testIndex.ordinal() == 0) {
+                String name = model.getTestFiles().get(model.getFileIndex()).getName();
+                model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
+            }
             MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
             final Intent intent = createIntentForVlc(currentFile);
             if (intent == null) {
@@ -486,4 +497,45 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (model.getRunning()) {
+            outState.putBoolean(STATE_RUNNING, model.getRunning());
+            outState.putSerializable(STATE_TEST_FILES, (Serializable) model.getTestFiles());
+            outState.putInt(STATE_TEST_INDEX, model.getTestIndex().ordinal());
+            outState.putInt(STATE_FILE_INDEX, model.getFileIndex());
+            outState.putInt(STATE_LOOP_NUMBER, model.getLoopNumber());
+            outState.putInt(STATE_LOOP_TOTAL, model.getLoopTotal());
+            outState.putSerializable(STATE_TEST_RESULTS, model.getTestResults());
+            outState.putSerializable(STATE_LAST_TEST_INFO, model.getLastTestInfo());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        List<MediaInfo> testFiles;
+        List<TestInfo> testResults[];
+        TestInfo lastTestInfo;
+
+        model.setRunning(savedInstanceState.getBoolean(STATE_RUNNING));
+        model.setTestIndex(TestTypes.values()[savedInstanceState.getInt(STATE_TEST_INDEX)]);
+        model.setFileIndex(savedInstanceState.getInt(STATE_FILE_INDEX));
+        model.setLoopNumber(savedInstanceState.getInt(STATE_LOOP_NUMBER));
+        model.setLoopTotal(savedInstanceState.getInt(STATE_LOOP_TOTAL));
+
+        testFiles = (List<MediaInfo>)savedInstanceState.getSerializable(STATE_TEST_FILES);
+        if (testFiles != null) {
+            model.setTestFiles(testFiles);
+        }
+        testResults = (List<TestInfo>[])savedInstanceState.getSerializable(STATE_TEST_RESULTS);
+        if (testResults != null) {
+            model.setTestResults(testResults);
+        }
+        lastTestInfo = (TestInfo)savedInstanceState.getSerializable(STATE_LAST_TEST_INFO);
+        if (lastTestInfo != null) {
+            model.setLastTestInfo(lastTestInfo);
+        }
+    }
 }

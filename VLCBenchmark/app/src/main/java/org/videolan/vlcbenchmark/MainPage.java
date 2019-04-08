@@ -198,12 +198,11 @@ public class MainPage extends VLCWorkerModel implements
         super.onSaveInstanceState(savedInstanceState);
     }
 
-
     @Override
-    protected void onStart() {
+    protected void onResume() {
         if (model.getRunning() && progressDialog == null) {
             startProgressDialog();
         }
-        super.onStart();
+        super.onResume();
     }
 }
