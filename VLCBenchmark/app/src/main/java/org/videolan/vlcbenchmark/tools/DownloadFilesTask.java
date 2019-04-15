@@ -202,11 +202,14 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             long downloadedSize = progressValues.first;
             long downloadedSpeed = progressValues.second;
             double percent = (double)downloadedSize / (double)mTotalFileSize * 100d;
+            String state = downloadedSpeed == 0 ?
+                    fragment.getString(R.string.dialog_text_download_checking_file) :
+                    fragment.getString(R.string.dialog_text_download_downloading);
             String progressString = String.format(
                     fragment.getString(R.string.dialog_text_download_progress),
                     FormatStr.format2Dec(percent), FormatStr.bitRateToString(downloadedSpeed),
                     FormatStr.sizeToString(downloadedSize), FormatStr.sizeToString(mTotalFileSize));
-            mainPageFragment.updateProgress(percent, progressString, "");
+            mainPageFragment.updateProgress(percent, progressString, state);
         }
     }
 
