@@ -51,6 +51,14 @@ android {
             resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
         }
     }
+
+    sourceSets.debug {
+        res.srcDirs = ['src/debug/res']
+    }
+    sourceSets.debug_prod {
+        res.srcDirs = ['src/debug/res']
+    }
+
     applicationVariants.all { variant ->
         //Custom APK name
         variant.outputs.all { output ->
