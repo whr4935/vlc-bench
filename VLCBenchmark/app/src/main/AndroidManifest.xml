@@ -54,7 +54,7 @@
         </activity>
         <provider
             android:name=".benchmark.VLCBenchmarkFileProvider"
-            android:authorities="org.videolan.vlcbenchmark.benchmark.VLCBenchmarkFileProvider"
+            android:authorities="${applicationId}.benchmark.VLCBenchmarkFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
