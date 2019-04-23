@@ -29,6 +29,7 @@ android {
             resValue "string", "file_location_url", "https://streams.videolan.org/benchmark/"
             resValue "string", "config_file_location_url", "https://streams.videolan.org/benchmark/config.json"
             resValue "string", "vlc_package_name", "org.videolan.vlc"
+            resValue "string", "server_client_id", "226055421863-b236djcm1n80tvs6oungnv3cog5pp9jp.apps.googleusercontent.com"
         }
         release_alpha.initWith(buildTypes.release)
         release_alpha {
@@ -41,6 +42,7 @@ android {
             resValue "string", "file_location_url", "ftp://" + apiAddress() + "/"
             resValue "string", "config_file_location_url", "ftp://" + apiAddress() + "/config.json"
             resValue "string", "vlc_package_name", "org.videolan.vlc.debug"
+            resValue "string", "server_client_id", "226055421863-pd9nfn0rj38bm389a6kv8v039c821bsf.apps.googleusercontent.com"
             debuggable true
         }
         // debug_prod is debug mode with the urls resources of release

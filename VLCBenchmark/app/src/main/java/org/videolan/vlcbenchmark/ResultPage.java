@@ -181,6 +181,8 @@ public class ResultPage extends AppCompatActivity {
             if (mGoogleConnectionHandler.handleSignInResult(data)) {
                 startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
                         Constants.RequestCodes.OPENGL);
+            } else {
+                Log.e(TAG, "onActivityResult: failed to log in google");
             }
         }
     }

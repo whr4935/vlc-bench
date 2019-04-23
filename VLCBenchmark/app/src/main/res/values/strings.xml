@@ -161,7 +161,6 @@
     <string name="onboarding_btn_previous">Previous button</string>
     <string name="onboarding_btn_next">Next button</string>q
 
-    <string name="server_client_id">226055421863-nihio8lr2m2o4fh68pgd0c2qh9l9s2s3.apps.googleusercontent.com</string>
     <string name="title_activity_splash">SplashActivity</string>
 
 </resources>
