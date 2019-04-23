@@ -22,6 +22,10 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -38,7 +42,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
 
     private final String TAG = UploadResultsTask.class.getName();
-    private DialogInstance dialog;
+    private DialogInstance dialog = null;
 
     private Activity activity;
 
@@ -65,7 +69,6 @@ public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
                 success = false;
             } else {
                 Log.i(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
-                dialog = new DialogInstance(R.string.dialog_title_success, R.string.dialog_text_upload_success);
                 success = true;
             }
             connection.disconnect();
@@ -96,7 +99,6 @@ public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
                 success = false;
             } else {
                 Log.i(TAG, "Api response: " + connection.getResponseCode() + " - " + connection.getResponseMessage());
-                dialog = new DialogInstance(R.string.dialog_title_success, R.string.dialog_text_upload_success);
                 success = true;
             }
             connection.disconnect();
@@ -131,10 +133,24 @@ public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
     }
 
     @Override
-    protected void onPostExecute(Boolean aBoolean) {
-        super.onPostExecute(aBoolean);
-        if (dialog != null) {
+    protected void onPostExecute(Boolean success) {
+        super.onPostExecute(success);
+        if (dialog != null && !success) {
             dialog.display(activity);
+        } else if (success) {
+            DialogInterface.OnClickListener websiteLink = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://bench.videolabs.io"));
+                    activity.startActivity(browserIntent);
+                }
+            };
+            new AlertDialog.Builder(activity)
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.dialog_text_upload_success)
+                    .setNeutralButton(R.string.dialog_btn_visit, websiteLink)
+                    .setNegativeButton(R.string.dialog_btn_continue, null)
+                    .show();
         }
     }
 }
