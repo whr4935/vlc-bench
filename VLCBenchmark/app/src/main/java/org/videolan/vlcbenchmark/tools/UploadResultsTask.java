@@ -31,6 +31,7 @@ import android.util.Log;
 
 import org.videolan.vlcbenchmark.BuildConfig;
 import org.videolan.vlcbenchmark.R;
+import org.videolan.vlcbenchmark.ResultPage;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -133,8 +134,17 @@ public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
     }
 
     @Override
+    protected void onCancelled() {
+        Log.w(TAG, "onCancelled: Result upload was cancelled");
+        super.onCancelled();
+    }
+
+    @Override
     protected void onPostExecute(Boolean success) {
         super.onPostExecute(success);
+        if (activity instanceof IUploadResultsTask) {
+            ((IUploadResultsTask)activity).dismissProgressDialog();
+        }
         if (dialog != null && !success) {
             dialog.display(activity);
         } else if (success) {
@@ -152,6 +162,10 @@ public class UploadResultsTask extends AsyncTask<String, Void, Boolean> {
                     .setNegativeButton(R.string.dialog_btn_continue, null)
                     .show();
         }
+    }
+
+    public interface IUploadResultsTask {
+        void dismissProgressDialog();
     }
 }
 

@@ -21,6 +21,8 @@
 
 package org.videolan.vlcbenchmark;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,7 +52,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
-public class ResultPage extends AppCompatActivity {
+public class ResultPage extends AppCompatActivity implements UploadResultsTask.IUploadResultsTask {
 
     private final static String TAG = ResultPage.class.getName();
 
@@ -61,6 +63,7 @@ public class ResultPage extends AppCompatActivity {
 
     private GoogleConnectionHandler mGoogleConnectionHandler;
     private UploadResultsTask uploadResultsTask;
+    private AlertDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +177,16 @@ public class ResultPage extends AppCompatActivity {
                 Log.e(TAG, e.toString());
                 return;
             }
+            progressDialog = new AlertDialog.Builder(this)
+                    .setView(R.layout.layout_upoad_progress_dialog)
+                    .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (uploadResultsTask != null) {
+                                uploadResultsTask.cancel(true);
+                            }
+                        }
+                    }).show();
             uploadResultsTask = new UploadResultsTask(this);
             uploadResultsTask.execute(res.toString());
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
@@ -184,6 +197,13 @@ public class ResultPage extends AppCompatActivity {
             } else {
                 Log.e(TAG, "onActivityResult: failed to log in google");
             }
+        }
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
         }
     }
 

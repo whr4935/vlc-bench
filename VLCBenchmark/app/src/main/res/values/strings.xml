@@ -58,6 +58,7 @@
     <string name="dialog_title_success">Success</string>
     <string name="dialog_title_previous_bench">Previous benchmark</string>
     <string name="dialog_title_hello">Hello</string>
+    <string name="dialog_title_upload_results">Uploading results &#8230;</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
@@ -126,6 +127,7 @@
     <string name="progress_text_format_loop">%1$s %% \n File: %2$d/%3$d \n Test mode: %4$s | Loop %5$d/%6$d</string>
     <string name="dialog_text_file_check_progress">File: %1$d/%2$d </string>
 
+
     <!-- result list -->
     <string name="score">Score: </string>
     <string name="result_score">%1$s</string>
@@ -159,7 +161,7 @@
     <string name="onboarding_img_warnings">Onboarding warnings icon</string>
     <string name="onboarding_text_warnings">This benchmark takes around 2h30 to run because of the amount of samples to test. You should to keep you phone connected to a power supply\n\nThis benchmark may cause your telephone to reboot.</string>
     <string name="onboarding_btn_previous">Previous button</string>
-    <string name="onboarding_btn_next">Next button</string>q
+    <string name="onboarding_btn_next">Next button</string>
 
     <string name="title_activity_splash">SplashActivity</string>
 
