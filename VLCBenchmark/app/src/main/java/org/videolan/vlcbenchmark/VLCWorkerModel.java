@@ -219,8 +219,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         }
 
         File mediaFile = new File(currentFile.getLocalUrl());
-        Uri uri = FileProvider.getUriForFile(this,  "org.videolan.vlcbenchmark.benchmark.VLCBenchmarkFileProvider", mediaFile);
-
+        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".benchmark.VLCBenchmarkFileProvider", mediaFile);
         Intent vlcIntent = new Intent(Intent.ACTION_VIEW);
         vlcIntent.setPackage(getString(R.string.vlc_package_name));
         vlcIntent.setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY));
