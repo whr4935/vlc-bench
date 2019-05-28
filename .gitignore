@@ -1,12 +1,14 @@
 VLCBenchmark/*.iml
-VLCBenchmark/app/*.iml
+*.iml
 VLCBenchmark/.gradle
-VLCBenchmark/local.properties
+local.properties
 VLCBenchmark/.idea/workspace.xml
 VLCBenchmark/.idea/libraries
 VLCBenchmark/.DS_Store
-VLCBenchmark/build
+build
 VLCBenchmark/captures
 samples
 screenshot.png
 snap*.png
+/.idea/
+/.gradle/
