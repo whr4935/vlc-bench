@@ -39,8 +39,8 @@ android {
         debug {
             applicationIdSuffix ".debug"
             resValue "string", "build_api_address", "http://" + apiAddress() + ":8080/benchmarks"
-            resValue "string", "file_location_url", "ftp://" + apiAddress() + "/"
-            resValue "string", "config_file_location_url", "ftp://" + apiAddress() + "/config.json"
+            resValue "string", "file_location_url", fileLocationProtocol() + fileLocationUrl() + "/"
+            resValue "string", "config_file_location_url", configFileProtocol() + configFileUrl() + "/config.json"
             resValue "string", "vlc_package_name", "org.videolan.vlc.debug"
             resValue "string", "server_client_id", "226055421863-pd9nfn0rj38bm389a6kv8v039c821bsf.apps.googleusercontent.com"
             debuggable true
@@ -93,9 +93,35 @@ repositories {
     mavenCentral()
 }
 
-// Tmp solution to find the ip address of the computer building VLCBenchmark
-// ideally should use shell script + environment variables
-static def apiAddress() {
+def configFileProtocol() {
+    if (vcl_bench_config_file_protocol != "") {
+        return vcl_bench_config_file_protocol
+    }
+    return "ftp://"
+}
+
+def fileLocationProtocol() {
+    if (vcl_bench_config_file_protocol != "") {
+        return vcl_bench_file_location_protocol
+    }
+    return "ftp://"
+}
+
+def fileLocationUrl() {
+    if (vlc_bench_file_location_url != "") {
+        return vlc_bench_file_location_url
+    }
+    return apiAddress()
+}
+
+def configFileUrl() {
+    if (vlc_bench_config_file_url != "") {
+        return vlc_bench_config_file_url
+    }
+    return apiAddress()
+}
+
+def apiAddress() {
     InetAddress result = null
     Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces()
     while (interfaces.hasMoreElements()) {
