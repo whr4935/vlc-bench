@@ -23,9 +23,10 @@ package org.videolan.vlcbenchmark.tools;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.fragment.app.Fragment;
 
 import org.videolan.vlcbenchmark.MainPageFragment;
 import org.videolan.vlcbenchmark.R;
@@ -179,15 +180,15 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 }
             }
         } catch (ConnectException e) {
-            Log.e(TAG, "downloadFiles: " + e.toString());
+            Log.e(TAG, e.getMessage(), e);
             dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_connect);
             return false;
         } catch (IOException e) {
-            Log.e(TAG, "downloadFiles: " + e.toString());
+            Log.e(TAG, e.getMessage(), e);
             dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_io);
             return false;
         } catch (GeneralSecurityException e) {
-            Log.e(TAG, "downloadFiles: " + e.toString());
+            Log.e(TAG, e.getMessage(), e);
             dialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_download_error);
         }
         return true;

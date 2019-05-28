@@ -101,7 +101,7 @@ public class FileHandler {
      * @throws GeneralSecurityException if the algorithm is not found.
      * @throws IOException              if an IO error occurs while we read the file.
      */
-    public static boolean checkFileSum(File file, String checksum) throws GeneralSecurityException, IOException {
+    static boolean checkFileSum(File file, String checksum) throws GeneralSecurityException, IOException {
         MessageDigest algorithm;
         FileInputStream stream = null;
 
@@ -122,5 +122,19 @@ public class FileHandler {
             if (stream != null)
                 stream.close();
         }
+    }
+
+    public static void checkFileSumAsync(File file, String checksum, IOnFileCheckedListener listener) {
+        AppExecutors.INSTANCE.diskIO().execute(() -> {
+            try {
+                listener.onFileChecked(checkFileSum(file, checksum));
+            } catch (GeneralSecurityException|IOException e) {
+                listener.onFileChecked(false);
+            }
+        });
+    }
+
+    public interface IOnFileCheckedListener {
+        void onFileChecked(Boolean valid);
     }
 }

@@ -30,19 +30,24 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.UiThread;
 import android.util.Log;
+
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import org.json.JSONException;
 import org.videolan.vlcbenchmark.benchmark.BenchmarkViewModel;
 import org.videolan.vlcbenchmark.benchmark.TestTypes;
-import org.videolan.vlcbenchmark.tools.FormatStr;
-import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.FileHandler;
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
+import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ProgressSaver;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
 import org.videolan.vlcbenchmark.tools.TestInfo;
@@ -52,11 +57,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 
 /**
  * <p>
@@ -174,17 +174,22 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
         try {
-            Intent intent = createIntentForVlc(currentFile);
-            /* In case of failure due to an invalid file, stop benchmark, and display download page */
-            if (intent == null) {
-                dismissDialog();
-                Log.e(TAG, "launchTests: " + getString(R.string.dialog_text_invalid_file ));
-                new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
-                setCurrentFragment(R.id.home_nav);
-                return;
-            }
-            model.setRunning(true);
-            startActivityForResult(intent, Constants.RequestCodes.VLC);
+            createIntentForVlc(currentFile, new OnIntentCreatedListener() {
+                @Override
+                public void onItentCreated(Intent intent) {
+                    /* In case of failure due to an invalid file, stop benchmark, and display download page */
+                    if (intent == null) {
+                        dismissDialog();
+                        Log.e(TAG, "launchTests: " + getString(R.string.dialog_text_invalid_file ));
+                        new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(VLCWorkerModel.this);
+                        setCurrentFragment(R.id.home_nav);
+                        return;
+                    }
+                    model.setRunning(true);
+                    startActivityForResult(intent, Constants.RequestCodes.VLC);
+                }
+            });
+
         } catch (ActivityNotFoundException e) {
             new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_vlc_failed).display(this);
             Log.e(TAG, "launchTests: Failed to start VLC");
@@ -206,41 +211,48 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * @param currentFile metadata about the current file
      * @return a new Intent
      */
-    private Intent createIntentForVlc(MediaInfo currentFile) {
-        boolean validFile = false;
+    private void createIntentForVlc(MediaInfo currentFile, OnIntentCreatedListener listener) {
         try {
-            validFile = FileHandler.checkFileSum(new File(currentFile.getLocalUrl()), currentFile.getChecksum());
+            FileHandler.checkFileSumAsync(new File(currentFile.getLocalUrl()), currentFile.getChecksum(), valid -> {
+                if (!valid) {
+                    Log.e(TAG, "createIntentForVlc: Invalid file");
+                    listener.onItentCreated(null);
+                }
+
+                File mediaFile = new File(currentFile.getLocalUrl());
+                Uri uri = FileProvider.getUriForFile(VLCWorkerModel.this, BuildConfig.APPLICATION_ID + ".benchmark.VLCBenchmarkFileProvider", mediaFile);
+                Intent vlcIntent = new Intent(Intent.ACTION_VIEW);
+                vlcIntent.setPackage(getString(R.string.vlc_package_name));
+                vlcIntent.setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY));
+                vlcIntent.setDataAndTypeAndNormalize(uri, "video/*");
+                vlcIntent.putExtra(EXTRA_BENCHMARK, true);
+                vlcIntent.putExtra(EXTRA_ACTION, model.getTestIndex().isScreenshot( ) ? EXTRA_ACTION_QUALITY : EXTRA_ACTION_PLAYBACK);
+                vlcIntent.putExtra(EXTRA_HARDWARE, model.getTestIndex().isSoftware());
+                if (model.getTestIndex().isScreenshot()) {
+                    vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getSnapshot());
+                    vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
+                }
+                vlcIntent.putExtra(EXTRA_FROM_START, true);
+                vlcIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                if (model.getTestIndex().isSoftware() && model.getTestIndex().isScreenshot())
+                    Log.d(TAG, "onActivityResult: ===========================================================================================================" );
+                Log.i(TAG, "Testing: " + currentFile.getName());
+                Log.i(TAG, "Testing mode: " + ( model.getTestIndex().isSoftware() ? "Software - " : "Hardware - " )
+                        + (model.getTestIndex().isScreenshot() ? "Quality" : "Playback"));
+
+                listener.onItentCreated(vlcIntent);
+            });
         } catch (Exception e) {
             Log.e(TAG, "createIntentForVlc: " + e.toString() );
         }
-        if (!validFile) {
-            Log.e(TAG, "createIntentForVlc: Invalid file");
-            return null;
-        }
 
-        File mediaFile = new File(currentFile.getLocalUrl());
-        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".benchmark.VLCBenchmarkFileProvider", mediaFile);
-        Intent vlcIntent = new Intent(Intent.ACTION_VIEW);
-        vlcIntent.setPackage(getString(R.string.vlc_package_name));
-        vlcIntent.setComponent(new ComponentName(getString(R.string.vlc_package_name), BENCH_ACTIVITY));
-        vlcIntent.setDataAndTypeAndNormalize(uri, "video/*");
-        vlcIntent.putExtra(EXTRA_BENCHMARK, true);
-        vlcIntent.putExtra(EXTRA_ACTION, model.getTestIndex().isScreenshot( ) ? EXTRA_ACTION_QUALITY : EXTRA_ACTION_PLAYBACK);
-        vlcIntent.putExtra(EXTRA_HARDWARE, model.getTestIndex().isSoftware());
-        if (model.getTestIndex().isScreenshot()) {
-            vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getSnapshot());
-            vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
-        }
-        vlcIntent.putExtra(EXTRA_FROM_START, true);
-        vlcIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        listener.onItentCreated(null);
 
-        if (model.getTestIndex().isSoftware() && model.getTestIndex().isScreenshot())
-            Log.d(TAG, "onActivityResult: ===========================================================================================================" );
-        Log.i(TAG, "Testing: " + currentFile.getName());
-        Log.i(TAG, "Testing mode: " + ( model.getTestIndex().isSoftware() ? "Software - " : "Hardware - " )
-            + (model.getTestIndex().isScreenshot() ? "Quality" : "Playback"));
+    }
 
-        return vlcIntent;
+    public interface OnIntentCreatedListener {
+        void onItentCreated(Intent intent);
     }
 
     /**
@@ -395,21 +407,23 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
             }
             MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
-            final Intent intent = createIntentForVlc(currentFile);
-            if (intent == null) {
-                dismissDialog();
-                model.setRunning(false);
-                new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(this);
-                setCurrentFragment(R.id.home_nav);
-                return;
-            }
-            // Add delay for vlc to finish correctly
-            Handler handler = new Handler();
-            handler.postDelayed(() -> {
-                if (model.getRunning()) {
-                    startActivityForResult(intent, Constants.RequestCodes.VLC);
+            createIntentForVlc(currentFile, intent -> {
+                if (intent == null) {
+                    dismissDialog();
+                    model.setRunning(false);
+                    new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_invalid_file).display(VLCWorkerModel.this);
+                    setCurrentFragment(R.id.home_nav);
+                    return;
                 }
-            }, 4000);
+                // Add delay for vlc to finish correctly
+                Handler handler = new Handler();
+                handler.postDelayed(() -> {
+                    if (model.getRunning()) {
+                        startActivityForResult(intent, Constants.RequestCodes.VLC);
+                    }
+                }, 4000);
+            });
+
         } else {
             Log.e(TAG, "launchNextTest was called but running is false.");
         }
