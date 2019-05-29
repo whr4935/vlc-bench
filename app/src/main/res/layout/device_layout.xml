@@ -28,10 +28,13 @@
 
     <TextView
         android:id="@+id/specs_model_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/specs_model"/>
+        app:layout_constraintStart_toEndOf="@+id/specs_model"
+        app:layout_constraintTop_toTopOf="@id/specs_model" />
 
     <TextView
         android:id="@+id/specs_android"
@@ -43,10 +46,13 @@
 
     <TextView
         android:id="@+id/specs_android_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/specs_android"/>
+        app:layout_constraintStart_toEndOf="@+id/specs_android"
+        app:layout_constraintTop_toTopOf="@+id/specs_android" />
 
     <TextView
         android:id="@+id/specs_cpu"
@@ -58,10 +64,13 @@
 
     <TextView
         android:id="@+id/specs_cpu_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/specs_cpu"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/specs_cpu"
+        app:layout_constraintTop_toTopOf="@+id/specs_cpu" />
 
     <TextView
         android:id="@+id/specs_cpuspeed"
@@ -73,10 +82,13 @@
 
     <TextView
         android:id="@+id/specs_cpuspeed_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/specs_cpuspeed"/>
+        app:layout_constraintStart_toEndOf="@+id/specs_cpuspeed"
+        app:layout_constraintTop_toTopOf="@id/specs_cpuspeed" />
 
     <TextView
         android:id="@+id/specs_memory"
@@ -88,10 +100,13 @@
 
     <TextView
         android:id="@+id/specs_memory_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/specs_memory"/>
+        app:layout_constraintStart_toEndOf="@+id/specs_memory"
+        app:layout_constraintTop_toTopOf="@id/specs_memory" />
 
     <TextView
         android:id="@+id/specs_resolution"
@@ -103,9 +118,12 @@
 
     <TextView
         android:id="@+id/specs_resolution_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/specs_resolution"/>
+        app:layout_constraintStart_toEndOf="@+id/specs_resolution"
+        app:layout_constraintTop_toTopOf="@id/specs_resolution" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
