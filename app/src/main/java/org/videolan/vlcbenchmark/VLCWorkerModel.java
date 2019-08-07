@@ -245,10 +245,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             });
         } catch (Exception e) {
             Log.e(TAG, "createIntentForVlc: " + e.toString() );
+            listener.onItentCreated(null);
         }
-
-        listener.onItentCreated(null);
-
     }
 
     public interface OnIntentCreatedListener {
