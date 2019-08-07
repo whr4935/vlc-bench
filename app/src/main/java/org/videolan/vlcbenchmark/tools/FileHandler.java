@@ -127,9 +127,10 @@ public class FileHandler {
     public static void checkFileSumAsync(File file, String checksum, IOnFileCheckedListener listener) {
         AppExecutors.INSTANCE.diskIO().execute(() -> {
             try {
-                listener.onFileChecked(checkFileSum(file, checksum));
+                Boolean fileChecked = checkFileSum(file, checksum);
+                Util.runInUiThread(() -> listener.onFileChecked(fileChecked));
             } catch (GeneralSecurityException|IOException e) {
-                listener.onFileChecked(false);
+                Util.runInUiThread(() -> listener.onFileChecked(false));
             }
         });
     }
