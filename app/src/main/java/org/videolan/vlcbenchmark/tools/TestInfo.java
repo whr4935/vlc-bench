@@ -27,8 +27,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.videolan.vlcbenchmark.Constants;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +62,7 @@ public class TestInfo implements Serializable {
     private double[] percentOfBadScreenshots = {0d, 0d};
     private int[] numberOfWarnings = {0, 0};
     private String[][] crashed = {{"", ""}, {"", ""}};
+    private String[][] screenshots = {{"", "", ""}, {"", "", ""}};
 
     public TestInfo(String name, int loopNumber) {
         this.name = name;
@@ -71,7 +70,8 @@ public class TestInfo implements Serializable {
     }
 
     public TestInfo(String name, double[] software, double[] hardware, int[] framesDropped,
-                    double[] percentOfBadScreenshots, int[] numberOfWarnings, String[][] crashed) {
+                    double[] percentOfBadScreenshots, int[] numberOfWarnings, String[][] crashed,
+                    String[][] screenshots) {
         this.name = name;
         this.software = software;
         this.hardware = hardware;
@@ -80,6 +80,7 @@ public class TestInfo implements Serializable {
         this.percentOfBadScreenshots = percentOfBadScreenshots;
         this.numberOfWarnings = numberOfWarnings;
         this.crashed = crashed;
+        this.screenshots = screenshots;
     }
 
     public TestInfo(JSONObject jsonObject) {
@@ -114,6 +115,13 @@ public class TestInfo implements Serializable {
                     crashed[i][j] = subArray.getString(j);
                 }
             }
+            array = jsonObject.getJSONArray("screenshots");
+            for (int i = 0; i < array.length() ; ++i) {
+                JSONArray subArray = array.getJSONArray(i);
+                for (int j = 0 ; j < subArray.length() ; ++j) {
+                    screenshots[i][j] = subArray.getString(j);
+                }
+            }
         } catch (JSONException e){
             Log.e("VLCBench", e.toString());
             //TODO handle json exception
@@ -139,6 +147,17 @@ public class TestInfo implements Serializable {
     public static double getGlobalScore(ArrayList<TestInfo> list) {
 
         return getHardScore(list) + getSoftScore(list);
+    }
+
+    public ArrayList<String> getScreenshots() {
+        ArrayList<String> screenList = new ArrayList<>();
+        for (String[] screenArray : screenshots) {
+            for (String screen : screenArray) {
+                if (!screen.isEmpty())
+                    screenList.add(screen);
+            }
+        }
+        return screenList;
     }
 
     public String getName() {
@@ -169,11 +188,16 @@ public class TestInfo implements Serializable {
         return numberOfWarnings[testType == SOFT ? SOFT : HARD];
     }
 
-    public void setBadScreenshot(double percent, boolean isSoftware) {
+    public void setBadScreenshot(double percent, boolean isSoftware,
+                                 Integer[] indexList, String[] screenList) {
         double[] tmp = (isSoftware ? software : hardware);
 
         percentOfBadScreenshots[isSoftware ? SOFT : HARD] = percent;
         tmp[QUALITY] = Math.floor((1.0 - (percent / 100.0)) * tmp[QUALITY]);
+
+        for (int i = 0 ; i < indexList.length ; i++) {
+            screenshots[isSoftware ? SOFT : HARD][indexList[i]] = screenList[i];
+        }
     }
 
     public void setBadFrames(int number, boolean isSoftware) {
@@ -269,8 +293,9 @@ public class TestInfo implements Serializable {
             numberOfWarnings[TestInfo.QUALITY] /= results.length;
             numberOfWarnings[TestInfo.PLAYBACK] /= results.length;
 
+            //TODO add method to handle several screenshots
             test.add(new TestInfo(results[0].get(i).getName(), software, hardware,
-                    framesDropped, percentOfBadScreenshots, numberOfWarnings, crashed));
+                    framesDropped, percentOfBadScreenshots, numberOfWarnings, crashed, results[0].get(i).screenshots));
         }
         return test;
     }
@@ -288,6 +313,27 @@ public class TestInfo implements Serializable {
         jsonObject.put("frames_dropped", new JSONArray(framesDropped));
         jsonObject.put("percent_of_bad_screenshot", new JSONArray(jsonPercent));
         jsonObject.put("number_of_warning", new JSONArray(numberOfWarnings));
+        JSONArray array = new JSONArray();
+        array.put(new JSONArray(crashed[0]));
+        array.put(new JSONArray(crashed[1]));
+        jsonObject.put("crashed", array);
+        return jsonObject;
+    }
+
+    public JSONObject jsonDumpWithScreenshots() throws JSONException {
+        int[] jsonSoftware = {(int)software[QUALITY], (int)software[PLAYBACK]};
+        int[] jsonHardware = {(int)hardware[QUALITY], (int)hardware[PLAYBACK]};
+        int[] jsonPercent = {(int)percentOfBadScreenshots[QUALITY],
+                (int)percentOfBadScreenshots[PLAYBACK]};
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", name);
+        jsonObject.put("hardware_score", new JSONArray(jsonHardware));
+        jsonObject.put("software_score", new JSONArray(jsonSoftware));
+        jsonObject.put("loop_number", loopNumber);
+        jsonObject.put("frames_dropped", new JSONArray(framesDropped));
+        jsonObject.put("percent_of_bad_screenshot", new JSONArray(jsonPercent));
+        jsonObject.put("number_of_warning", new JSONArray(numberOfWarnings));
+        jsonObject.put("screenshots", new JSONArray(screenshots));
         JSONArray array = new JSONArray();
         array.put(new JSONArray(crashed[0]));
         array.put(new JSONArray(crashed[1]));

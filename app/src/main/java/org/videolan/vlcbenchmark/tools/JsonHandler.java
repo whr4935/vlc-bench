@@ -46,7 +46,7 @@ public class JsonHandler {
 
     public static String save(ArrayList<TestInfo> testInfoList) throws JSONException {
         JSONArray testInformation;
-        testInformation = getTestInformation(testInfoList);
+        testInformation = getTestInformation(testInfoList, true);
         FileOutputStream jsonFileOutputStream;
         String folderName = FileHandler.getFolderStr(FileHandler.jsonFolder);
         if (!FileHandler.checkFolderLocation(folderName)) {
@@ -138,7 +138,7 @@ public class JsonHandler {
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    public static JSONObject dumpResults(ArrayList<TestInfo> testInfoList, Intent gpuData) throws JSONException {
+    public static JSONObject dumpResults(ArrayList<TestInfo> testInfoList, Intent gpuData, Boolean withScreenshots) throws JSONException {
         JSONObject results = new JSONObject();
         JSONObject deviceInformation;
         JSONArray testInformation;
@@ -146,7 +146,7 @@ public class JsonHandler {
         double score_hardware = 0;
 
         deviceInformation = getDeviceInformation(gpuData);
-        testInformation = getTestInformation(testInfoList);
+        testInformation = getTestInformation(testInfoList, withScreenshots);
 
         for (TestInfo test : testInfoList) {
             score_software += test.getSoftware();
@@ -172,15 +172,21 @@ public class JsonHandler {
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    public static JSONArray getTestInformation(ArrayList<TestInfo> testInfoList) throws JSONException {
+    private static JSONArray getTestInformation(ArrayList<TestInfo> testInfoList, Boolean withScreenshot) throws JSONException {
         JSONArray testInfoArray = new JSONArray();
 
         for (TestInfo element : testInfoList) {
-            JSONObject testInfo = element.jsonDump();
+            JSONObject testInfo;
+            if (withScreenshot) {
+                testInfo = element.jsonDumpWithScreenshots();
+            } else {
+                testInfo = element.jsonDump();
+            }
             testInfoArray.put(testInfo);
         }
         return testInfoArray;
     }
+
 
     /**
      * Returns device information in a JSONObject.

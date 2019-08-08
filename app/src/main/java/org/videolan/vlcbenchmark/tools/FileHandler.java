@@ -124,6 +124,24 @@ public class FileHandler {
         }
     }
 
+    public static void deleteScreenshots() {
+        Util.runInBackground(new Runnable() {
+            @Override
+            public void run() {
+                File dir = new File(FileHandler.getFolderStr(screenshotFolder));
+                File[] files = dir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (!file.delete()) {
+                            Log.e("VLCBench", "Failed to delete sample " + file.getName());
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     public static void checkFileSumAsync(File file, String checksum, IOnFileCheckedListener listener) {
         AppExecutors.INSTANCE.diskIO().execute(() -> {
             try {

@@ -39,6 +39,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import org.json.JSONException;
+import org.videolan.vlcbenchmark.api.RetrofitInstance;
 import org.videolan.vlcbenchmark.benchmark.BenchmarkViewModel;
 import org.videolan.vlcbenchmark.benchmark.TestTypes;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
@@ -135,6 +136,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
         setupUiMembers(savedInstanceState);
 
+        RetrofitInstance.init(getString(R.string.build_api_address));
         GoogleConnectionHandler.getInstance();
     }
 
@@ -345,7 +347,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * and check their existence and validity.
      * <p>
      * Every time said conditions are not met a counter is incremented.
-     * At the end of the Thread we update call {@link TestInfo#setBadScreenshot(double, boolean)} with said number
+     * At the end of the Thread we update call {@link TestInfo#setBadScreenshot(double, boolean, []integer, []string)} with said number
      * and call {@link VLCWorkerModel#launchNextTest()} on the UI thread.
      */
     private void testScreenshot() {
@@ -357,18 +359,30 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             @Override
             public void run() {
                 int badScreenshots = 0;
+                ArrayList<Integer> indexList = new ArrayList<>();
+                ArrayList<String> screenList = new ArrayList<>();
                 for (int i = 0; i < numberOfScreenshot; i++) {
                     String filePath = screenshotFolder + "/" + SCREENSHOT_NAMING + i + ".png";
                     File file = new File(filePath);
-                    boolean exists;
-                    if (!(exists = file.exists()) ||
-                            !ScreenshotValidator.validateScreenshot(filePath, colors.get(i))) {
+                    if (!ScreenshotValidator.validateScreenshot(filePath, colors.get(i))) {
                         badScreenshots++;
+                        String fileName = model.getFileIndex() + "_" + model.testIndex.toString();
+                        fileName += "_" + i + ".png";
+                        File renamedFile = new File(screenshotFolder + "/" + fileName);
+                        if (file.renameTo(renamedFile)) {
+                            indexList.add(i);
+                            screenList.add(fileName);
+                        }
+                    } else {
+                        if (!file.delete())
+                            Log.e(TAG, "Failed to delete screenshots");
                     }
-                    if (exists && !file.delete())
-                        Log.e(TAG, "Failed to delete screenshot");
                 }
-                model.lastTestInfo.setBadScreenshot(100.0 * badScreenshots / numberOfScreenshot, model.getTestIndex().isSoftware());
+                model.lastTestInfo.setBadScreenshot(
+                        100.0 * badScreenshots / numberOfScreenshot,
+                        model.getTestIndex().isSoftware(), indexList.toArray(new Integer[0]),
+                        screenList.toArray(new String[0])
+                        );
                 runOnUiThread(() -> launchNextTest());
             }
         }.start();

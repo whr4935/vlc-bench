@@ -48,11 +48,4 @@ enum class TestTypes {
     fun isScreenshot(): Boolean {
         return ordinal % 2 == 0
     }
-
-    /**
-     * @return a human readable version of the enum's value by replacing underscores with spaces and passing the string to low case.
-     */
-    override fun toString(): String {
-        return super.toString().replace("_", " ").toLowerCase()
-    }
 }

@@ -32,15 +32,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.api.ApiCalls;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
-import org.videolan.vlcbenchmark.tools.UploadResultsTask;
 
 import java.util.ArrayList;
 
@@ -52,7 +52,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
-public class ResultPage extends AppCompatActivity implements UploadResultsTask.IUploadResultsTask {
+public class ResultPage extends AppCompatActivity {
 
     private final static String TAG = ResultPage.class.getName();
 
@@ -62,8 +62,6 @@ public class ResultPage extends AppCompatActivity implements UploadResultsTask.I
     private boolean hasSendData = true;
 
     private GoogleConnectionHandler mGoogleConnectionHandler;
-    private UploadResultsTask uploadResultsTask;
-    private AlertDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,47 +146,53 @@ public class ResultPage extends AppCompatActivity implements UploadResultsTask.I
         }
     }
 
+    JSONObject addGoogleUser(JSONObject jsonObject) throws JSONException{
+        if (mGoogleConnectionHandler != null && mGoogleConnectionHandler.getAccount() != null) {
+            jsonObject.put("email", mGoogleConnectionHandler.getAccount().getEmail());
+            return jsonObject;
+        } else {
+            if (mGoogleConnectionHandler == null) {
+                Log.d(TAG, "onActivityResult: mGoogleConnectionHandler is null");
+            } else {
+                Log.e(TAG, "onActivityResult: Failed to get google email");
+            }
+            Toast.makeText(this, R.string.dialog_text_err_google, Toast.LENGTH_LONG).show();
+            return null;
+        }
+    }
+
+    void prepareBenchmarkUpload(Boolean withScreenshots, Intent data) {
+        try {
+            JSONObject jsonObject = JsonHandler.dumpResults(results, data, withScreenshots);
+            jsonObject = addGoogleUser(jsonObject);
+            if (withScreenshots) {
+                ApiCalls.uploadBenchmarkWithScreenshots(this, jsonObject, results);
+            } else {
+                ApiCalls.uploadBenchmark(this, jsonObject);
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            Toast.makeText(this, R.string.toast_text_error_prep_upload, Toast.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
         mGoogleConnectionHandler.setGoogleSignInClient(this, this);
         if (requestCode == Constants.RequestCodes.OPENGL) {
-            JSONObject res;
-            try {
-                res = JsonHandler.dumpResults(results, data);
-                if (res == null) {
-                    Log.e(TAG, "onActivityResult: res is null");
-                    return;
-                }
-                if (mGoogleConnectionHandler != null && mGoogleConnectionHandler.getAccount() != null) {
-                    res.put("email", mGoogleConnectionHandler.getAccount().getEmail());
-                } else {
-                    if (mGoogleConnectionHandler == null) {
-                        Log.d(TAG, "onActivityResult: mGoogleConnectionHandler is null");
-                    } else {
-                        Log.e(TAG, "onActivityResult: Failed to get google email");
-                    }
-                    DialogInstance dialogInstance = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_google);
-                    dialogInstance.display(this);
-                    return;
-                }
-            } catch (JSONException e) {
-                Log.e(TAG, e.toString());
-                return;
-            }
-            progressDialog = new AlertDialog.Builder(this)
-                    .setView(R.layout.layout_upoad_progress_dialog)
-                    .setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (uploadResultsTask != null) {
-                                uploadResultsTask.cancel(true);
-                            }
-                        }
-                    }).show();
-            uploadResultsTask = new UploadResultsTask(this);
-            uploadResultsTask.execute(res.toString());
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.dialog_title_result_upload)
+                    .setMessage(R.string.dialog_text_result_upload)
+                    .setNegativeButton(R.string.dialog_btn_upload_with, (DialogInterface dialog, int which) ->
+                        prepareBenchmarkUpload(true, data)
+                    )
+                    .setNeutralButton(R.string.dialog_btn_upload_without, (DialogInterface dialog, int which) ->
+                        prepareBenchmarkUpload(false, data)
+                    )
+                    .show();
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
             if (mGoogleConnectionHandler.handleSignInResult(data)) {
@@ -201,13 +205,6 @@ public class ResultPage extends AppCompatActivity implements UploadResultsTask.I
     }
 
     @Override
-    public void dismissProgressDialog() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
@@ -215,6 +212,10 @@ public class ResultPage extends AppCompatActivity implements UploadResultsTask.I
         if (!hasSendData) {
             hasSendData = true;
             mGoogleConnectionHandler.signIn();
+            if (mGoogleConnectionHandler.isConnected()) {
+                startActivityForResult(new Intent(ResultPage.this, BenchGLActivity.class),
+                        Constants.RequestCodes.OPENGL);
+            }
         }
     }
 
@@ -222,14 +223,6 @@ public class ResultPage extends AppCompatActivity implements UploadResultsTask.I
     protected void onPause() {
         super.onPause();
         mGoogleConnectionHandler.unsetGoogleSignInClient();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (uploadResultsTask != null) {
-            uploadResultsTask.cancel(true);
-        }
     }
 
     @Override

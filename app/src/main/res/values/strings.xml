@@ -59,6 +59,7 @@
     <string name="dialog_title_previous_bench">Previous benchmark</string>
     <string name="dialog_title_hello">Hello</string>
     <string name="dialog_title_upload_results">Uploading results &#8230;</string>
+    <string name="dialog_title_result_upload">Result upload</string>
 
     <!-- dialog texts -->
     <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
@@ -95,6 +96,9 @@
     <string name="dialog_text_download_progress">%1$s %% (%2$s)\n%3$s / %4$s</string>
     <string name="dialog_text_download_downloading">Downloading: </string>
     <string name="dialog_text_download_checking_file">Checking file integrity: </string>
+    <string name="dialog_text_result_upload">Help us improve the benchmark results by uploading the screenshots taken during testing (this might take some time)</string>
+
+    <string name="toast_text_error_prep_upload">There was error while preparing the upload</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>
@@ -103,6 +107,8 @@
     <string name="dialog_btn_discard">Discard</string>
     <string name="dialog_btn_done">Done</string>
     <string name="dialog_btn_visit">Visit</string>
+    <string name="dialog_btn_upload_with">Upload with screenshots</string>
+    <string name="dialog_btn_upload_without">Upload without screenshots</string>
 
     <!-- main page -->
     <string name="specs_title">DEVICE</string>
