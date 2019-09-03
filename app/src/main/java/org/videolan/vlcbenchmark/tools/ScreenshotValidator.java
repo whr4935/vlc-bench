@@ -26,6 +26,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 
+import androidx.core.util.Pair;
+
 /**
  * ScreenshotValidator compares the screenshots taken during the benchmark
  * with the reference for the sample.
@@ -193,17 +195,17 @@ public class ScreenshotValidator {
      * @param reference RGB encoded int array of reference from the sample
      * @return color difference percentage between screenshot and reference
      */
-    public static boolean validateScreenshot(String filepath, int[] reference) {
+    public static Pair<Boolean, Integer> validateScreenshot(String filepath, int[] reference) {
         try {
             int[][] colorValues = getColorValues(filepath);
             int[][] colorReference = convertRGBintArray(reference);
             double diff = compareImageBlocks(colorValues, colorReference);
             Log.i(TAG, "validateScreenshot: screenshots difference percentage: " + diff);
-            return diff < MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT;
+            return new Pair<>(diff < MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT, (int)Math.floor(diff));
         } catch (RuntimeException e) {
             Log.e(TAG, "getValidityPercent has failed: ");
             e.printStackTrace();
-            return false;
+            return new Pair<>(false, -1);
         }
     }
 

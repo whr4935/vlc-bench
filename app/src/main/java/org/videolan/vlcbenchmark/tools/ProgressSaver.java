@@ -91,7 +91,7 @@ public class ProgressSaver {
             for (List<TestInfo> testInfo : testInfoList) {
                 JSONArray jsonTestResults = new JSONArray();
                 for (TestInfo result : testInfo) {
-                    JSONObject jsonResult = result.jsonDump();
+                    JSONObject jsonResult = result.jsonDumpWithScreenshots();
                     jsonTestResults.put(jsonResult);
                 }
                 jsonTestInformation.put(jsonTestResults);

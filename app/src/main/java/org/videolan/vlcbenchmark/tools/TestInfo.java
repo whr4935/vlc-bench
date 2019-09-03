@@ -36,6 +36,8 @@ import java.util.List;
  */
 public class TestInfo implements Serializable {
 
+    private final static String TAG = TestInfo.class.getName();
+
     public static final int QUALITY = 0; //screenshot
     public static final int PLAYBACK = 1; //bad frames
     public static final int SOFT = 0;
@@ -62,16 +64,25 @@ public class TestInfo implements Serializable {
     private double[] percentOfBadScreenshots = {0d, 0d};
     private int[] numberOfWarnings = {0, 0};
     private String[][] crashed = {{"", ""}, {"", ""}};
-    private String[][] screenshots = {{"", "", ""}, {"", "", ""}};
+    private String[][] screenshots;
+    private int[][] screenshotScores;
 
-    public TestInfo(String name, int loopNumber) {
+    public TestInfo(String name, int loopNumber, int screenshotNumber) {
         this.name = name;
         this.loopNumber = loopNumber;
+        screenshots = new String[2][screenshotNumber];
+        screenshotScores = new int[2][screenshotNumber];
+        for (int i = 0 ; i < screenshots.length ; i++) {
+            for (int j = 0 ; j < screenshotNumber ; j++) {
+                screenshots[i][j] = "";
+                screenshotScores[i][j] = -1;
+            }
+        }
     }
 
     public TestInfo(String name, double[] software, double[] hardware, int[] framesDropped,
                     double[] percentOfBadScreenshots, int[] numberOfWarnings, String[][] crashed,
-                    String[][] screenshots) {
+                    String[][] screenshots, int[][] screenshotScores) {
         this.name = name;
         this.software = software;
         this.hardware = hardware;
@@ -81,6 +92,7 @@ public class TestInfo implements Serializable {
         this.numberOfWarnings = numberOfWarnings;
         this.crashed = crashed;
         this.screenshots = screenshots;
+        this.screenshotScores = screenshotScores;
     }
 
     public TestInfo(JSONObject jsonObject) {
@@ -115,12 +127,29 @@ public class TestInfo implements Serializable {
                     crashed[i][j] = subArray.getString(j);
                 }
             }
-            array = jsonObject.getJSONArray("screenshots");
-            for (int i = 0; i < array.length() ; ++i) {
-                JSONArray subArray = array.getJSONArray(i);
-                for (int j = 0 ; j < subArray.length() ; ++j) {
-                    screenshots[i][j] = subArray.getString(j);
+            if (jsonObject.has("screenshots")) {
+                array = jsonObject.getJSONArray("screenshots");
+                screenshots = new String[2][array.getJSONArray(0).length()];
+                for (int i = 0; i < array.length(); ++i) {
+                    JSONArray subArray = array.getJSONArray(i);
+                    for (int j = 0; j < subArray.length(); ++j) {
+                        screenshots[i][j] = subArray.getString(j);
+                    }
                 }
+            } else {
+                Log.w(TAG, "TestInfo: missing screenshots attribute in test info json");
+            }
+            if (jsonObject.has("screenshots") || jsonObject.has("screenshot_scores")) {
+                array = jsonObject.getJSONArray("screenshot_scores");
+                screenshotScores = new int[2][array.getJSONArray(0).length()];
+                for (int i = 0; i < array.length(); ++i) {
+                    JSONArray subArray = array.getJSONArray(i);
+                    for (int j = 0; j < subArray.length(); ++j) {
+                        screenshotScores[i][j] = subArray.getInt(j);
+                    }
+                }
+            } else {
+                Log.w(TAG, "TestInfo: missing screenshot_scores attribute in test info json");
             }
         } catch (JSONException e){
             Log.e("VLCBench", e.toString());
@@ -189,7 +218,7 @@ public class TestInfo implements Serializable {
     }
 
     public void setBadScreenshot(double percent, boolean isSoftware,
-                                 Integer[] indexList, String[] screenList) {
+                                 Integer[] indexList, String[] screenList, Integer[] scoreList) {
         double[] tmp = (isSoftware ? software : hardware);
 
         percentOfBadScreenshots[isSoftware ? SOFT : HARD] = percent;
@@ -197,6 +226,7 @@ public class TestInfo implements Serializable {
 
         for (int i = 0 ; i < indexList.length ; i++) {
             screenshots[isSoftware ? SOFT : HARD][indexList[i]] = screenList[i];
+            screenshotScores[isSoftware ? SOFT : HARD][indexList[i]] = scoreList[i];
         }
     }
 
@@ -295,7 +325,8 @@ public class TestInfo implements Serializable {
 
             //TODO add method to handle several screenshots
             test.add(new TestInfo(results[0].get(i).getName(), software, hardware,
-                    framesDropped, percentOfBadScreenshots, numberOfWarnings, crashed, results[0].get(i).screenshots));
+                    framesDropped, percentOfBadScreenshots, numberOfWarnings, crashed,
+                    results[0].get(i).screenshots, results[0].get(i).screenshotScores));
         }
         return test;
     }
@@ -334,6 +365,7 @@ public class TestInfo implements Serializable {
         jsonObject.put("percent_of_bad_screenshot", new JSONArray(jsonPercent));
         jsonObject.put("number_of_warning", new JSONArray(numberOfWarnings));
         jsonObject.put("screenshots", new JSONArray(screenshots));
+        jsonObject.put("screenshot_scores", new JSONArray(screenshotScores));
         JSONArray array = new JSONArray();
         array.put(new JSONArray(crashed[0]));
         array.put(new JSONArray(crashed[1]));

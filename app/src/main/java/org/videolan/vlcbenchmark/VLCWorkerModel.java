@@ -35,6 +35,7 @@ import android.util.Log;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -172,7 +173,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             model.setFileIndex(model.testResults[model.getLoopNumber()].size());
         }
         String name = model.getTestFiles().get(model.getFileIndex()).getName();
-        model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
+        int screenshotNumber = model.getTestFiles().get(model.getFileIndex()).getTimestamps().size();
+        model.lastTestInfo = new TestInfo(name, model.getLoopNumber(), screenshotNumber);
         model.testIndex = TestTypes.SOFTWARE_SCREENSHOT;
         MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
         try {
@@ -231,7 +233,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 vlcIntent.putExtra(EXTRA_ACTION, model.getTestIndex().isScreenshot( ) ? EXTRA_ACTION_QUALITY : EXTRA_ACTION_PLAYBACK);
                 vlcIntent.putExtra(EXTRA_HARDWARE, model.getTestIndex().isSoftware());
                 if (model.getTestIndex().isScreenshot()) {
-                    vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getSnapshot());
+                    vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getTimestamps());
                     vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
                 }
                 vlcIntent.putExtra(EXTRA_FROM_START, true);
@@ -361,10 +363,12 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 int badScreenshots = 0;
                 ArrayList<Integer> indexList = new ArrayList<>();
                 ArrayList<String> screenList = new ArrayList<>();
+                ArrayList<Integer> scoreList = new ArrayList<>();
                 for (int i = 0; i < numberOfScreenshot; i++) {
                     String filePath = screenshotFolder + "/" + SCREENSHOT_NAMING + i + ".png";
                     File file = new File(filePath);
-                    if (!ScreenshotValidator.validateScreenshot(filePath, colors.get(i))) {
+                    Pair<Boolean, Integer> res = ScreenshotValidator.validateScreenshot(filePath, colors.get(i));
+                    if (res != null && !res.first) {
                         badScreenshots++;
                         String fileName = model.getFileIndex() + "_" + model.testIndex.toString();
                         fileName += "_" + i + ".png";
@@ -381,8 +385,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 model.lastTestInfo.setBadScreenshot(
                         100.0 * badScreenshots / numberOfScreenshot,
                         model.getTestIndex().isSoftware(), indexList.toArray(new Integer[0]),
-                        screenList.toArray(new String[0])
-                        );
+                        screenList.toArray(new String[0]), scoreList.toArray(new Integer[0]));
                 runOnUiThread(() -> launchNextTest());
             }
         }.start();
@@ -416,7 +419,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             model.setTestIndex(model.getTestIndex().next());
             if (model.testIndex.ordinal() == 0) {
                 String name = model.getTestFiles().get(model.getFileIndex()).getName();
-                model.lastTestInfo = new TestInfo(name, model.getLoopNumber());
+                int screenshotNumber = model.getTestFiles().get(model.getFileIndex()).getTimestamps().size();
+                model.lastTestInfo = new TestInfo(name, model.getLoopNumber(), screenshotNumber);
             }
             MediaInfo currentFile = model.getTestFiles().get(model.getFileIndex());
             createIntentForVlc(currentFile, intent -> {

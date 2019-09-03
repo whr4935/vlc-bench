@@ -52,7 +52,7 @@ public class MediaInfo implements Serializable {
         return name;
     }
 
-    public List<Long> getSnapshot() { return timestamps; }
+    public List<Long> getTimestamps() { return timestamps; }
 
     public List<int[]> getColors() {
         return colors;
@@ -68,7 +68,7 @@ public class MediaInfo implements Serializable {
 
     public void setLocalUrl(String localUrl ) { this.localUrl = localUrl; }
 
-    public int getSize() { return size; };
+    public int getSize() { return size; }
 
     @Override
     public String toString() {
