@@ -28,6 +28,10 @@ import android.util.Log;
 
 import androidx.core.util.Pair;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /**
  * ScreenshotValidator compares the screenshots taken during the benchmark
  * with the reference for the sample.
@@ -155,6 +159,59 @@ public class ScreenshotValidator {
     }
 
     /**
+     *  Checks for presence of vertical transparent ligns on the sides of the screenshot,
+     *  and removes them if present.
+     *  Some screenshots can have transparent side if the devices has a deactivated notch, or
+     *  sometimes it can be caused by the navigation bar at the bottom.
+     *  Failing to remove them at the time the screenshot is taken, they can be removed before
+     *  analysis.
+     * @param filepath screenshot path
+     * @param bitmap screenshot bitmap
+     * @return a bitmap cropped of it's lignes or the original if their aren't any or if there was
+     *  a problem.
+     */
+    private static Bitmap cropUselessTransparentSides(String filepath, Bitmap bitmap) {
+        int[] pix = new int[bitmap.getWidth() * bitmap.getHeight()];
+        bitmap.getPixels(pix, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+        int[][] pixTab = new int[bitmap.getHeight()][bitmap.getWidth()];
+        for (int i = 0 ; i < bitmap.getHeight() ; i++) {
+            for (int inc = 0 ; inc < bitmap.getWidth() ; inc++) {
+                pixTab[i][inc] = pix[inc + i * bitmap.getWidth()];
+            }
+        }
+
+        /* Determine where the transparent vertical lines are */
+        int minWidth = 0;
+        while (minWidth < bitmap.getWidth() && pixTab[0][minWidth] == 0)
+            minWidth++;
+        int maxWidth = bitmap.getWidth() - 1;
+        while(maxWidth > 0 && pixTab[0][maxWidth] == 0)
+            maxWidth--;
+        if (minWidth == bitmap.getWidth() || (minWidth == 0 && maxWidth == bitmap.getWidth() - 1))
+            return bitmap;
+
+        /* Replacing the old screenshot with the new bitmap*/
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap, minWidth, 0, maxWidth - minWidth, bitmap.getHeight());
+        try {
+            File image = new File(filepath);
+            if (!image.delete()) {
+                Log.e(TAG, "cropUselessTransparentSides: Failed to delete old file");
+                return bitmap;
+            }
+            File newFile = new File(filepath);
+            FileOutputStream outputStream = new FileOutputStream(newFile);
+            newBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            outputStream.close();
+        } catch (IOException e) {
+            Log.e(TAG, "cropUselessTransparentSides: Failed to save cropped image: " + e.toString());
+            return bitmap;
+        }
+
+        return newBitmap;
+    }
+
+
+    /**
      * Opens screenshot and computes color averages for each blocks
      * @param filepath screenshot filepath
      * @return screenshot's array of block's RGB array
@@ -167,6 +224,7 @@ public class ScreenshotValidator {
             Log.e(TAG, "Failed to get bitmap from screenshot");
             throw new RuntimeException();
         }
+        bitmap = cropUselessTransparentSides(filepath, bitmap);
 
         int[] pix = new int[bitmap.getWidth() * bitmap.getHeight()];
         bitmap.getPixels(pix, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
