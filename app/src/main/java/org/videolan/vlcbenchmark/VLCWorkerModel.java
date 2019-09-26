@@ -370,16 +370,27 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                     Pair<Boolean, Integer> res = ScreenshotValidator.validateScreenshot(filePath, colors.get(i));
                     if (res != null && !res.first) {
                         badScreenshots++;
-                        String fileName = model.getFileIndex() + "_" + model.testIndex.toString();
-                        fileName += "_" + i + ".png";
-                        File renamedFile = new File(screenshotFolder + "/" + fileName);
-                        if (file.renameTo(renamedFile)) {
-                            indexList.add(i);
-                            screenList.add(fileName);
-                        }
+//                        String fileName = (model.getFileIndex() + 1 ) + "_" + model.testIndex.toString();
+//                        fileName += "_" + i + ".png";
+//                        File renamedFile = new File(screenshotFolder + "/" + fileName);
+//                        if (file.renameTo(renamedFile)) {
+//                            indexList.add(i);
+//                            screenList.add(fileName);
+//                            scoreList.add(res.second);
+//                        }
                     } else {
-                        if (!file.delete())
-                            Log.e(TAG, "Failed to delete screenshots");
+//                        if (!file.delete())
+//                            Log.e(TAG, "Failed to delete screenshots");
+                    }
+                    String fileName = (model.getFileIndex() + 1 ) + "_" + model.testIndex.toString();
+                    fileName += "_" + i + ".png";
+                    File renamedFile = new File(screenshotFolder + "/" + fileName);
+                    Log.w(TAG, "run: " + fileName);
+                    if (file.renameTo(renamedFile)) {
+                        Log.w(TAG, "run: adding");
+                        indexList.add(i);
+                        screenList.add(fileName);
+                        scoreList.add(res.second);
                     }
                 }
                 model.lastTestInfo.setBadScreenshot(
