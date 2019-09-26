@@ -54,50 +54,58 @@ public class ScreenshotValidator {
     private final static int hbNumber = 5;
 
     /**
-     * Takes an int with RGB values encoded int and decodes it
-     * @param rgbInt int encoded with RGB values
-     * @return arrat with RGB values decoded
+     * Takes an int with YCbCr values encoded int and decodes it
+     * @param ycbcrInt int encoded with YCbCr values
+     * @return array with YCbCr values decoded
      */
-    private static int[] getRGB(int rgbInt) {
-        int rgb[] = new int[3];
+    private static int[] getYCbCr(int ycbcrInt) {
+        int[] ycbcrArray = new int[3];
 
-        rgb[0] = (rgbInt >> 16) & 0xFF;
-        rgb[1] = (rgbInt >>  8) & 0xFF;
-        rgb[2] = (rgbInt      ) & 0xFF;
+        ycbcrArray[0] = (ycbcrInt >> 16) & 0xFF;
+        ycbcrArray[1] = (ycbcrInt >>  8) & 0xFF;
+        ycbcrArray[2] = (ycbcrInt      ) & 0xFF;
 
-        return rgb;
+        return ycbcrArray;
     }
 
     /**
-     * Calculates the averages RGB for a block
+     * Calculates the averages YCbCr from an RGB block
      * @param pix image pixel two dimensional array
      * @param width image width
      * @param height image height
      * @param iWidth block index in width
      * @param iHeight block index in height
-     * @return RGB array for the average color of the block
+     * @return YCbCr array for the average color of the block
      */
     private static int[] getBlockColorValue(int[][] pix, int width, int height, int iWidth, int iHeight) {
         int wbSize = width / wbNumber;
         int hbSize = height / hbNumber;
 
-        int red = 0;
-        int green = 0;
-        int blue = 0;
+        double totalY = 0;
+        double totalCb = 0;
+        double totalCr = 0;
 
         for (int inc = iHeight * hbSize ; inc < (iHeight + 1) * hbSize ; inc++) {
             for (int i = iWidth * wbSize ; i < (iWidth + 1) * wbSize ; i++) {
-                red += Color.red(pix[inc][i]);
-                green += Color.green(pix[inc][i]);
-                blue += Color.blue(pix[inc][i]);
+                double r = Color.red(pix[inc][i]);
+                double g = Color.green(pix[inc][i]);
+                double b = Color.blue(pix[inc][i]);
+
+                double y = 0.299 * r + 0.587 * g + 0.114 * b;
+                double cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                double cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+
+                totalY += y;
+                totalCb += cb;
+                totalCr += cr;
             }
         }
 
-        red /= wbSize * hbSize;
-        green /= wbSize * hbSize;
-        blue /= wbSize * hbSize;
+        totalY /= wbSize * hbSize;
+        totalCb /= wbSize * hbSize;
+        totalCr /= wbSize * hbSize;
 
-        return new int[]{red, green, blue};
+        return new int[]{(int)totalY, (int)totalCb, (int)totalCr};
     }
 
     /**
@@ -105,11 +113,11 @@ public class ScreenshotValidator {
      * @param array of RGB encoded int
      * @return array of RGB decoded array
      */
-    private static int[][] convertRGBintArray(int[] array) {
+    private static int[][] convertYcbcrIntArray(int[] array) {
         int[][] refArray = new int[array.length][3];
 
         for (int i = 0 ; i < array.length ; i++) {
-            refArray[i] = getRGB(array[i]);
+            refArray[i] = getYCbCr(array[i]);
         }
 
         return refArray;
@@ -132,10 +140,10 @@ public class ScreenshotValidator {
      * @return RGB block average difference
      */
     private static double compareBlockColorValues(int[] colorValue, int[] reference) {
-        double red = getDiffPercentage(colorValue[0], reference[0]);
-        double green = getDiffPercentage(colorValue[1], reference[1]);
-        double blue = getDiffPercentage(colorValue[2], reference[2]);
-        return (red + green + blue) / 3d;
+        double y = getDiffPercentage(colorValue[0], reference[0]);
+        double cb = getDiffPercentage(colorValue[1], reference[1]);
+        double cr = getDiffPercentage(colorValue[2], reference[2]);
+        return (y + cb + cr) / 3d;
     }
 
     /**
@@ -161,7 +169,7 @@ public class ScreenshotValidator {
     /**
      *  Checks for presence of vertical transparent ligns on the sides of the screenshot,
      *  and removes them if present.
-     *  Some screenshots can have transparent side if the devices has a deactivated notch, or
+     *  Some screenshots can have transparent side if the devices a deactivated notch, or
      *  sometimes it can be caused by the navigation bar at the bottom.
      *  Failing to remove them at the time the screenshot is taken, they can be removed before
      *  analysis.
@@ -206,10 +214,9 @@ public class ScreenshotValidator {
             Log.e(TAG, "cropUselessTransparentSides: Failed to save cropped image: " + e.toString());
             return bitmap;
         }
-
+        bitmap.recycle();
         return newBitmap;
     }
-
 
     /**
      * Opens screenshot and computes color averages for each blocks
@@ -242,7 +249,7 @@ public class ScreenshotValidator {
                         getBlockColorValue(pixTab, bitmap.getWidth(), bitmap.getHeight(), i, inc);
             }
         }
-
+        bitmap.recycle();
         return colorValues;
     }
 
@@ -256,7 +263,7 @@ public class ScreenshotValidator {
     public static Pair<Boolean, Integer> validateScreenshot(String filepath, int[] reference) {
         try {
             int[][] colorValues = getColorValues(filepath);
-            int[][] colorReference = convertRGBintArray(reference);
+            int[][] colorReference = convertYcbcrIntArray(reference);
             double diff = compareImageBlocks(colorValues, colorReference);
             Log.i(TAG, "validateScreenshot: screenshots difference percentage: " + diff);
             return new Pair<>(diff < MAX_SCREENSHOT_COLOR_DIFFERENCE_PERCENT, (int)Math.floor(diff));
