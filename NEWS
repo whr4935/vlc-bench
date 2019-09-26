@@ -1,0 +1,20 @@
+Changes between 0.1.7 and 0.1.8
+-----------------
+* Rework of the screenshot comparison algorithm
+* Add screenshot upload for testing purposes
+* Crash fix
+
+Changes between 0.1.6 and 0.1.7
+-----------------
+* Fix freezes on some devices
+* Layout tweeks
+
+Changes between 0.1.5 and 0.1.6
+-----------------
+
+* Block rotation during file download
+* Various text changes
+* Fix crash on weak devices
+* Add onboarding
+* Add progress dialog when uploading results
+* Add TV support
