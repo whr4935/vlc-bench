@@ -7,6 +7,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.view.LayoutInflater
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -34,8 +35,10 @@ class ApiCalls {
                 call.cancel()
                 dialog.dismiss()
             }
+            val view = LayoutInflater.from(context).inflate(R.layout.layout_upoad_progress_dialog, null)
+            view.keepScreenOn = true
             return AlertDialog.Builder(context)
-                    .setView(R.layout.layout_upoad_progress_dialog)
+                    .setView(view)
                     .setNegativeButton(R.string.dialog_btn_cancel, cancelCallback)
                     .show()
         }
