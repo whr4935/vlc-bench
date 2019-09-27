@@ -58,6 +58,10 @@ class ApiCalls {
                                 .setNegativeButton(R.string.dialog_btn_continue, null)
                                 .show()
                         FileHandler.deleteScreenshots()
+                    } else {
+                        Log.e(TAG, response.toString())
+                        DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_upload).display(context)
+                        FileHandler.deleteScreenshots()
                     }
                     progressDialog.dismiss()
                 }
