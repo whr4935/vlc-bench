@@ -8,9 +8,9 @@ import retrofit2.http.POST
 import retrofit2.http.PartMap
 
 interface ApiInterface {
-    @POST("/benchmarks")
+    @POST("benchmarks")
     fun uploadBenchmark(@Body body: RequestBody): Call<Void>
 
-    @POST("/benchmarks-screenshots")
+    @POST("benchmarks-screenshots")
     fun uploadBenchmarkWithScreenshots(@Body body: RequestBody): Call<Void>
 }
