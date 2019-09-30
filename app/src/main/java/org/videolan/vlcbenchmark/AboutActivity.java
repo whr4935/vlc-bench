@@ -52,7 +52,7 @@ public class AboutActivity extends AppCompatActivity {
         String tab_licence = getResources().getString(R.string.tab_licence);
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
-        toolbar.setTitle(tab_about);
+        toolbar.setTitle("v." +BuildConfig.VERSION_NAME);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
