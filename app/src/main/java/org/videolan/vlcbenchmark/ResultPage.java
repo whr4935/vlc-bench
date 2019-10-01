@@ -163,7 +163,7 @@ public class ResultPage extends AppCompatActivity {
 
     void prepareBenchmarkUpload(Boolean withScreenshots, Intent data) {
         try {
-            JSONObject jsonObject = JsonHandler.dumpResults(results, data, withScreenshots);
+            JSONObject jsonObject = JsonHandler.dumpResults(this, results, data, withScreenshots);
             jsonObject = addGoogleUser(jsonObject);
             if (withScreenshots) {
                 ApiCalls.uploadBenchmarkWithScreenshots(this, jsonObject, results);

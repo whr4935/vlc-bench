@@ -34,12 +34,15 @@ class VLCProxy {
             return Integer.signum(vals1.size - vals2.size)
         }
 
+        fun getVLCVersion(context: Context): String {
+            return context.packageManager.getPackageInfo(
+                    context.getString(R.string.vlc_package_name), 0).versionName
+        }
+
         fun checkVlcVersion(context: Context): Boolean {
             if (!BuildConfig.DEBUG) {
                 try { // tmp during the VLCBenchmark alpha, using the vlc beta
-                    if (checkVersion(context.packageManager
-                                    .getPackageInfo(context.getString(R.string.vlc_package_name), 0)
-                                    .versionName, BuildConfig.VLC_VERSION) < 0) {
+                    if (checkVersion(getVLCVersion(context), BuildConfig.VLC_VERSION) < 0) {
                         return false
                     }
                 } catch (e: PackageManager.NameNotFoundException) {

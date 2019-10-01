@@ -21,6 +21,7 @@
 
 package org.videolan.vlcbenchmark.tools;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
@@ -138,7 +139,7 @@ public class JsonHandler {
      * @param testInfoList list of all test results.
      * @return null in case of failure.
      */
-    public static JSONObject dumpResults(ArrayList<TestInfo> testInfoList, Intent gpuData, Boolean withScreenshots) throws JSONException {
+    public static JSONObject dumpResults(Context context, ArrayList<TestInfo> testInfoList, Intent gpuData, Boolean withScreenshots) throws JSONException {
         JSONObject results = new JSONObject();
         JSONObject deviceInformation;
         JSONArray testInformation;
@@ -161,7 +162,7 @@ public class JsonHandler {
         results.put("score_software", score_software);
         results.put("score_hardware", score_hardware);
         results.put("score", score_software + score_hardware);
-        results.put("vlc_version", BuildConfig.VLC_VERSION);
+        results.put("vlc_version", VLCProxy.Companion.getVLCVersion(context));
 
         return results;
     }
