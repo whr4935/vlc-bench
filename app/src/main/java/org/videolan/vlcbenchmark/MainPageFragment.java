@@ -190,21 +190,33 @@ public class MainPageFragment extends Fragment {
             mListener.setBenchmarkFiles(files);
             int testNumber = mTestNumber;
             mTestNumber = 0;
-            checkForPreviousBench(testNumber);
+            checkForPreviousBench(testNumber, files.size());
         } else {
             Log.e(TAG, "onFilesDownloaded: invalid test number: " + mTestNumber);
             mTestNumber = 0;
         }
     }
 
-    private void checkForPreviousBench(final int numberOfTests) {
+    private void checkForPreviousBench(final int numberOfTests, final int fileNumber) {
         final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
         if (previousTest == null) {
             startTestWarning(numberOfTests);
         } else {
+            int loopIndex = 0;
+            // finding the benchmark loop
+            if (numberOfTests == 3) {
+                while( loopIndex < numberOfTests) {
+                    if (previousTest[loopIndex].size() == 0)
+                        break;
+                    loopIndex += 1;
+                }
+                loopIndex -= 1;
+            }
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_previous_bench))
-                    .setMessage(getResources().getString(R.string.dialog_text_previous_bench))
+                    .setMessage(String.format(getResources().
+                            getString(R.string.dialog_text_previous_bench),
+                            previousTest[loopIndex].size(), fileNumber))
                     .setNeutralButton(getResources().getString(R.string.dialog_btn_discard), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
