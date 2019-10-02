@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment;
 
 import org.videolan.vlcbenchmark.MainPageFragment;
 import org.videolan.vlcbenchmark.R;
+import org.videolan.vlcbenchmark.SystemPropertiesProxy;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,11 +117,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
     }
 
     private boolean checkDeviceFreeSpace(long size) {
-        String mediaDir = FileHandler.getFolderStr(FileHandler.mediaFolder);
-        if (mediaDir == null)
-            return false;
-        File file = new File(mediaDir);
-        long freeSpace = file.getFreeSpace();
+        long freeSpace = SystemPropertiesProxy.getFreeSpace();
         if (size > freeSpace) {
             Log.e("MainPageDownload", "checkDeviceFreeSpace: missing space to download all media files");
             long spaceNeeded = size - freeSpace;

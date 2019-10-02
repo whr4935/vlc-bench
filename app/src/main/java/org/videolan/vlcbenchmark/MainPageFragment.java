@@ -262,6 +262,7 @@ public class MainPageFragment extends Fragment {
         TextView cpuspeed = view.findViewById(R.id.specs_cpuspeed_text);
         TextView memory = view.findViewById(R.id.specs_memory_text);
         TextView resolution = view.findViewById(R.id.specs_resolution_text);
+        TextView freeSpace = view.findViewById(R.id.specs_free_space_text);
 
         model.setText(Build.MODEL);
         android.setText(Build.VERSION.RELEASE);
@@ -269,6 +270,7 @@ public class MainPageFragment extends Fragment {
         cpuspeed.setText(SystemPropertiesProxy.getCpuMinFreq() + " - " + SystemPropertiesProxy.getCpuMaxFreq());
         memory.setText(SystemPropertiesProxy.getRamTotal());
         resolution.setText(SystemPropertiesProxy.getResolution(getActivity()));
+        freeSpace.setText(FormatStr.sizeToString(SystemPropertiesProxy.getFreeSpace()));
     }
 
     @Override

@@ -126,4 +126,22 @@
         app:layout_constraintStart_toEndOf="@+id/specs_resolution"
         app:layout_constraintTop_toTopOf="@id/specs_resolution" />
 
+    <TextView
+        android:id="@+id/specs_free_space"
+        android:text="@string/specs_free_space"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/specs_resolution"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/specs_free_space_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAlignment="textEnd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/specs_free_space"
+        app:layout_constraintTop_toTopOf="@id/specs_free_space" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

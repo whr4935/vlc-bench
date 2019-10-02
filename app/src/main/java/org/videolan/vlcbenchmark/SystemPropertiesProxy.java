@@ -22,9 +22,13 @@
 package org.videolan.vlcbenchmark;
 
 import android.app.Activity;
+import android.os.StatFs;
 import android.util.DisplayMetrics;
 
+import org.videolan.vlcbenchmark.tools.FileHandler;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -177,5 +181,14 @@ public class SystemPropertiesProxy {
         DisplayMetrics metrics = new DisplayMetrics();
         context.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
         return metrics.widthPixels + "x" + metrics.heightPixels;
+    }
+
+    public static Long getFreeSpace() {
+        String mediaDir = FileHandler.getFolderStr(FileHandler.mediaFolder);
+        if (mediaDir == null)
+            return -1L;
+        File file = new File(mediaDir);
+        StatFs stats = new StatFs(file.getAbsolutePath());
+        return stats.getAvailableBytes();
     }
 }
