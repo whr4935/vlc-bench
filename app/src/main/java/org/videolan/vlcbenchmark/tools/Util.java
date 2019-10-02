@@ -21,8 +21,10 @@
 
 package org.videolan.vlcbenchmark.tools;
 
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -36,6 +38,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static android.content.Context.UI_MODE_SERVICE;
 
 public class Util {
 
@@ -97,6 +101,11 @@ public class Util {
                 Log.e(TAG, "Failed to close: " + e.toString());
             }
         return false;
+    }
+
+    public static boolean isAndroidTV(Context context) {
+        UiModeManager uiModeManager = (UiModeManager) context.getSystemService(UI_MODE_SERVICE);
+        return (uiModeManager != null && uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION);
     }
 
     public static void runInUiThread(Runnable runnable) {

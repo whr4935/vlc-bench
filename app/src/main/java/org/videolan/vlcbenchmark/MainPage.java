@@ -33,6 +33,8 @@ import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.videolan.vlcbenchmark.tools.Util;
+
 import kotlin.Unit;
 
 public class MainPage extends VLCWorkerModel implements
@@ -112,6 +114,11 @@ public class MainPage extends VLCWorkerModel implements
         );
         if (savedInstanceState == null) {
             setCurrentFragment(R.id.home_nav);
+            if (Util.isAndroidTV(this)) {
+                navigationIndex = 0;
+                bottomNavigationView.setSelectedItemId(R.id.home_nav);
+                bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+            }
         } else {
             mMenuItemId = savedInstanceState.getInt("MENU_ITEM_ID");
             bottomNavigationView.setSelectedItemId(mMenuItemId);
