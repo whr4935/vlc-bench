@@ -142,6 +142,7 @@ public class MainPage extends VLCWorkerModel implements
             Log.e(TAG, "Failed to get current focus");
             return ret;
         }
+        
         /* When bottom_navigation_bar gets focus, we use the inputs left and right to move
         * inside an array of fragments id. These fragments are the three principal home, results, settings,
         * updating the current fragment as we go along.
@@ -168,8 +169,24 @@ public class MainPage extends VLCWorkerModel implements
             }
         } else if (focus.getId() != R.id.bottom_navigation_bar) {
             bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background);
+            if (event.getAction() == KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                // Back to navbar when pressing back in a main page fragment
+                bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+            }
         }
         return ret;
+    }
+
+    @Override
+    public void onBackPressed() {
+        View focus = getCurrentFocus();
+        // Catch back pressed when in a main page fragment on tv to return to the navbar instead
+        // The return to navbar is handled above in dispatchKeyEvent
+        if (focus != null && focus.getId() != R.id.bottom_navigation_bar) {
+            return;
+        }
+        super.onBackPressed();
     }
 
     /**
