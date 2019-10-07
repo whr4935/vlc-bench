@@ -128,6 +128,10 @@ public class MainPageResultListFragment extends Fragment {
         mRecyclerView.getAdapter().notifyItemInserted(mData.size());
     }
 
+    public boolean isEmpty() {
+        return mData.isEmpty();
+    }
+
     @Override
     public void onResume() {
         super.onResume();

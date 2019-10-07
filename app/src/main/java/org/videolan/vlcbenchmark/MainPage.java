@@ -142,7 +142,7 @@ public class MainPage extends VLCWorkerModel implements
             Log.e(TAG, "Failed to get current focus");
             return ret;
         }
-        
+
         /* When bottom_navigation_bar gets focus, we use the inputs left and right to move
         * inside an array of fragments id. These fragments are the three principal home, results, settings,
         * updating the current fragment as we go along.
@@ -169,10 +169,26 @@ public class MainPage extends VLCWorkerModel implements
             }
         } else if (focus.getId() != R.id.bottom_navigation_bar) {
             bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background);
-            if (event.getAction() == KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-                // Back to navbar when pressing back in a main page fragment
-                bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
-                bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                switch (event.getKeyCode()) {
+                    case  KeyEvent.KEYCODE_BACK:
+                        // Back to navbar when pressing back in a main page fragment
+                        bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                        bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+                        break;
+                    case KeyEvent.KEYCODE_DPAD_UP:
+                        // if there is no results in MainPageResultListFragment, then the user
+                        // shouldn't be able to focus the fragment.
+                        if (currentPageFragment instanceof MainPageResultListFragment &&
+                                ((MainPageResultListFragment) currentPageFragment).isEmpty()) {
+                            bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                            bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
             }
         }
         return ret;
