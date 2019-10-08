@@ -84,6 +84,18 @@ public class MainPageFragment extends Fragment {
         startActivity(viewIntent);
     }
 
+    private void checkAndroidVersion() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle(getResources().getString(R.string.dialog_title_error))
+                    .setMessage(getResources().getString(R.string.dialog_text_android_10))
+                    .setNegativeButton(getResources().getString(R.string.dialog_btn_ok), null)
+                    .show();
+            return;
+        }
+        checkForVLC();
+    }
+
     private void checkForVLC() {
         if (getActivity() == null) {
             Log.e(TAG, "checkForVLC: null context");
@@ -283,7 +295,7 @@ public class MainPageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mTestNumber = 1;
-                checkForVLC();
+                checkAndroidVersion();
             }
         });
 
@@ -292,7 +304,7 @@ public class MainPageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mTestNumber = 3;
-                checkForVLC();
+                checkAndroidVersion();
             }
         });
 
