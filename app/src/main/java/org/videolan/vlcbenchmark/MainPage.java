@@ -111,6 +111,16 @@ public class MainPage extends VLCWorkerModel implements
         toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         bottomNavigationView = findViewById(R.id.bottom_navigation_bar);
+        if (!Util.isAndroidTV(this)) {
+            bottomNavigationView.setOnNavigationItemSelectedListener(
+                    new BottomNavigationView.OnNavigationItemSelectedListener() {
+                        @Override
+                        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                            return setCurrentFragment(item.getItemId());
+                        }
+                    }
+            );
+        }
         if (savedInstanceState == null) {
             setCurrentFragment(R.id.home_nav);
             if (Util.isAndroidTV(this)) {
