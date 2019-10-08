@@ -58,6 +58,7 @@ public class ResultPage extends AppCompatActivity {
 
     ArrayList<TestInfo> results;
     String testName;
+    RecyclerView mRecyclerView = null;
 
     private boolean hasSendData = true;
 
@@ -95,7 +96,6 @@ public class ResultPage extends AppCompatActivity {
             return;
         }
 
-        RecyclerView mRecyclerView;
         RecyclerView.LayoutManager mLayoutManager;
         RecyclerView.Adapter mAdapter;
 
@@ -233,6 +233,18 @@ public class ResultPage extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mRecyclerView != null &&
+                mRecyclerView.hasFocus() &&
+                mRecyclerView.findViewHolderForLayoutPosition(0) != null &&
+                !mRecyclerView.findViewHolderForLayoutPosition(0).itemView.hasFocus()) {
+            mRecyclerView.findViewHolderForLayoutPosition(0).itemView.requestFocus();
+            return ;
+        }
+        super.onBackPressed();
     }
 
     class TestResultListAdapter extends RecyclerView.Adapter<TestResultListAdapter.ViewHolder> {

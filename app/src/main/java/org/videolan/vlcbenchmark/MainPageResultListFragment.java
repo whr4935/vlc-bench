@@ -132,6 +132,19 @@ public class MainPageResultListFragment extends Fragment {
         return mData.isEmpty();
     }
 
+    boolean isScrollingPositionTop() {
+        if (mRecyclerView != null && mRecyclerView.findViewHolderForLayoutPosition(0) != null) {
+            return mRecyclerView.findViewHolderForLayoutPosition(0).itemView.hasFocus();
+        }
+        return false;
+    }
+
+    void scrollingBackToTop() {
+        if (mRecyclerView.findViewHolderForLayoutPosition(0) != null) {
+            mRecyclerView.findViewHolderForLayoutPosition(0).itemView.requestFocus();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();

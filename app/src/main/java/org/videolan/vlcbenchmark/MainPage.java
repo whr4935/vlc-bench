@@ -48,6 +48,7 @@ public class MainPage extends VLCWorkerModel implements
     private Fragment currentPageFragment;
     private ProgressDialog progressDialog;
     private BottomNavigationView bottomNavigationView = null;
+    private Boolean navigationBackTop = false;
 
     /* TV input handling */
     private int navigationIndex;
@@ -74,14 +75,20 @@ public class MainPage extends VLCWorkerModel implements
         if (findViewById(R.id.main_page_fragment_holder) != null) {
             switch (itemId) {
                 case R.id.home_nav:
+                    if (currentPageFragment instanceof MainPageFragment)
+                        return true;
                     fragment = new MainPageFragment();
                     toolbar.setTitle(getResources().getString(R.string.app_name));
                     break;
                 case R.id.results_nav:
+                    if (currentPageFragment instanceof MainPageResultListFragment)
+                        return true;
                     fragment = new MainPageResultListFragment();
                     toolbar.setTitle(getResources().getString(R.string.results_page));
                     break;
                 case R.id.settings_nav:
+                    if (currentPageFragment instanceof SettingsFragment)
+                        return true;
                     fragment = new SettingsFragment();
                     toolbar.setTitle(getResources().getString(R.string.settings_page));
                     break;
@@ -104,14 +111,6 @@ public class MainPage extends VLCWorkerModel implements
         toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         bottomNavigationView = findViewById(R.id.bottom_navigation_bar);
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        return setCurrentFragment(item.getItemId());
-                    }
-                }
-        );
         if (savedInstanceState == null) {
             setCurrentFragment(R.id.home_nav);
             if (Util.isAndroidTV(this)) {
@@ -140,7 +139,7 @@ public class MainPage extends VLCWorkerModel implements
         boolean ret = super.dispatchKeyEvent(event);
         if (focus == null) {
             Log.e(TAG, "Failed to get current focus");
-            return ret;
+            return false;
         }
 
         /* When bottom_navigation_bar gets focus, we use the inputs left and right to move
@@ -155,34 +154,44 @@ public class MainPage extends VLCWorkerModel implements
                     if (navigationIndex + 1>= 0 && navigationIndex + 1 < navigationIds.length) {
                         navigationIndex += 1;
                     }
-                    bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
                     break;
                 case KeyEvent.KEYCODE_DPAD_LEFT:
                 case KeyEvent.KEYCODE_MEDIA_REWIND:
                     if (navigationIndex - 1 >= 0 && navigationIndex - 1 < navigationIds.length) {
                         navigationIndex -= 1;
                     }
-                    bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
                     break;
                 default:
                     break;
             }
+            bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+            setCurrentFragment(navigationIds[navigationIndex]);
         } else if (focus.getId() != R.id.bottom_navigation_bar) {
             bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background);
             if (event.getAction() == KeyEvent.ACTION_UP) {
                 switch (event.getKeyCode()) {
                     case  KeyEvent.KEYCODE_BACK:
-                        // Back to navbar when pressing back in a main page fragment
-                        bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
-                        bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+                        if (!navigationBackTop) {
+                            // Back to navbar when pressing back in a main page fragment
+                            bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                            bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+                            bottomNavigationView.requestFocus();
+                        } else {
+                            navigationBackTop = false;
+                        }
                         break;
                     case KeyEvent.KEYCODE_DPAD_UP:
                         // if there is no results in MainPageResultListFragment, then the user
                         // shouldn't be able to focus the fragment.
-                        if (currentPageFragment instanceof MainPageResultListFragment &&
-                                ((MainPageResultListFragment) currentPageFragment).isEmpty()) {
-                            bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
-                            bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+                        if (currentPageFragment instanceof MainPageResultListFragment) {
+                            if (((MainPageResultListFragment) currentPageFragment).isEmpty()) {
+                                bottomNavigationView.setSelectedItemId(navigationIds[navigationIndex]);
+                                bottomNavigationView.setItemBackgroundResource(R.drawable.bottom_navigation_view_item_background_tv);
+                                bottomNavigationView.requestFocus();
+                            } else {
+                                ((MainPageResultListFragment)currentPageFragment).scrollingBackToTop();
+                                return true;
+                            }
                         }
                         break;
                     default:
@@ -200,6 +209,12 @@ public class MainPage extends VLCWorkerModel implements
         // Catch back pressed when in a main page fragment on tv to return to the navbar instead
         // The return to navbar is handled above in dispatchKeyEvent
         if (focus != null && focus.getId() != R.id.bottom_navigation_bar) {
+            if (currentPageFragment instanceof MainPageResultListFragment &&
+                    !((MainPageResultListFragment) currentPageFragment).isScrollingPositionTop() &&
+                    !navigationBackTop) {
+                ((MainPageResultListFragment)currentPageFragment).scrollingBackToTop();
+                navigationBackTop = true;
+            }
             return;
         }
         super.onBackPressed();
