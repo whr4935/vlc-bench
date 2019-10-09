@@ -1,3 +1,10 @@
+Changes between 0.1.9 and 0.1.10
+-----------------
+* AndroidTV navigation improvements
+* Update launcher icon
+* Small UI improvements
+* Block Android 10
+
 Changes between 0.1.8 and 0.1.9
 -----------------
 * Fix API calls to production
