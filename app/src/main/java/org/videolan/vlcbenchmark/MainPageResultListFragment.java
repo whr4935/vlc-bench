@@ -24,6 +24,7 @@ package org.videolan.vlcbenchmark;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,11 +38,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
+import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.Util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -181,9 +184,27 @@ public class MainPageResultListFragment extends Fragment {
                         startActivityForResult(intent, Constants.RequestCodes.RESULTS);
                     }
                 });
+                view.setOnLongClickListener((view1) -> {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title_warning)
+                            .setMessage(R.string.dialog_text_confirm_bench_delete)
+                            .setNeutralButton(R.string.dialog_btn_cancel, null)
+                            .setNegativeButton(R.string.dialog_btn_continue, (dialog, w1) -> {
+                                File sample = new File(FileHandler.getFolderStr(FileHandler.jsonFolder)
+                                        + FormatStr.fromDatePrettyPrint(mTitle.getText().toString())
+                                        + ".txt");
+                                FileHandler.delete(sample);
+                                mData.remove(getAdapterPosition());
+                                mRecyclerView.removeViewAt(getAdapterPosition());
+                                notifyItemRemoved(getAdapterPosition());
+                            })
+                            .show();
+                    return true;
+                });
             }
-
         }
+
+
 
         TestListAdapter(ArrayList<Pair<String, String>> data) {
             mData = data;

@@ -86,7 +86,7 @@ public class FileHandler {
             @Override
             public void run() {
                 if (!file.delete()) {
-                    Log.e(TAG, "Failed to delete file: " + file.getName());
+                    Log.e(TAG, "Failed to delete file: " + file.getAbsolutePath());
                 }
             }
         });
