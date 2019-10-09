@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -43,6 +44,7 @@ public class AboutActivity extends AppCompatActivity {
 
     private final static String TAG = "AboutActivity";
 
+    @SuppressWarnings("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,13 +84,23 @@ public class AboutActivity extends AppCompatActivity {
         TextView minVlc = aboutLayout.findViewById(R.id.vlc_min_version);
         minVlc.setText(String.format(getString(R.string.about_vlc_min),  BuildConfig.VLC_VERSION));
         
-        String assets = Util.readAsset("licence.htm", getResources().getAssets());
-        if (assets != null) {
-            licenceWebView.loadData(assets.replace("!COMMITID!",
-                    getString(R.string.build_revision)), "text/html", "UTF8");
-        } else {
-            Log.e(TAG, "onCreate: Failed to load licence");
-        }
+        licenceWebView.loadUrl("file:///android_asset/licence.htm");
+        licenceWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView webView, String url) {
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.loadUrl("javascript:(function() {" +
+                        "var link = document.getElementById('revision_link');" +
+                        "var newLink = link.href.replace('!COMMITID!', '" +
+                        getString(R.string.build_revision) + "');" +
+                        "link.setAttribute('href', newLink);" +
+                        "link.innerText = newLink;" +
+                        "})()");
+                webView.getSettings().setJavaScriptEnabled(false);
+                super.onPageFinished(webView, url);
+            }
+        });
+
 
         View[] views = new View[]{aboutLayout, licenceWebView};
         String[] titles = new String[]{tab_about, tab_licence};
