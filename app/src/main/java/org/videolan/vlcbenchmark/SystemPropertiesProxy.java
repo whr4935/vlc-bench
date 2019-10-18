@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.os.StatFs;
 import android.util.DisplayMetrics;
 
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.StorageManager;
 
 import java.io.BufferedReader;
@@ -32,8 +33,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
-
-import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 /**
  *  SystemPropertiesProxy gets
@@ -115,7 +114,7 @@ public class SystemPropertiesProxy {
             number = number / 1000.0;
             count += 1;
         }
-        return format2Dec(number) + " " + ext[count];
+        return FormatStr.INSTANCE.format2Dec(number) + " " + ext[count];
     }
 
     /**

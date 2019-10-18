@@ -51,8 +51,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
-
 public class ResultPage extends AppCompatActivity {
 
     private final static String TAG = ResultPage.class.getName();
@@ -88,7 +86,7 @@ public class ResultPage extends AppCompatActivity {
             Log.e(TAG, "setupUi: Failed to get action bar");
             return;
         }
-        toolbar.setTitle(FormatStr.toDatePrettyPrint(testName));
+        toolbar.setTitle(FormatStr.INSTANCE.toDatePrettyPrint(testName));
         setSupportActionBar(toolbar);
 
         results = JsonHandler.load(testName + ".txt");
@@ -101,11 +99,11 @@ public class ResultPage extends AppCompatActivity {
         RecyclerView.Adapter mAdapter;
 
         TextView softView = (TextView) findViewById(R.id.softAvg);
-        String softText = "Software score : " + format2Dec(TestInfo.getSoftScore(results));
+        String softText = "Software score : " + FormatStr.INSTANCE.format2Dec(TestInfo.getSoftScore(results));
         softView.setText(softText);
 
         TextView hardView = (TextView) findViewById(R.id.hardAvg);
-        String hardText = "Hardware score : " + format2Dec(TestInfo.getHardScore(results));
+        String hardText = "Hardware score : " + FormatStr.INSTANCE.format2Dec(TestInfo.getHardScore(results));
         hardView.setText(hardText);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.test_result_list);
@@ -285,7 +283,7 @@ public class ResultPage extends AppCompatActivity {
                             Log.e(TAG, "onClickMethod: Failed to get action bar title");
                             return;
                         }
-                        String filename = FormatStr.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
+                        String filename = FormatStr.INSTANCE.fromDatePrettyPrint(actionBar.getTitle().toString()) + ".txt";
                         ArrayList<TestInfo> results = JsonHandler.load(filename);
                         if (results == null) {
                             Log.e(TAG, "onClickMethod: Failed to get results");
@@ -306,9 +304,9 @@ public class ResultPage extends AppCompatActivity {
 
             void setResult(int position) {
                 this.mResult.setText(
-                        (format2Dec(mData.get(position).getHardware() +
+                        (FormatStr.INSTANCE.format2Dec(mData.get(position).getHardware() +
                                 mData.get(position).getSoftware()) +
-                                " / " + format2Dec(TestInfo.SCORE_TOTAL * 2)));
+                                " / " + FormatStr.INSTANCE.format2Dec(TestInfo.SCORE_TOTAL * 2)));
             }
         }
 

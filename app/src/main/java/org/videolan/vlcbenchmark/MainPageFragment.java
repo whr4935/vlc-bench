@@ -179,7 +179,7 @@ public class MainPageFragment extends Fragment {
         if (size > 0) {
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_warning))
-                    .setMessage(String.format(getString(R.string.dialog_text_download_warning), FormatStr.sizeToString(size)))
+                    .setMessage(String.format(getString(R.string.dialog_text_download_warning), FormatStr.INSTANCE.sizeToString(size)))
                     .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
@@ -290,7 +290,7 @@ public class MainPageFragment extends Fragment {
         cpuspeed.setText(SystemPropertiesProxy.getCpuMinFreq() + " - " + SystemPropertiesProxy.getCpuMaxFreq());
         memory.setText(SystemPropertiesProxy.getRamTotal());
         resolution.setText(SystemPropertiesProxy.getResolution(getActivity()));
-        freeSpace.setText(FormatStr.sizeToString(SystemPropertiesProxy.getFreeSpace()));
+        freeSpace.setText(FormatStr.INSTANCE.sizeToString(SystemPropertiesProxy.getFreeSpace()));
     }
 
     @Override

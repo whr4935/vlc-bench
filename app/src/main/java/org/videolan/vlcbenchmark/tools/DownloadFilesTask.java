@@ -207,8 +207,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                     fragment.getString(R.string.dialog_text_download_downloading);
             String progressString = String.format(
                     fragment.getString(R.string.dialog_text_download_progress),
-                    FormatStr.format2Dec(percent), FormatStr.bitRateToString(downloadedSpeed),
-                    FormatStr.sizeToString(downloadedSize), FormatStr.sizeToString(mTotalFileSize));
+                    FormatStr.INSTANCE.format2Dec(percent), FormatStr.INSTANCE.bitRateToString(downloadedSpeed),
+                    FormatStr.INSTANCE.sizeToString(downloadedSize), FormatStr.INSTANCE.sizeToString(mTotalFileSize));
             mainPageFragment.updateProgress(percent, progressString, state);
         }
     }

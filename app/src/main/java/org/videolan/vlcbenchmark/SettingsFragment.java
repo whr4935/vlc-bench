@@ -151,8 +151,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
                 double percent = (double)downloadSize / (double)mCopySize * 100d;
                 String progressString = String.format(
                         getActivity().getString(R.string.dialog_text_download_progress),
-                        FormatStr.format2Dec(percent), FormatStr.bitRateToString(downloadSpeed),
-                        FormatStr.sizeToString(downloadSize), FormatStr.sizeToString(mCopySize));
+                        FormatStr.INSTANCE.format2Dec(percent), FormatStr.INSTANCE.bitRateToString(downloadSpeed),
+                        FormatStr.INSTANCE.sizeToString(downloadSize), FormatStr.INSTANCE.sizeToString(mCopySize));
                 progressDialog.updateProgress(percent, progressString, "");
             }
         });

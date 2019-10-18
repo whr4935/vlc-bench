@@ -54,7 +54,7 @@ public class JsonHandler {
             Log.e(TAG, "Failed to created json folder");
             return null;
         }
-        String fileName = FormatStr.getDateStr();
+        String fileName = FormatStr.INSTANCE.getDateStr();
         File jsonFile = new File(folderName + fileName + ".txt");
         try {
             jsonFileOutputStream = new FileOutputStream(jsonFile);

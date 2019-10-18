@@ -122,7 +122,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
         if (size > freeSpace) {
             Log.e("MainPageDownload", "checkDeviceFreeSpace: missing space to download all media files");
             long spaceNeeded = size - freeSpace;
-            String space = FormatStr.sizeToString(spaceNeeded);
+            String space = FormatStr.INSTANCE.sizeToString(spaceNeeded);
             String msg = String.format(fragment.getString(R.string.dialog_text_missing_space), space);
             new AlertDialog.Builder(fragment.getContext())
                     .setTitle(fragment.getString(R.string.dialog_title_warning))

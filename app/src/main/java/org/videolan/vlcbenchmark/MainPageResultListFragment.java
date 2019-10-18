@@ -49,8 +49,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -101,14 +99,14 @@ public class MainPageResultListFragment extends Fragment {
                         for (String filename : tmpdata) {
                             ArrayList<TestInfo> test = JsonHandler.load(filename + ".txt");
                             if (test != null) {
-                                final String title = FormatStr.toDatePrettyPrint(filename);
+                                final String title = FormatStr.INSTANCE.toDatePrettyPrint(filename);
                                 if (getContext() == null ) {
                                     Log.w(TAG, "No context for background json loading," +
                                             " fragment must have been replaced");
                                     return;
                                 }
                                 final String text = String.format(getResources().getString(R.string.result_score),
-                                        format2Dec(TestInfo.getGlobalScore(test)));
+                                        FormatStr.INSTANCE.format2Dec(TestInfo.getGlobalScore(test)));
                                 Util.runInUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -180,7 +178,7 @@ public class MainPageResultListFragment extends Fragment {
                         TextView text = (TextView) view.findViewById(R.id.test_name);
                         Intent intent = new Intent(getActivity(), ResultPage.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        intent.putExtra("name", FormatStr.fromDatePrettyPrint(text.getText().toString()));
+                        intent.putExtra("name", FormatStr.INSTANCE.fromDatePrettyPrint(text.getText().toString()));
                         startActivityForResult(intent, Constants.RequestCodes.RESULTS);
                     }
                 });
@@ -191,7 +189,7 @@ public class MainPageResultListFragment extends Fragment {
                             .setNeutralButton(R.string.dialog_btn_cancel, null)
                             .setNegativeButton(R.string.dialog_btn_continue, (dialog, w1) -> {
                                 File sample = new File(StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder)
-                                        + FormatStr.fromDatePrettyPrint(mTitle.getText().toString())
+                                        + FormatStr.INSTANCE.fromDatePrettyPrint(mTitle.getText().toString())
                                         + ".txt");
                                 StorageManager.INSTANCE.delete(sample);
                                 mData.remove(getAdapterPosition());
@@ -236,7 +234,7 @@ public class MainPageResultListFragment extends Fragment {
     private ArrayList<String> orderBenchmarks(ArrayList<String> str_dates) {
         ArrayList<PairDateStr> data = new ArrayList<>();
         for (String str_date : str_dates) {
-            Date date = FormatStr.strDateToDate(str_date);
+            Date date = FormatStr.INSTANCE.strDateToDate(str_date);
             if (date == null) {
                 Log.i(TAG, "orderBenchmarks: skipping date");
                 continue;

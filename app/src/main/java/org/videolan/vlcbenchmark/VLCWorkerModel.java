@@ -502,13 +502,13 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         if (model.getLoopTotal() > 1) {
             return String.format(
                     getResources().getString(R.string.progress_text_format_loop),
-                    FormatStr.format2Dec(getProgressValue()), model.getFileIndex() + 1,
+                    FormatStr.INSTANCE.format2Dec(getProgressValue()), model.getFileIndex() + 1,
                     model.getTestFiles().size(), model.getTestIndex(),
                     model.getLoopNumber() + 1, model.getLoopTotal());
         } else {
             return String.format(
                     getResources().getString(R.string.progress_text_format),
-                    FormatStr.format2Dec(getProgressValue()), model.getFileIndex() + 1,
+                    FormatStr.INSTANCE.format2Dec(getProgressValue()), model.getFileIndex() + 1,
                     model.getTestFiles().size(), model.getTestIndex());
         }
     }

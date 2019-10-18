@@ -27,12 +27,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
-import static org.videolan.vlcbenchmark.tools.FormatStr.format2Dec;
 
 public class ResultDetailPage extends AppCompatActivity {
 
@@ -65,14 +64,14 @@ public class ResultDetailPage extends AppCompatActivity {
     }
 
     private void setupText() {
-        ((TextView) findViewById(R.id.software_score)).setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getSoftware())));
-        ((TextView) findViewById(R.id.software_bad_screenshot)).setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(0))));
+        ((TextView) findViewById(R.id.software_score)).setText(String.format(getResources().getString(R.string.detail_score), FormatStr.INSTANCE.format2Dec(result.getSoftware())));
+        ((TextView) findViewById(R.id.software_bad_screenshot)).setText(String.format(getResources().getString(R.string.detail_bad_screenshots), FormatStr.INSTANCE.format2Dec(result.getBadScreenshots(0))));
         ((TextView) findViewById(R.id.software_frames_dropped)).setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(0)));
         ((TextView) findViewById(R.id.software_warning_number)).setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(0)));
         setCrashText(((TextView) findViewById(R.id.software_crash)), TestInfo.SOFT);
 
-        ((TextView) findViewById(R.id.hardware_score)).setText(String.format(getResources().getString(R.string.detail_score), format2Dec(result.getHardware())));
-        ((TextView) findViewById(R.id.hardware_bad_screenshot)).setText(String.format(getResources().getString(R.string.detail_bad_screenshots), format2Dec(result.getBadScreenshots(1))));
+        ((TextView) findViewById(R.id.hardware_score)).setText(String.format(getResources().getString(R.string.detail_score), FormatStr.INSTANCE.format2Dec(result.getHardware())));
+        ((TextView) findViewById(R.id.hardware_bad_screenshot)).setText(String.format(getResources().getString(R.string.detail_bad_screenshots), FormatStr.INSTANCE.format2Dec(result.getBadScreenshots(1))));
         ((TextView) findViewById(R.id.hardware_frames_dropped)).setText(String.format(getResources().getString(R.string.detail_frames_dropped), result.getFrameDropped(1)));
         ((TextView) findViewById(R.id.hardware_warning_number)).setText(String.format(getResources().getString(R.string.detail_warning_number), result.getNumberOfWarnings(1)));
         setCrashText(((TextView) findViewById(R.id.hardware_crash)), TestInfo.HARD);
