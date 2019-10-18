@@ -40,6 +40,7 @@ import org.videolan.vlcbenchmark.api.ApiCalls;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
+import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 
 import java.util.ArrayList;
@@ -177,6 +178,19 @@ public class ResultPage extends AppCompatActivity {
         }
     }
 
+    void startUploadDialog(Intent data) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title_result_upload)
+                .setMessage(R.string.dialog_text_result_upload)
+                .setNegativeButton(R.string.dialog_btn_upload_with, (DialogInterface dialog, int which) ->
+                        prepareBenchmarkUpload(true, data)
+                )
+                .setNeutralButton(R.string.dialog_btn_upload_without, (DialogInterface dialog, int which) ->
+                        prepareBenchmarkUpload(false, data)
+                )
+                .show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -184,15 +198,18 @@ public class ResultPage extends AppCompatActivity {
         mGoogleConnectionHandler.setGoogleSignInClient(this, this);
         if (requestCode == Constants.RequestCodes.OPENGL) {
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.dialog_title_result_upload)
-                    .setMessage(R.string.dialog_text_result_upload)
-                    .setNegativeButton(R.string.dialog_btn_upload_with, (DialogInterface dialog, int which) ->
-                        prepareBenchmarkUpload(true, data)
-                    )
-                    .setNeutralButton(R.string.dialog_btn_upload_without, (DialogInterface dialog, int which) ->
-                        prepareBenchmarkUpload(false, data)
-                    )
-                    .show();
+                    .setTitle(R.string.dialog_title_sample_deletion)
+                    .setMessage(R.string.dialog_text_sample_free_space)
+                    .setNegativeButton(R.string.dialog_btn_yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            StorageManager.INSTANCE.deleteDirectory(StorageManager.INSTANCE.getDirectory() + StorageManager.mediaFolder);
+                            startUploadDialog(data);
+                        }
+                    })
+                    .setNeutralButton(R.string.dialog_btn_no, (DialogInterface dialog, int which) ->
+                            startUploadDialog(data)
+                    ).show();
         } else if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             /* Starts the BenchGLActivity to get gpu information */
             if (mGoogleConnectionHandler.handleSignInResult(data)) {
