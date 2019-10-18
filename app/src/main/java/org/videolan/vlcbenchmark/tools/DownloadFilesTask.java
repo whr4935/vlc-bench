@@ -103,8 +103,8 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                     passedSize = 0;
                 }
             }
-            if (!FileHandler.checkFileSum(file, fileData.getChecksum())) {
-                FileHandler.delete(file);
+            if (!StorageManager.INSTANCE.checkFileSum(file, fileData.getChecksum())) {
+                StorageManager.INSTANCE.delete(file);
                 throw new GeneralSecurityException(new Formatter().format("Media file '%s' is incorrect, aborting", fileData.getUrl()).toString());
             }
         } catch (Exception e) {
@@ -136,12 +136,12 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
         }
         try {
             // Add nomedia file to stop vlc medialibrary from indexing the benchmark files
-            FileHandler.setNoMediaFile();
+            StorageManager.INSTANCE.setNoMediaFile();
             mFilesInfo = JSonParser.getMediaInfos(fragment.getActivity());
             for (MediaInfo fileData : mFilesInfo) {
                 mTotalFileSize += fileData.getSize();
             }
-            String mediaFolderStr = FileHandler.getFolderStr(FileHandler.mediaFolder);
+            String mediaFolderStr = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.mediaFolder);
             if (mediaFolderStr == null) {
                 Log.e(TAG, "Failed to get media directory");
                 dialog = new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_download_error);
@@ -157,7 +157,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 Log.i(TAG, "downloadFiles: downloading: " + fileData.getName());
                 File localFile = new File(mediaFolder.getPath() + '/' + fileData.getName());
                 if (localFile.exists()) {
-                    if (localFile.isFile() && FileHandler.checkFileSum(localFile, fileData.getChecksum())) {
+                    if (localFile.isFile() && StorageManager.INSTANCE.checkFileSum(localFile, fileData.getChecksum())) {
                         fileData.setLocalUrl(localFile.getAbsolutePath());
                         unusedFiles.remove(localFile);
                         downloadedSize += fileData.getSize();
@@ -165,8 +165,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
                         continue;
                     } else if (!localFile.getPath().contains(".nomedia")) {
                         // Check not to remove the nomedia file
-                        FileHandler.delete(localFile);
-                        FileHandler.delete(localFile);
+                        StorageManager.INSTANCE.delete(localFile);
                     }
                 }
                 downloadFile(localFile, fileData, downloadedSize);
@@ -176,7 +175,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             for (File toRemove : unusedFiles) {
                 // Check not to remove the nomedia file
                 if (!toRemove.getPath().contains(".nomedia")) {
-                    FileHandler.delete(toRemove);
+                    StorageManager.INSTANCE.delete(toRemove);
                 }
             }
         } catch (ConnectException e) {

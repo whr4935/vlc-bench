@@ -49,8 +49,8 @@ public class JsonHandler {
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList, true);
         FileOutputStream jsonFileOutputStream;
-        String folderName = FileHandler.getFolderStr(FileHandler.jsonFolder);
-        if (!FileHandler.checkFolderLocation(folderName)) {
+        String folderName = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder);
+        if (!StorageManager.INSTANCE.checkFolderLocation(folderName)) {
             Log.e(TAG, "Failed to created json folder");
             return null;
         }
@@ -66,14 +66,14 @@ public class JsonHandler {
 
         } catch (IOException e) {
             Log.e(TAG, "Failed to save json test results");
-            FileHandler.delete(jsonFile);
+            StorageManager.INSTANCE.delete(jsonFile);
             return null;
         }
         return fileName;
     }
 
     public static ArrayList<TestInfo> load(String fileName) {
-        File jsonFile = new File(FileHandler.getFolderStr(FileHandler.jsonFolder) + fileName);
+        File jsonFile = new File(StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder) + fileName);
         ArrayList<TestInfo> testInfoList = new ArrayList<>();
         try {
             StringBuilder text = new StringBuilder();
@@ -102,7 +102,7 @@ public class JsonHandler {
     }
 
     public static ArrayList<String> getFileNames() {
-        String dirname = FileHandler.getFolderStr(FileHandler.jsonFolder);
+        String dirname = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder);
         if (dirname == null) {
             return null;
         }
@@ -120,7 +120,7 @@ public class JsonHandler {
     }
 
     public static boolean deleteFiles(){
-        String dirpath = FileHandler.getFolderStr(FileHandler.jsonFolder);
+        String dirpath = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder);
         if (dirpath == null) {
             Log.e(TAG, "Failed to get folder path");
             return false;
@@ -128,7 +128,7 @@ public class JsonHandler {
         File dir = new File(dirpath);
         File[] files = dir.listFiles();
         for (File file : files) {
-            FileHandler.delete(file);
+            StorageManager.INSTANCE.delete(file);
         }
         return true;
     }

@@ -23,32 +23,157 @@ package org.videolan.vlcbenchmark;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import org.videolan.vlcbenchmark.tools.CopyFilesTask;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.FileHandler;
+import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
+import org.videolan.vlcbenchmark.tools.StorageManager;
+import org.videolan.vlcbenchmark.tools.Util;
 
 import java.io.File;
+import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
-public class SettingsFragment extends PreferenceFragmentCompat {
+import kotlin.Unit;
+
+public class SettingsFragment extends PreferenceFragmentCompat implements CopyFilesTask.IOnFilesCopied {
 
     private static String TAG = SettingsFragment.class.getName();
 
-    GoogleConnectionHandler mGoogleConnectionHandler;
+    private GoogleConnectionHandler mGoogleConnectionHandler;
+    private ProgressDialog progressDialog = null;
+    private Long mCopySize = -1L;
+    private CopyFilesTask mTask = null;
 
     @Override
     public void onResume() {
         super.onResume();
+
         mGoogleConnectionHandler = GoogleConnectionHandler.getInstance();
         mGoogleConnectionHandler.setGoogleSignInClient(getContext(), getActivity());
         this.updateGoogleButton();
+
+        ListPreference preference = this.findPreference("storage_key");
+        if (getActivity() != null &&  preference != null) {
+            preference.setTitle(getActivity().getString(R.string.storage_pref));
+            setStoragePreference(preference, null);
+            ArrayList<String> entries = new ArrayList<String>();
+            entries.add(getActivity().getString(R.string.internal_memory));
+            for (String val : StorageManager.INSTANCE.getExternalStorageDirectories()) {
+                entries.add(String.format(getActivity().getString(R.string.sdcard), val));
+            }
+            preference.setEntries(entries.toArray(new CharSequence[entries.size()]));
+            ArrayList<String> entryValues = new ArrayList<String>();
+            entryValues.add(StorageManager.INSTANCE.getEXTERNAL_PUBLIC_DIRECTORY());
+            entryValues.addAll(StorageManager.INSTANCE.getExternalStorageDirectories());
+            preference.setEntryValues(entryValues.toArray(new CharSequence[entryValues.size()]));
+            SettingsFragment context = this;
+            preference.setOnPreferenceChangeListener((Preference changedPreference, Object newValue) ->{
+                String oldValue = StorageManager.INSTANCE.getDirectory();
+                if (oldValue != null && StorageManager.INSTANCE.checkNewMountpointFreeSpace(oldValue, (String)newValue)) {
+                    mCopySize = StorageManager.INSTANCE.getDirectoryMemoryUsage(oldValue);
+                    mTask = new CopyFilesTask(context);
+                    mTask.execute(oldValue, newValue + StorageManager.baseDir);
+                    createDialog();
+                    return true;
+                } else {
+                    Toast.makeText(getActivity(), R.string.toast_error_mountpoint_no_space, Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void createDialog() {
+        if (getActivity() != null && getFragmentManager() != null) {
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+            progressDialog = new ProgressDialog();
+            progressDialog.setTitle(R.string.dialog_title_file_copy);
+            progressDialog.setCancelCallback(this::onDialogCancel);
+            progressDialog.setCancelable(false);
+            progressDialog.show(getFragmentManager(), "Copy dialog");
+        }
+    }
+
+    private Unit onDialogCancel() {
+        if (getActivity() != null)
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+        if (mTask != null)
+            mTask.cancel(true);
+        return Unit.INSTANCE;
+    }
+
+    @Override
+    public void onFileCopied(@NonNull String newValue) {
+        newValue = newValue.replace(StorageManager.baseDir, "");
+        if (mTask != null && getActivity() != null) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+            Preference preference = findPreference("storage_key");
+            if (preference != null) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("storage_dir", newValue);
+                editor.commit();
+                setStoragePreference(preference, newValue);
+            } else {
+                Log.w(TAG, "onFileCopied: preference is null");
+            }
+            mTask = null;
+        } else if (mTask == null) {
+            Log.w(TAG, "onFileCopied: task null");
+        } else {
+            Log.w(TAG, "onFileCopied: activity null");
+        }
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+        mCopySize = -1L;
+    }
+
+    @Override
+    public void updateProgress(long downloadSize, long downloadSpeed) {
+        Util.runInUiThread(() -> {
+            if (getActivity() != null && progressDialog != null) {
+                double percent = (double)downloadSize / (double)mCopySize * 100d;
+                String progressString = String.format(
+                        getActivity().getString(R.string.dialog_text_download_progress),
+                        FormatStr.format2Dec(percent), FormatStr.bitRateToString(downloadSpeed),
+                        FormatStr.sizeToString(downloadSize), FormatStr.sizeToString(mCopySize));
+                progressDialog.updateProgress(percent, progressString, "");
+            }
+        });
+    }
+
+    private void setStoragePreference(Preference preference, String location) {
+        String subtitle;
+        if (location == null)
+            location = StorageManager.INSTANCE.getMountpoint();
+        ((ListPreference)preference).setValue(location);
+        if (StorageManager.INSTANCE.getEXTERNAL_PUBLIC_DIRECTORY().equals(location)) {
+            subtitle = getString(R.string.internal_memory);
+        } else {
+            if (getActivity() != null) {
+                subtitle = String.format(getActivity().getString(R.string.sdcard),
+                        StorageManager.INSTANCE.getFilenameFromPath(location));
+            } else {
+                subtitle = StorageManager.INSTANCE.getFilenameFromPath(location);
+            }
+        }
+        preference.setSummary(subtitle);
     }
 
     @Override
@@ -59,7 +184,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void deleteSamples() {
         DialogInstance dialog = new DialogInstance(
                 R.string.dialog_title_sample_deletion, R.string.dialog_text_file_deletion_success);
-        File dir = new File(FileHandler.getFolderStr("media_folder"));
+        String dirPath = StorageManager.INSTANCE.getFolderStr("media_folder");
+        if (dirPath == null) {
+            Log.e(TAG, "deleteSamples: media forlder path is null");
+            return;
+        }
+        File dir = new File(dirPath);
         File[] files = dir.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -73,6 +203,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         dialog.display(getActivity());
     }
 
+
+
     private void deleteResults() {
         boolean ret = JsonHandler.deleteFiles();
         DialogInstance dialog;
@@ -83,6 +215,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
         dialog.display(getActivity());
     }
+
+
 
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
@@ -118,10 +252,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 dialog.show();
                 break;
             case "about_key":
-                Log.e("VLCBench", "about_key selected");
                 Intent intent = new Intent(getActivity(), AboutActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+                break;
+            case "storage_key":
+                //Handled in the preference onchange listener
                 break;
             default:
                 Log.e("VLCBench", "Unknown preference selected");
@@ -130,9 +266,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return super.onPreferenceTreeClick(preference);
     }
 
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.w(TAG, "onActivityResult: " + requestCode );
         if (requestCode == Constants.RequestCodes.GOOGLE_CONNECTION) {
             mGoogleConnectionHandler.setGoogleSignInClient(getContext(), getActivity());
             if (mGoogleConnectionHandler.handleSignInResult(data)) {
@@ -164,6 +301,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onPause() {
         mGoogleConnectionHandler.unsetGoogleSignInClient();
+        if (mTask != null) {
+            mTask.cancel(true);
+        }
         super.onPause();
     }
 

@@ -107,7 +107,7 @@ public class ProgressSaver {
 
         } catch (IOException | JSONException e) {
             Log.e(TAG, "Failed to save json test results");
-            FileHandler.delete(jsonFile);
+            StorageManager.INSTANCE.delete(jsonFile);
             return null;
         }
         return mFilename;

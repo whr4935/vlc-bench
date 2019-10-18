@@ -58,8 +58,8 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         // Writing log file
         FileOutputStream fileOutputStream;
         String fileName = FormatStr.getDateStr() + "_VLCBenchmark-Crash.log";
-        String folderName = FileHandler.getFolderStr("VLCBenchmark_crashLogs");
-        if (FileHandler.checkFolderLocation(folderName)) {
+        String folderName = StorageManager.INSTANCE.getFolderStr("VLCBenchmark_crashLogs");
+        if (StorageManager.INSTANCE.checkFolderLocation(folderName)) {
             File file = new File(folderName + fileName);
             try {
                 fileOutputStream = new FileOutputStream(file);

@@ -45,13 +45,13 @@ import org.videolan.vlcbenchmark.benchmark.BenchmarkViewModel;
 import org.videolan.vlcbenchmark.benchmark.TestTypes;
 import org.videolan.vlcbenchmark.tools.CrashHandler;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ProgressSaver;
 import org.videolan.vlcbenchmark.tools.ScreenshotValidator;
+import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.Util;
 
@@ -135,6 +135,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         CrashHandler.setCrashHandler();
         model = ViewModelProviders.of(this).get(BenchmarkViewModel.class);
 
+        StorageManager.INSTANCE.setStoragePreference(this);
         setupUiMembers(savedInstanceState);
 
         RetrofitInstance.init(getString(R.string.build_api_address));
@@ -217,7 +218,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      */
     private void createIntentForVlc(MediaInfo currentFile, OnIntentCreatedListener listener) {
         try {
-            FileHandler.checkFileSumAsync(new File(currentFile.getLocalUrl()), currentFile.getChecksum(), valid -> {
+            StorageManager.INSTANCE.checkFileSumAsync(new File(currentFile.getLocalUrl()), currentFile.getChecksum(), valid -> {
                 if (!valid) {
                     Log.e(TAG, "createIntentForVlc: Invalid file");
                     listener.onItentCreated(null);
@@ -234,7 +235,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 vlcIntent.putExtra(EXTRA_HARDWARE, model.getTestIndex().isSoftware());
                 if (model.getTestIndex().isScreenshot()) {
                     vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getTimestamps());
-                    vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, FileHandler.getFolderStr(FileHandler.screenshotFolder));
+                    vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.screenshotFolder));
                 }
                 vlcIntent.putExtra(EXTRA_FROM_START, true);
                 vlcIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -353,7 +354,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * and call {@link VLCWorkerModel#launchNextTest()} on the UI thread.
      */
     private void testScreenshot() {
-        final String screenshotFolder = FileHandler.getFolderStr(FileHandler.screenshotFolder);
+        final String screenshotFolder = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.screenshotFolder);
         final int numberOfScreenshot = model.getTestFiles().get(model.getFileIndex()).getColors().size();
         final List<int[]> colors = model.getTestFiles().get(model.getFileIndex()).getColors();
 

@@ -25,7 +25,7 @@ import android.app.Activity;
 import android.os.StatFs;
 import android.util.DisplayMetrics;
 
-import org.videolan.vlcbenchmark.tools.FileHandler;
+import org.videolan.vlcbenchmark.tools.StorageManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -184,7 +184,7 @@ public class SystemPropertiesProxy {
     }
 
     public static Long getFreeSpace() {
-        String mediaDir = FileHandler.getFolderStr(FileHandler.mediaFolder);
+        String mediaDir = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.mediaFolder);
         if (mediaDir == null)
             return -1L;
         File file = new File(mediaDir);

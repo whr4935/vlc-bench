@@ -17,6 +17,17 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/storage_pref_category">
+
+        <ListPreference
+            android:title="@string/storage_pref"
+            android:key="@string/storage_key"
+            android:defaultValue="@string/internal_memory"
+            android:entryValues="@array/storage_values"
+            android:entries="@array/storage_values"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/misc_pref_category">
 
         <Preference

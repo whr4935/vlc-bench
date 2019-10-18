@@ -15,7 +15,7 @@ import org.json.JSONObject
 import org.videolan.vlcbenchmark.R
 import org.videolan.vlcbenchmark.ResultPage
 import org.videolan.vlcbenchmark.tools.DialogInstance
-import org.videolan.vlcbenchmark.tools.FileHandler
+import org.videolan.vlcbenchmark.tools.StorageManager
 import org.videolan.vlcbenchmark.tools.TestInfo
 import retrofit2.Call
 import retrofit2.Callback
@@ -57,11 +57,11 @@ class ApiCalls {
                                 .setNeutralButton(R.string.dialog_btn_visit, websiteLink)
                                 .setNegativeButton(R.string.dialog_btn_continue, null)
                                 .show()
-                        FileHandler.deleteScreenshots()
+                        StorageManager.deleteScreenshots()
                     } else {
                         Log.e(TAG, response.toString())
                         DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_upload).display(context)
-                        FileHandler.deleteScreenshots()
+                        StorageManager.deleteScreenshots()
                     }
                     progressDialog.dismiss()
                 }
@@ -69,7 +69,7 @@ class ApiCalls {
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     Log.e(TAG, t.toString())
                     DialogInstance(R.string.dialog_title_error, R.string.dialog_text_err_upload).display(context)
-                    FileHandler.deleteScreenshots()
+                    StorageManager.deleteScreenshots()
                     progressDialog.dismiss()
                 }
             }
@@ -103,7 +103,7 @@ class ApiCalls {
                 builder.setType(MultipartBody.FORM)
                 builder.addFormDataPart("data", jsonObject.toString())
 
-                val screenshotFolder = FileHandler.getFolderStr(FileHandler.screenshotFolder)
+                val screenshotFolder = StorageManager.getFolderStr(StorageManager.screenshotFolder)
                 for (test in results) {
                     for (screen in test.screenshots) {
                         val file = File(screenshotFolder, screen)

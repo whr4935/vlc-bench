@@ -38,9 +38,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.videolan.vlcbenchmark.tools.DialogInstance;
-import org.videolan.vlcbenchmark.tools.FileHandler;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
+import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.Util;
 
@@ -190,10 +190,10 @@ public class MainPageResultListFragment extends Fragment {
                             .setMessage(R.string.dialog_text_confirm_bench_delete)
                             .setNeutralButton(R.string.dialog_btn_cancel, null)
                             .setNegativeButton(R.string.dialog_btn_continue, (dialog, w1) -> {
-                                File sample = new File(FileHandler.getFolderStr(FileHandler.jsonFolder)
+                                File sample = new File(StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder)
                                         + FormatStr.fromDatePrettyPrint(mTitle.getText().toString())
                                         + ".txt");
-                                FileHandler.delete(sample);
+                                StorageManager.INSTANCE.delete(sample);
                                 mData.remove(getAdapterPosition());
                                 mRecyclerView.removeViewAt(getAdapterPosition());
                                 notifyItemRemoved(getAdapterPosition());
