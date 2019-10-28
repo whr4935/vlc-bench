@@ -42,6 +42,7 @@ import org.videolan.vlcbenchmark.tools.GoogleConnectionHandler;
 import org.videolan.vlcbenchmark.tools.JsonHandler;
 import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
+import org.videolan.vlcbenchmark.tools.Util;
 
 import java.util.ArrayList;
 
@@ -252,7 +253,8 @@ public class ResultPage extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mRecyclerView != null &&
+        if (Util.isAndroidTV(this) &&
+                mRecyclerView != null &&
                 mRecyclerView.hasFocus() &&
                 mRecyclerView.findViewHolderForLayoutPosition(0) != null &&
                 !mRecyclerView.findViewHolderForLayoutPosition(0).itemView.hasFocus()) {
