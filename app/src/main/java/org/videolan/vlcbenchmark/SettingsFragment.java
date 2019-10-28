@@ -86,7 +86,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
                 if (oldValue != null && StorageManager.INSTANCE.checkNewMountpointFreeSpace(oldValue, (String)newValue)) {
                     mCopySize = StorageManager.INSTANCE.getDirectoryMemoryUsage(oldValue);
                     mTask = new CopyFilesTask(context);
-                    mTask.execute(oldValue, newValue + StorageManager.baseDir);
+                    mTask.execute(oldValue, newValue + StorageManager.INSTANCE.getBaseDir());
                     createDialog();
                     return true;
                 } else {
@@ -118,7 +118,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
 
     @Override
     public void onFileCopied(@NonNull String newValue) {
-        newValue = newValue.replace(StorageManager.baseDir, "");
+        newValue = newValue.replace(StorageManager.INSTANCE.getBaseDir(), "");
         if (mTask != null && getActivity() != null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
@@ -184,7 +184,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
     private void deleteSamples() {
         DialogInstance dialog = new DialogInstance(
                 R.string.dialog_title_sample_deletion, R.string.dialog_text_file_deletion_success);
-        String dirPath = StorageManager.INSTANCE.getFolderStr("media_folder");
+        String dirPath = StorageManager.INSTANCE.getInternalDirStr("media_folder");
         if (dirPath == null) {
             Log.e(TAG, "deleteSamples: media forlder path is null");
             return;

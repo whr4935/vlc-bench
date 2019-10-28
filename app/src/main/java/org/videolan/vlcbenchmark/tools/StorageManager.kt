@@ -5,12 +5,12 @@ import android.content.SharedPreferences
 import android.os.Environment
 import android.preference.PreferenceManager
 import android.util.Log
+import org.videolan.vlcbenchmark.BuildConfig
 import java.io.*
 import java.security.GeneralSecurityException
 import java.security.MessageDigest
 import java.util.*
 import kotlin.collections.HashMap
-import kotlin.math.log
 
 object StorageManager {
 
@@ -19,7 +19,7 @@ object StorageManager {
     const val jsonFolder = "jsonFolder"
     const val mediaFolder = "mediaFolder"
     const val screenshotFolder = "screenshotFolder"
-    const val baseDir = "/VLCBenchmark/"
+    val tmpScreenshotDir = Environment.getExternalStorageDirectory().absolutePath + "/vlcBenchmarkScreenshotDir"
 
     //Devices mountpoints management
     private val typeWL = Arrays.asList("vfat", "exfat", "sdcardfs", "fuse", "ntfs", "fat32", "ext3", "ext4", "esdfs")
@@ -64,6 +64,7 @@ object StorageManager {
             }
     val hasExternalSdCard = externalStorageDirectories.isNotEmpty()
 
+    var baseDir : String = ""
     var directoryListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
     var mountpoint: String? = null
     var directory: String? = null
@@ -182,6 +183,7 @@ object StorageManager {
 
     fun setStoragePreference(context: Context) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        baseDir = "/Android/data/${BuildConfig.APPLICATION_ID}/VLCBenchmark/"
         mountpoint = sharedPreferences.getString("storage_dir", "unset")
         if (mountpoint == "unset") {
             mountpoint = checkoutForPreviousLocation()
@@ -190,16 +192,46 @@ object StorageManager {
             mountpoint = EXTERNAL_PUBLIC_DIRECTORY
         }
         directory = mountpoint + baseDir
+        Environment.getExternalStorageDirectory()
+
+        //Creates the app directory if doesn't exist
+        context.getExternalFilesDir(null)
+
+        Log.w(TAG, "setStoragePreference: ${context.filesDir.absolutePath}")
         if (directoryListener != null) {
             sharedPreferences.unregisterOnSharedPreferenceChangeListener(directoryListener)
         }
         directoryListener = SharedPreferences.OnSharedPreferenceChangeListener { _sharedPreferences, key ->
             if (key == "storage_dir") {
+                Log.w(TAG, "setStoragePreference: OnpreferencceChange")
                 mountpoint = _sharedPreferences.getString("storage_dir", EXTERNAL_PUBLIC_DIRECTORY)
                 directory = mountpoint + baseDir
+                //Creates the app directory if doesn't exist
+                context.getExternalFilesDir(null)
             }
         }
         sharedPreferences.registerOnSharedPreferenceChangeListener(directoryListener)
+    }
+
+    fun createDirectory(_name: String): Boolean {
+        var name = _name
+        if (name[name.length - 1] == '/')
+            name = name.dropLast(1)
+        val split = name.split("/")
+        if (split.size > 2) {
+            val parentPath = split.subList(0, split.size - 1).joinToString(separator = "/")
+            val success = createDirectory(parentPath)
+            if (!success) {
+                Log.e(TAG, "createDirectory: Failed to create folder: $parentPath")
+                return false
+            }
+        }
+        val folderPath = split.joinToString(separator = "/")
+        val folder = File(folderPath)
+        if (folder.exists()) {
+            return true
+        }
+        return folder.mkdir()
     }
 
     fun checkFolderLocation(name: String?): Boolean {
@@ -215,21 +247,19 @@ object StorageManager {
         return ret
     }
 
-    fun getFolderStr(name: String): String? {
-        if (!checkFolderLocation(directory)) {
-            Log.e(TAG, "getFolderStr: Failed to create directory base directory")
+    fun getInternalDirStr(name: String): String? {
+        val folderStr = "$directory$name/"
+        if (!createDirectory(folderStr)) {
+            Log.e(TAG, "getInternalDirStr: Failed to create directory base directory")
             return null
-        }
-        val folderStr = directory + name + "/"
-        return if (!checkFolderLocation(folderStr)) {
-            null
-        } else folderStr
+        } else
+            return folderStr
     }
 
     // Adding a nomedia to the media folder stops the vlc medialibrary from indexing the files
     // in the folder. Stops the benchmark from polluting the user's vlc library
     fun setNoMediaFile() {
-        var path = getFolderStr(mediaFolder)
+        var path = getInternalDirStr(mediaFolder)
         if (path == null) {
             Log.e(TAG, "setNoMediaFile: path is null")
             return
@@ -293,7 +323,7 @@ object StorageManager {
 
     fun deleteScreenshots() {
         Util.runInBackground {
-            val dir = File(getFolderStr(screenshotFolder)!!)
+            val dir = File(getInternalDirStr(screenshotFolder)!!)
             val files = dir.listFiles()
             if (files != null) {
                 for (file in files) {

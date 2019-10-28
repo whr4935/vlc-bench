@@ -188,7 +188,7 @@ public class MainPageResultListFragment extends Fragment {
                             .setMessage(R.string.dialog_text_confirm_bench_delete)
                             .setNeutralButton(R.string.dialog_btn_cancel, null)
                             .setNegativeButton(R.string.dialog_btn_continue, (dialog, w1) -> {
-                                File sample = new File(StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder)
+                                File sample = new File(StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.jsonFolder)
                                         + FormatStr.INSTANCE.fromDatePrettyPrint(mTitle.getText().toString())
                                         + ".txt");
                                 StorageManager.INSTANCE.delete(sample);

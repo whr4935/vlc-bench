@@ -141,7 +141,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
             for (MediaInfo fileData : mFilesInfo) {
                 mTotalFileSize += fileData.getSize();
             }
-            String mediaFolderStr = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.mediaFolder);
+            String mediaFolderStr = StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.mediaFolder);
             if (mediaFolderStr == null) {
                 Log.e(TAG, "Failed to get media directory");
                 dialog = new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_download_error);

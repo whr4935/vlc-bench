@@ -103,7 +103,7 @@ class ApiCalls {
                 builder.setType(MultipartBody.FORM)
                 builder.addFormDataPart("data", jsonObject.toString())
 
-                val screenshotFolder = StorageManager.getFolderStr(StorageManager.screenshotFolder)
+                val screenshotFolder = StorageManager.getInternalDirStr(StorageManager.screenshotFolder)
                 for (test in results) {
                     for (screen in test.screenshots) {
                         val file = File(screenshotFolder, screen)

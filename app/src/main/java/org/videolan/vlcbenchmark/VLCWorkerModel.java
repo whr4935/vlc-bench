@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
@@ -235,10 +236,15 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 vlcIntent.putExtra(EXTRA_HARDWARE, model.getTestIndex().isSoftware());
                 if (model.getTestIndex().isScreenshot()) {
                     vlcIntent.putExtra(EXTRA_TIMESTAMPS, (Serializable) currentFile.getTimestamps());
-                    vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.screenshotFolder));
+                    if (!StorageManager.INSTANCE.createDirectory(StorageManager.INSTANCE.getTmpScreenshotDir())) {
+                        Log.e(TAG, "createIntentForVlc: Failed to create screenshot directory for vlc-android" );
+                        Toast.makeText(this, R.string.dialog_text_oups, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    vlcIntent.putExtra(EXTRA_SCREENSHOT_DIR, StorageManager.INSTANCE.getTmpScreenshotDir());
                 }
                 vlcIntent.putExtra(EXTRA_FROM_START, true);
-                vlcIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                vlcIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
                 if (model.getTestIndex().isSoftware() && model.getTestIndex().isScreenshot())
                     Log.d(TAG, "onActivityResult: ===========================================================================================================" );
@@ -354,7 +360,8 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      * and call {@link VLCWorkerModel#launchNextTest()} on the UI thread.
      */
     private void testScreenshot() {
-        final String screenshotFolder = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.screenshotFolder);
+        final String tmpScreenshotFolder = StorageManager.INSTANCE.getTmpScreenshotDir();
+        final String screenshotDir = StorageManager.INSTANCE.getInternalDirStr(StorageManager.screenshotFolder);
         final int numberOfScreenshot = model.getTestFiles().get(model.getFileIndex()).getColors().size();
         final List<int[]> colors = model.getTestFiles().get(model.getFileIndex()).getColors();
 
@@ -366,7 +373,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 ArrayList<String> screenList = new ArrayList<>();
                 ArrayList<Integer> scoreList = new ArrayList<>();
                 for (int i = 0; i < numberOfScreenshot; i++) {
-                    String filePath = screenshotFolder + "/" + SCREENSHOT_NAMING + i + ".png";
+                    String filePath = tmpScreenshotFolder + "/" + SCREENSHOT_NAMING + i + ".png";
                     File file = new File(filePath);
                     Pair<Boolean, Integer> res = ScreenshotValidator.validateScreenshot(filePath, colors.get(i));
                     if (res != null && !res.first) {
@@ -385,7 +392,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                     }
                     String fileName = (model.getFileIndex() + 1 ) + "_" + model.testIndex.toString();
                     fileName += "_" + i + ".png";
-                    File renamedFile = new File(screenshotFolder + "/" + fileName);
+                    File renamedFile = new File(screenshotDir + "/" + fileName);
                     Log.w(TAG, "run: " + fileName);
                     if (file.renameTo(renamedFile)) {
                         Log.w(TAG, "run: adding");
@@ -398,6 +405,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                         100.0 * badScreenshots / numberOfScreenshot,
                         model.getTestIndex().isSoftware(), indexList.toArray(new Integer[0]),
                         screenList.toArray(new String[0]), scoreList.toArray(new Integer[0]));
+                StorageManager.INSTANCE.deleteDirectory(StorageManager.INSTANCE.getTmpScreenshotDir());
                 runOnUiThread(() -> launchNextTest());
             }
         }.start();

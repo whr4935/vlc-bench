@@ -71,7 +71,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 errDialog = new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_error_connect);
                 return false;
             }
-            String dirStr = StorageManager.INSTANCE.getFolderStr(StorageManager.mediaFolder);
+            String dirStr = StorageManager.INSTANCE.getInternalDirStr(StorageManager.mediaFolder);
             if (dirStr == null) {
                 Log.e(TAG, "doInBackground: Failed to get media folder");
                 errDialog = new DialogInstance(R.string.dialog_title_oups, R.string.dialog_text_file_creation_failure);

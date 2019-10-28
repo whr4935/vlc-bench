@@ -68,7 +68,6 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
                             Log.e(TAG, "transferMountpoints: Failed to move file: ${newFile.absolutePath}")
                             return -1
                         }
-                        Log.w(TAG, "transferMountpoints: successfull copy to $newDirectory/${f.name}")
                         downloadSize += f.length()
                         onProgressUpdate(Pair(downloadSize, 0L))
                     } catch (e: Exception) {
@@ -97,14 +96,12 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
         super.onProgressUpdate(*values)
         Log.w(TAG, "onProgressUpdate: ")
         if (values.size == 1 && fragment is IOnFilesCopied) {
-            Log.w(TAG, "onProgressUpdate: " + values)
             (fragment as IOnFilesCopied).updateProgress(values[0]!!.first, values[0]!!.second)
         }
     }
 
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
-        Log.w(TAG, "onPostExecute: result: " + result)
         if (fragment is IOnFilesCopied) {
             val listener = fragment as IOnFilesCopied
             if (result!!) {

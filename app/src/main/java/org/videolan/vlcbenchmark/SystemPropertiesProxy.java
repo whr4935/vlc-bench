@@ -183,7 +183,7 @@ public class SystemPropertiesProxy {
     }
 
     public static Long getFreeSpace() {
-        String mediaDir = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.mediaFolder);
+        String mediaDir = StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.mediaFolder);
         if (mediaDir == null)
             return -1L;
         File file = new File(mediaDir);

@@ -49,7 +49,7 @@ public class JsonHandler {
         JSONArray testInformation;
         testInformation = getTestInformation(testInfoList, true);
         FileOutputStream jsonFileOutputStream;
-        String folderName = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder);
+        String folderName = StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.jsonFolder);
         if (!StorageManager.INSTANCE.checkFolderLocation(folderName)) {
             Log.e(TAG, "Failed to created json folder");
             return null;
@@ -73,7 +73,7 @@ public class JsonHandler {
     }
 
     public static ArrayList<TestInfo> load(String fileName) {
-        File jsonFile = new File(StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder) + fileName);
+        File jsonFile = new File(StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.jsonFolder) + fileName);
         ArrayList<TestInfo> testInfoList = new ArrayList<>();
         try {
             StringBuilder text = new StringBuilder();
@@ -102,7 +102,7 @@ public class JsonHandler {
     }
 
     public static ArrayList<String> getFileNames() {
-        String dirname = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder);
+        String dirname = StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.jsonFolder);
         if (dirname == null) {
             return null;
         }
@@ -120,7 +120,7 @@ public class JsonHandler {
     }
 
     public static boolean deleteFiles(){
-        String dirpath = StorageManager.INSTANCE.getFolderStr(StorageManager.INSTANCE.jsonFolder);
+        String dirpath = StorageManager.INSTANCE.getInternalDirStr(StorageManager.INSTANCE.jsonFolder);
         if (dirpath == null) {
             Log.e(TAG, "Failed to get folder path");
             return false;
