@@ -60,8 +60,9 @@ public class MainPageResultListFragment extends Fragment {
 
     private static int scrollPosition = -1;
 
-    RecyclerView mRecyclerView;
-    ArrayList<Pair<String, String>> mData;
+    private RecyclerView mRecyclerView;
+    private ArrayList<Pair<String, String>> mData;
+    private View mView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,11 +71,11 @@ public class MainPageResultListFragment extends Fragment {
         RecyclerView.Adapter mAdapter;
         RecyclerView.LayoutManager mLayoutManager;
 
-        View view = inflater.inflate(R.layout.fragment_main_page_result_list_fragment, container, false);
-        LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.no_results);
+        mView = inflater.inflate(R.layout.fragment_main_page_result_list_fragment, container, false);
+        LinearLayout linearLayout = mView.findViewById(R.id.no_results);
         linearLayout.setFocusable(false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.test_list_view);
+        mRecyclerView = mView.findViewById(R.id.test_list_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setFocusable(true);
 
@@ -84,6 +85,13 @@ public class MainPageResultListFragment extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         mData = new ArrayList<>();
         mAdapter = new MainPageResultListFragment.TestListAdapter(mData);
+        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                setVisibility();
+                super.onItemRangeRemoved(positionStart, itemCount);
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
 
         ArrayList<String> filenames = JsonHandler.getFileNames();
@@ -91,7 +99,7 @@ public class MainPageResultListFragment extends Fragment {
             tmpdata = orderBenchmarks(JsonHandler.getFileNames());
 
             if (tmpdata.isEmpty()) {
-                view.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
             } else {
                 Util.runInBackground(new Runnable() {
                     @Override
@@ -121,15 +129,28 @@ public class MainPageResultListFragment extends Fragment {
         } else {
             new DialogInstance(R.string.dialog_title_error, R.string.dialog_text_loading_results_failure).display(getContext());
         }
-        return view;
+        return mView;
     }
 
-    public void addResult(String name, String result) {
+    /**
+     * To be called when adding or removing an item from the recycler view.
+     * if empty displays the empty view
+     * else display the recycler view */
+    private void setVisibility() {
+        if (mData.isEmpty()) {
+            mView.findViewById(R.id.no_results).setVisibility(View.VISIBLE);
+        } else {
+            mView.findViewById(R.id.no_results).setVisibility(View.GONE);
+        }
+    }
+
+    private void addResult(String name, String result) {
         mData.add(new Pair<>(name, result));
         mRecyclerView.getAdapter().notifyItemInserted(mData.size());
+        setVisibility();
     }
 
-    public boolean isEmpty() {
+    boolean isEmpty() {
         return mData.isEmpty();
     }
 
@@ -170,12 +191,12 @@ public class MainPageResultListFragment extends Fragment {
 
             ViewHolder(View view) {
                 super(view);
-                mTitle = (TextView) view.findViewById(R.id.test_name);
-                mResult = (TextView) view.findViewById(R.id.test_result);
+                mTitle = view.findViewById(R.id.test_name);
+                mResult = view.findViewById(R.id.test_result);
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        TextView text = (TextView) view.findViewById(R.id.test_name);
+                        TextView text = view.findViewById(R.id.test_name);
                         Intent intent = new Intent(getActivity(), ResultPage.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         intent.putExtra("name", FormatStr.INSTANCE.fromDatePrettyPrint(text.getText().toString()));
