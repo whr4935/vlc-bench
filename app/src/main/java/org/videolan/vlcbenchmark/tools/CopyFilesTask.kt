@@ -40,13 +40,18 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
                             var fromTime = System.nanoTime()
                             var passedTime: Long
                             var passedSize: Long = 0
+                            var fileDownloadSize: Long = 0
                             while (read != -1) {
+                                if (this.isCancelled) {
+                                    Log.w(TAG, "transferMountpoints: Task was cancelled")
+                                    return -1
+                                }
                                 passedTime = System.nanoTime()
                                 fout.write(buffer, 0, read)
                                 passedSize += read.toLong()
                                 if (passedTime - fromTime >= 1_000_000_000) {
-                                    downloadSize += passedSize
-                                    onProgressUpdate(Pair(downloadSize, passedSize))
+                                    fileDownloadSize += passedSize
+                                    onProgressUpdate(Pair(downloadSize + fileDownloadSize, passedSize))
                                     fromTime = System.nanoTime()
                                     passedSize = 0
                                 }
@@ -94,10 +99,17 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
 
     override fun onProgressUpdate(vararg values: Pair<Long, Long>?) {
         super.onProgressUpdate(*values)
-        Log.w(TAG, "onProgressUpdate: ")
         if (values.size == 1 && fragment is IOnFilesCopied) {
             (fragment as IOnFilesCopied).updateProgress(values[0]!!.first, values[0]!!.second)
         }
+    }
+
+    override fun onCancelled() {
+        if (fragment is IOnFilesCopied) {
+            StorageManager.deleteDirectory(this.newDirectory)
+            (fragment as IOnFilesCopied).onFileCopied(isCancelled, this.oldDirectory)
+        }
+        super.onCancelled()
     }
 
     override fun onPostExecute(result: Boolean?) {
@@ -106,16 +118,16 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
             val listener = fragment as IOnFilesCopied
             if (result!!) {
                 StorageManager.deleteDirectory(this.oldDirectory)
-                listener.onFileCopied(this.newDirectory)
+                listener.onFileCopied(true, this.newDirectory)
             } else {
                 StorageManager.deleteDirectory(this.newDirectory)
-                listener.onFileCopied(this.oldDirectory)
+                listener.onFileCopied(false, this.oldDirectory)
             }
         }
     }
 
     interface IOnFilesCopied {
-        fun onFileCopied(newValue: String)
+        fun onFileCopied(success: Boolean, newValue: String)
         fun updateProgress(downloadSize: Long, downloadSpeed: Long)
     }
 

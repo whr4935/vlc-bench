@@ -117,26 +117,23 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
     }
 
     @Override
-    public void onFileCopied(@NonNull String newValue) {
+    public void onFileCopied(boolean success, @NonNull String newValue) {
         newValue = newValue.replace(StorageManager.INSTANCE.getBaseDir(), "");
-        if (mTask != null && getActivity() != null) {
+        if (getActivity() != null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
-            Preference preference = findPreference("storage_key");
+            ListPreference preference = findPreference("storage_key");
             if (preference != null) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("storage_dir", newValue);
                 editor.commit();
                 setStoragePreference(preference, newValue);
-            } else {
-                Log.w(TAG, "onFileCopied: preference is null");
             }
-            mTask = null;
-        } else if (mTask == null) {
-            Log.w(TAG, "onFileCopied: task null");
-        } else {
-            Log.w(TAG, "onFileCopied: activity null");
+            if (!success) {
+                Toast.makeText(getActivity(), R.string.toast_error_file_transfert, Toast.LENGTH_LONG).show();
+            }
         }
+        mTask = null;
         if (progressDialog != null) {
             progressDialog.dismiss();
             progressDialog = null;
@@ -158,11 +155,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
         });
     }
 
-    private void setStoragePreference(Preference preference, String location) {
+    private void setStoragePreference(ListPreference preference, String location) {
         String subtitle;
         if (location == null)
             location = StorageManager.INSTANCE.getMountpoint();
-        ((ListPreference)preference).setValue(location);
+        preference.setValue(location);
         if (StorageManager.INSTANCE.getEXTERNAL_PUBLIC_DIRECTORY().equals(location)) {
             subtitle = getString(R.string.internal_memory);
         } else {

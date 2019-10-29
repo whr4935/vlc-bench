@@ -111,6 +111,7 @@
     <!-- Toasts -->
     <string name="toast_text_error_prep_upload">There was error while preparing the upload</string>
     <string name="toast_error_mountpoint_no_space">The isn\'t enough space in the new storage location</string>
+    <string name="toast_error_file_transfert">There was a problem while transferring files</string>
 
     <!-- dialog buttons -->
     <string name="dialog_btn_continue">Continue</string>
