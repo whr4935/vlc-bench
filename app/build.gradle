@@ -10,8 +10,8 @@ android {
         applicationId "org.videolan.vlcbenchmark"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 11
-        versionName "0.1.11"
+        versionCode 12
+        versionName "0.1.12"
         buildConfigField("String", "VLC_VERSION", "\"3.2.0\"")
         vectorDrawables.useSupportLibrary = true
         resValue "string", "build_time", buildTime()

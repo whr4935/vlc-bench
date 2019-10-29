@@ -1,4 +1,10 @@
+Changes between 0.1.11 and 0.1.12
+-----------------
+* Fix external sdcard support
+* Ui fixes
+
 Changes between 0.1.10 and 0.1.11
+-----------------
 * Add external sdcard support
 
 Changes between 0.1.9 and 0.1.10
