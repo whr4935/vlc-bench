@@ -66,6 +66,7 @@ public class TestInfo implements Serializable {
     private String[][] crashed = {{"", ""}, {"", ""}};
     private String[][] screenshots;
     private int[][] screenshotScores;
+    private String[][] stacktraces = {{"", ""}, {"", ""}};
 
     public TestInfo(String name, int loopNumber, int screenshotNumber) {
         this.name = name;
@@ -82,7 +83,7 @@ public class TestInfo implements Serializable {
 
     public TestInfo(String name, double[] software, double[] hardware, int[] framesDropped,
                     double[] percentOfBadScreenshots, int[] numberOfWarnings, String[][] crashed,
-                    String[][] screenshots, int[][] screenshotScores) {
+                    String[][] screenshots, int[][] screenshotScores, String[][] stacktraces) {
         this.name = name;
         this.software = software;
         this.hardware = hardware;
@@ -93,6 +94,7 @@ public class TestInfo implements Serializable {
         this.crashed = crashed;
         this.screenshots = screenshots;
         this.screenshotScores = screenshotScores;
+        this.stacktraces = stacktraces;
     }
 
     public TestInfo(JSONObject jsonObject) {
@@ -150,6 +152,15 @@ public class TestInfo implements Serializable {
                 }
             } else {
                 Log.w(TAG, "TestInfo: missing screenshot_scores attribute in test info json");
+            }
+            if (jsonObject.has("stacktraces")) {
+                array = jsonObject.getJSONArray("stacktraces");
+                for (int i = 0 ; i < array.length() ; ++i) {
+                    JSONArray subArray = array.getJSONArray(i);
+                    for (int j = 0; j < subArray.length(); ++j){
+                        stacktraces[i][j] = subArray.getString(j);
+                    }
+                }
             }
         } catch (JSONException e){
             Log.e("VLCBench", e.toString());
@@ -252,10 +263,12 @@ public class TestInfo implements Serializable {
         return (isScreenshot ? QUALITY_SFX : PLAYBACK_SFX);
     }
 
-    public void vlcCrashed(boolean isSoftware, boolean isScreenshot, String errorMessage) {
+    public void vlcCrashed(boolean isSoftware, boolean isScreenshot, String errorMessage, String stacktrace) {
         crashed[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] =
                 getSfx(isScreenshot) + errorMessage;
         (isSoftware ? software : hardware)[(isScreenshot ? QUALITY : PLAYBACK)] = 0;
+        stacktraces[isSoftware ? SOFT : HARD][isScreenshot ? QUALITY : PLAYBACK] =
+                getSfx(isScreenshot) + '\n' + stacktrace;
     }
 
     private static String strip(String str) {
@@ -326,7 +339,8 @@ public class TestInfo implements Serializable {
             //TODO add method to handle several screenshots
             test.add(new TestInfo(results[0].get(i).getName(), software, hardware,
                     framesDropped, percentOfBadScreenshots, numberOfWarnings, crashed,
-                    results[0].get(i).screenshots, results[0].get(i).screenshotScores));
+                    results[0].get(i).screenshots, results[0].get(i).screenshotScores,
+                    results[0].get(i).stacktraces));
         }
         return test;
     }
@@ -348,6 +362,10 @@ public class TestInfo implements Serializable {
         array.put(new JSONArray(crashed[0]));
         array.put(new JSONArray(crashed[1]));
         jsonObject.put("crashed", array);
+        array = new JSONArray();
+        array.put(new JSONArray(stacktraces[0]));
+        array.put(new JSONArray(stacktraces[1]));
+        jsonObject.put("stacktraces", array);
         return jsonObject;
     }
 
@@ -370,6 +388,10 @@ public class TestInfo implements Serializable {
         array.put(new JSONArray(crashed[0]));
         array.put(new JSONArray(crashed[1]));
         jsonObject.put("crashed", array);
+        array = new JSONArray();
+        array.put(new JSONArray(stacktraces[0]));
+        array.put(new JSONArray(stacktraces[1]));
+        jsonObject.put("stacktraces", array);
         return jsonObject;
     }
 }

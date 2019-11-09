@@ -20,6 +20,7 @@ object StorageManager {
     const val mediaFolder = "mediaFolder"
     const val screenshotFolder = "screenshotFolder"
     val tmpScreenshotDir = Environment.getExternalStorageDirectory().absolutePath + "/vlcBenchmarkScreenshotDir"
+    val tmpStackTraceFile = Environment.getExternalStorageDirectory().absolutePath + "/vlcBenchmarkVlcStackTrace.txt"
 
     //Devices mountpoints management
     private val typeWL = Arrays.asList("vfat", "exfat", "sdcardfs", "fuse", "ntfs", "fat32", "ext3", "ext4", "esdfs")

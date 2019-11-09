@@ -56,7 +56,10 @@ import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.Util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +95,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private static final String EXTRA_BENCHMARK = "extra_benchmark";
     private static final String EXTRA_HARDWARE = "extra_benchmark_disable_hardware";
     private static final String EXTRA_FROM_START = "from_start";
+    private static final String EXTRA_STACKTRACE_FILE = "stacktrace_file";
     private static final String SCREENSHOT_NAMING = "Screenshot_";
     private static final String SHARED_PREFERENCE = "org.videolab.vlc.gui.video.benchmark.UNCAUGHT_EXCEPTIONS";
     private static final String SHARED_PREFERENCE_STACK_TRACE = "org.videolab.vlc.gui.video.benchmark.STACK_TRACE";
@@ -252,6 +256,9 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 Log.i(TAG, "Testing mode: " + ( model.getTestIndex().isSoftware() ? "Software - " : "Hardware - " )
                         + (model.getTestIndex().isScreenshot() ? "Quality" : "Playback"));
 
+                // Place for vlc to write a stacktrace in case of a freeze or crash
+                vlcIntent.putExtra(EXTRA_STACKTRACE_FILE, StorageManager.INSTANCE.getTmpStackTraceFile());
+
                 listener.onItentCreated(vlcIntent);
             });
         } catch (Exception e) {
@@ -304,6 +311,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
     private void fillCurrentTestInfo(Intent data, int resultCode) {
         if ( resultCode != Constants.ResultCodes.RESULT_OK) {
             String errorMessage;
+            String stacktrace = "";
             switch (resultCode) {
                 case Constants.ResultCodes.RESULT_CANCELED:
                     errorMessage = getString(R.string.result_canceled);
@@ -326,6 +334,25 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 case Constants.ResultCodes.RESULT_VLC_CRASH:
                     if (data != null && data.hasExtra("Error")) {
                         errorMessage = data.getStringExtra("Error");
+                        try {
+                            File stacktraceFile = new File(StorageManager.INSTANCE.getTmpStackTraceFile());
+                            FileInputStream fin = new FileInputStream(stacktraceFile);
+                            InputStreamReader streamReader = new InputStreamReader(fin);
+                            BufferedReader bf = new BufferedReader(streamReader);
+                            StringBuilder stacktraceContent = new StringBuilder();
+                            String line = bf.readLine();
+                            while (line != null) {
+                                stacktraceContent.append(line);
+                                stacktraceContent.append("\n");
+                                line = bf.readLine();
+                            }
+                            stacktrace = stacktraceContent.toString();
+                            fin.close();
+                            streamReader.close();
+                            bf.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else if (data != null) {
                         errorMessage = getString(R.string.result_vlc_crash);
                     } else {
@@ -343,7 +370,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                     break;
             }
             Log.i(TAG, "fillCurrentTestInfo: error: " + errorMessage);
-            model.lastTestInfo.vlcCrashed(model.getTestIndex().isSoftware(), model.getTestIndex().isScreenshot(), errorMessage);
+            model.lastTestInfo.vlcCrashed(model.getTestIndex().isSoftware(), model.getTestIndex().isScreenshot(), errorMessage, stacktrace);
         } else if (!model.getTestIndex().isScreenshot()) {
             model.lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), model.getTestIndex().isSoftware());
             model.lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), model.getTestIndex().isSoftware());
