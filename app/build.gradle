@@ -119,28 +119,28 @@ def configFileUrl() {
 }
 
 def apiAddress() {
-    InetAddress result = null
+    String result = ""
     Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces()
     while (interfaces.hasMoreElements()) {
         NetworkInterface anInterface = interfaces.nextElement()
         if (anInterface.displayName.contains("docker") ||
                 anInterface.displayName.contains("virbr") ||
-                anInterface.displayName.contains("br-")) {
+                anInterface.displayName.contains("br-") ||
+                anInterface.displayName == "lo") {
             continue
         }
         Enumeration<InetAddress> addresses = anInterface.getInetAddresses()
         while (addresses.hasMoreElements()) {
             InetAddress address = addresses.nextElement();
             if (!address.isLoopbackAddress()) {
-                if (address.isSiteLocalAddress()) {
-                    return address.getHostAddress()
-                } else if (result == null) {
-                    result = address
+                result = address.getHostAddress()
+                if (address instanceof Inet6Address) {
+                    result = result.replace("%" + anInterface.name, "")
                 }
             }
         }
     }
-    return (result != null ? result : InetAddress.getLocalHost()).getHostAddress()
+    return result
 
 }
 
