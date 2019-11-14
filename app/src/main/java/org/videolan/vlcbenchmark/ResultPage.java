@@ -178,9 +178,12 @@ public class ResultPage extends AppCompatActivity {
     }
 
     void startUploadDialog(Intent data) {
+        String directory = StorageManager.INSTANCE.getDirectory() + StorageManager.screenshotFolder;
+        String size = FormatStr.INSTANCE.sizeToString(
+                StorageManager.INSTANCE.getDirectoryMemoryUsage(directory));
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_result_upload)
-                .setMessage(R.string.dialog_text_result_upload)
+                .setMessage(String.format(getString(R.string.dialog_text_result_upload), size))
                 .setNegativeButton(R.string.dialog_btn_upload_with, (DialogInterface dialog, int which) ->
                         prepareBenchmarkUpload(true, data)
                 )

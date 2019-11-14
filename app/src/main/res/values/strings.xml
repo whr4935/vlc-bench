@@ -103,7 +103,7 @@
     <string name="dialog_text_download_progress">%1$s %% (%2$s)\n%3$s / %4$s</string>
     <string name="dialog_text_download_downloading">Downloading: </string>
     <string name="dialog_text_download_checking_file">Checking file integrity: </string>
-    <string name="dialog_text_result_upload">Help us improve the benchmark results by uploading the screenshots taken during testing (this might take some time)</string>
+    <string name="dialog_text_result_upload">Help us improve the benchmark results by uploading the screenshots taken during testing. This upload is %1$s in size, only upload if you have a fast connection.</string>
     <string name="dialog_text_android_10">Due to limitations in Android 10, the benchmark cannot run on this device. We apologies for the inconvenience.</string>
     <string name="dialog_text_confirm_bench_delete">Are you sure you want to delete this benchmark ?</string>
     <string name="dialog_text_sample_free_space">Do you want to delete the media samples, and free some space, now that the benchmark is done ?</string>
