@@ -91,15 +91,15 @@ repositories {
 }
 
 def configFileProtocol() {
-    if (vcl_bench_config_file_protocol != "") {
-        return vcl_bench_config_file_protocol
+    if (vlc_bench_config_file_protocol != "") {
+        return vlc_bench_config_file_protocol
     }
     return "ftp://"
 }
 
 def fileLocationProtocol() {
-    if (vcl_bench_config_file_protocol != "") {
-        return vcl_bench_file_location_protocol
+    if (vlc_bench_config_file_protocol != "") {
+        return vlc_bench_file_location_protocol
     }
     return "ftp://"
 }
