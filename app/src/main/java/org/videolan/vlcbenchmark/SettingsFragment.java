@@ -144,12 +144,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
     @Override
     public void updateProgress(long downloadSize, long downloadSpeed) {
         Util.runInUiThread(() -> {
-            if (getActivity() != null && progressDialog != null) {
+            if (getContext() != null && progressDialog != null) {
                 double percent = (double)downloadSize / (double)mCopySize * 100d;
                 String progressString = String.format(
-                        getActivity().getString(R.string.dialog_text_download_progress),
-                        FormatStr.INSTANCE.format2Dec(percent), FormatStr.INSTANCE.bitRateToString(downloadSpeed),
-                        FormatStr.INSTANCE.sizeToString(downloadSize), FormatStr.INSTANCE.sizeToString(mCopySize));
+                        getContext().getString(R.string.dialog_text_download_progress),
+                        FormatStr.INSTANCE.format2Dec(percent),
+                        FormatStr.INSTANCE.byteRateToString(getContext(), downloadSpeed),
+                        FormatStr.INSTANCE.byteSizeToString(getContext(), downloadSize),
+                        FormatStr.INSTANCE.byteSizeToString(getContext(), mCopySize));
                 progressDialog.updateProgress(percent, progressString, "");
             }
         });

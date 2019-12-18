@@ -32,19 +32,16 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.common.internal.Objects;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.videolan.vlcbenchmark.tools.CheckFilesTask;
@@ -53,14 +50,9 @@ import org.videolan.vlcbenchmark.tools.DownloadFilesTask;
 import org.videolan.vlcbenchmark.tools.FormatStr;
 import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ProgressSaver;
-import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.VLCProxy;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 import kotlin.Unit;
@@ -177,9 +169,14 @@ public class MainPageFragment extends Fragment {
 
     public void onFilesChecked(long size) {
         if (size > 0) {
+            if (getContext() == null) {
+                Log.e(TAG, "onFilesChecked: null context");
+                return;
+            }
             new AlertDialog.Builder(getContext())
                     .setTitle(getResources().getString(R.string.dialog_title_warning))
-                    .setMessage(String.format(getString(R.string.dialog_text_download_warning), FormatStr.INSTANCE.sizeToString(size)))
+                    .setMessage(String.format(getString(R.string.dialog_text_download_warning),
+                            FormatStr.INSTANCE.byteSizeToString(getContext(), size)))
                     .setNeutralButton(getResources().getString(R.string.dialog_btn_cancel), null)
                     .setNegativeButton(getResources().getString(R.string.dialog_btn_continue), new DialogInterface.OnClickListener() {
                         @Override
@@ -289,8 +286,15 @@ public class MainPageFragment extends Fragment {
         cpu.setText(SystemPropertiesProxy.getCpuModel());
         cpuspeed.setText(SystemPropertiesProxy.getCpuMinFreq() + " - " + SystemPropertiesProxy.getCpuMaxFreq());
         memory.setText(SystemPropertiesProxy.getRamTotal());
-        resolution.setText(SystemPropertiesProxy.getResolution(getActivity()));
-        freeSpace.setText(FormatStr.INSTANCE.sizeToString(SystemPropertiesProxy.getFreeSpace()));
+        if (getActivity() != null)
+            resolution.setText(SystemPropertiesProxy.getResolution(getActivity()));
+        else
+            Log.e(TAG, "fillDeviceLayout: null activity");
+        if (getContext() != null)
+            freeSpace.setText(FormatStr.INSTANCE.byteSizeToString(getContext(),
+                    SystemPropertiesProxy.getFreeSpace()));
+        else
+            Log.e(TAG, "fillDeviceLayout: null context");
     }
 
     @Override

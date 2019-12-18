@@ -197,19 +197,23 @@ public class DownloadFilesTask extends AsyncTask<Void, Pair, Boolean> {
     protected void onProgressUpdate(Pair... values) {
         super.onProgressUpdate(values);
         if (fragment instanceof MainPageFragment && values.length >= 1) {
-            MainPageFragment mainPageFragment = (MainPageFragment) fragment;
-            Pair<Long, Long> progressValues = values[0];
-            long downloadedSize = progressValues.first;
-            long downloadedSpeed = progressValues.second;
-            double percent = (double)downloadedSize / (double)mTotalFileSize * 100d;
-            String state = downloadedSpeed == 0 ?
-                    fragment.getString(R.string.dialog_text_download_checking_file) :
-                    fragment.getString(R.string.dialog_text_download_downloading);
-            String progressString = String.format(
-                    fragment.getString(R.string.dialog_text_download_progress),
-                    FormatStr.INSTANCE.format2Dec(percent), FormatStr.INSTANCE.bitRateToString(downloadedSpeed),
-                    FormatStr.INSTANCE.sizeToString(downloadedSize), FormatStr.INSTANCE.sizeToString(mTotalFileSize));
-            mainPageFragment.updateProgress(percent, progressString, state);
+            if (fragment.getContext() != null) {
+                MainPageFragment mainPageFragment = (MainPageFragment) fragment;
+                Pair<Long, Long> progressValues = values[0];
+                long downloadedSize = progressValues.first;
+                long downloadedSpeed = progressValues.second;
+                double percent = (double) downloadedSize / (double) mTotalFileSize * 100d;
+                String state = downloadedSpeed == 0 ?
+                        fragment.getString(R.string.dialog_text_download_checking_file) :
+                        fragment.getString(R.string.dialog_text_download_downloading);
+                String progressString = String.format(
+                        fragment.getString(R.string.dialog_text_download_progress),
+                        FormatStr.INSTANCE.format2Dec(percent), FormatStr.INSTANCE.byteRateToString(fragment.getContext(), downloadedSpeed),
+                        FormatStr.INSTANCE.byteSizeToString(fragment.getContext(), downloadedSize), FormatStr.INSTANCE.byteSizeToString(fragment.getContext(), mTotalFileSize));
+                mainPageFragment.updateProgress(percent, progressString, state);
+            } else {
+                Log.e(TAG, "onProgressUpdate: null fragment");
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package org.videolan.vlcbenchmark.tools
 
+import android.content.Context
 import android.util.Log
+import org.videolan.vlcbenchmark.R
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -74,28 +76,31 @@ object FormatStr {
         return format.format(date)
     }
 
-    fun bitRateToString(bitRate: Long): String {
+    fun byteRateToString(context: Context, bitRate: Long): String {
         if (bitRate <= 0)
-            return "0 bps"
+            return "0 " + context.getString(R.string.size_unit_per_second_byte)
         val powOf10 = Math.round(Math.log10(bitRate.toDouble())).toDouble()
 
         if (powOf10 < 3)
-            return format2Dec(bitRate.toDouble()) + "bps"
+            return format2Dec(bitRate.toDouble())
         else if (powOf10 >= 3 && powOf10 < 6)
-            return format2Dec(bitRate / 1_000.0) + "Kbps"
+            return format2Dec(bitRate / 1_000.0 / 8.0) + " " +
+                    context.getString(R.string.size_unit_per_second_kilo)
         else if (powOf10 >= 6 && powOf10 < 9)
-            return format2Dec(bitRate / 1_000_000.0) + "Mbps"
-        return format2Dec(bitRate / 1_000_000_000.0) + "Gbps"
+            return format2Dec(bitRate / 1_000_000.0 / 8.0) + " " +
+                    context.getString(R.string.size_unit_per_second_mega)
+        return format2Dec(bitRate / 1_000_000_000.0 / 8.0) + " " +
+                context.getString(R.string.size_unit_per_second_giga)
     }
 
-    fun sizeToString(size: Long): String {
+    fun byteSizeToString(context: Context, size: Long): String {
         val unit: String
         val prettySize: Double
         if (size / 1_000_000_000 > 0) {
-            unit = "Go"
+            unit = context.getString(R.string.size_unit_giga)
             prettySize = size / 1_000_000_000.0
         } else {
-            unit = "Mo"
+            unit = context.getString(R.string.size_unit_mega)
             prettySize = size / 1_000_000.0
         }
         return format2Dec(prettySize) + " " + unit

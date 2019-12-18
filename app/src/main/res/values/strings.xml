@@ -187,4 +187,13 @@
 
     <string name="title_activity_splash">SplashActivity</string>
 
+    <!-- Size units -->
+    <string name="size_unit_kilo">KB</string>
+    <string name="size_unit_mega">MB</string>
+    <string name="size_unit_giga">GB</string>
+    <string name="size_unit_per_second_byte"> Bps</string>
+    <string name="size_unit_per_second_kilo">KBps</string>
+    <string name="size_unit_per_second_mega">MBps</string>
+    <string name="size_unit_per_second_giga">GBps</string>
+
 </resources>

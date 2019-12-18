@@ -22,6 +22,7 @@
 package org.videolan.vlcbenchmark.tools;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
@@ -118,11 +119,15 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
     }
 
     private boolean checkDeviceFreeSpace(long size) {
+        if (fragment == null || fragment.getContext() == null ) {
+            Log.e(TAG, "checkDeviceFreeSpace: null fragment");
+            return false;
+        }
         long freeSpace = SystemPropertiesProxy.getFreeSpace();
         if (size > freeSpace) {
             Log.e("MainPageDownload", "checkDeviceFreeSpace: missing space to download all media files");
             long spaceNeeded = size - freeSpace;
-            String space = FormatStr.INSTANCE.sizeToString(spaceNeeded);
+            String space = FormatStr.INSTANCE.byteSizeToString(fragment.getContext(), spaceNeeded);
             String msg = String.format(fragment.getString(R.string.dialog_text_missing_space), space);
             new AlertDialog.Builder(fragment.getContext())
                     .setTitle(fragment.getString(R.string.dialog_title_warning))

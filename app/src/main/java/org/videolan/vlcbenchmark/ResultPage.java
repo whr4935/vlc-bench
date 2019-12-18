@@ -179,7 +179,7 @@ public class ResultPage extends AppCompatActivity {
 
     void startUploadDialog(Intent data) {
         String directory = StorageManager.INSTANCE.getDirectory() + StorageManager.screenshotFolder;
-        String size = FormatStr.INSTANCE.sizeToString(
+        String size = FormatStr.INSTANCE.byteSizeToString(this,
                 StorageManager.INSTANCE.getDirectoryMemoryUsage(directory));
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_result_upload)
