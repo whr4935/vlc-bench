@@ -69,7 +69,6 @@
 
 
     <!-- dialog texts -->
-    <string name="dialog_text_no_internet">"Cannot connect to the internet, please turn wifi on and retry."</string>
     <string name="dialog_text_sample">There was a problem while checking samples</string>
     <string name="dialog_text_err_google">There was a problem while connecting to Google</string>
     <string name="dialog_text_err_upload">There was a problem while uploading the results.</string>
