@@ -10,8 +10,8 @@ import java.io.FileOutputStream
 class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Boolean>() {
 
     private val fragment: Fragment = _fragment
-    private lateinit var oldDirectory: String
-    private lateinit var newDirectory: String
+    private var oldDirectory: String? = null
+    private var newDirectory: String? = null
     private var totalCopySize: Long = 0L
 
     private fun transferMountpoints(oldDirectory: String, newDirectory: String, _downloadSize: Long): Long {
@@ -93,8 +93,8 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
         }
         this.oldDirectory = params[0]!!
         this.newDirectory = params[1]!!
-        totalCopySize = StorageManager.getDirectoryMemoryUsage(this.oldDirectory)
-        return (transferMountpoints(this.oldDirectory, this.newDirectory, 0) != -1L)
+        totalCopySize = StorageManager.getDirectoryMemoryUsage(this.oldDirectory!!)
+        return (transferMountpoints(this.oldDirectory!!, this.newDirectory!!, 0) != -1L)
     }
 
     override fun onProgressUpdate(vararg values: Pair<Long, Long>?) {
@@ -107,7 +107,7 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
     override fun onCancelled() {
         if (fragment is IOnFilesCopied) {
             StorageManager.deleteDirectory(this.newDirectory)
-            (fragment as IOnFilesCopied).onFileCopied(isCancelled, this.oldDirectory)
+            (fragment as IOnFilesCopied).onFileCopied(isCancelled, this.oldDirectory!!)
         }
         super.onCancelled()
     }
@@ -127,7 +127,7 @@ class CopyFilesTask(_fragment: Fragment): AsyncTask<String, Pair<Long, Long>, Bo
     }
 
     interface IOnFilesCopied {
-        fun onFileCopied(success: Boolean, newValue: String)
+        fun onFileCopied(success: Boolean, newValue: String?)
         fun updateProgress(downloadSize: Long, downloadSpeed: Long)
     }
 

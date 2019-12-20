@@ -117,7 +117,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CopyFi
     }
 
     @Override
-    public void onFileCopied(boolean success, @NonNull String newValue) {
+    public void onFileCopied(boolean success, String newValue) {
+        if (newValue == null) {
+            Log.e(TAG, "onFileCopied: new value is null");
+            return;
+        }
         newValue = newValue.replace(StorageManager.INSTANCE.getBaseDir(), "");
         if (getActivity() != null) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());

@@ -337,7 +337,11 @@ object StorageManager {
         }
     }
 
-    fun deleteDirectory(directory: String) {
+    fun deleteDirectory(directory: String?) {
+        if (directory == null) {
+            Log.e(TAG, "deleteDirectory: directory is null")
+            return
+        }
         val dir = File(directory)
         val files = dir.listFiles()
         if (files != null) {
