@@ -156,8 +156,10 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
                 }
             }
         }
-        if (errDialog != null) {
+        if (errDialog != null && fragment.getActivity() != null) {
             errDialog.display(fragment.getActivity());
+        } else {
+            Log.e(TAG, "onPostExecute: ");
         }
     }
 
