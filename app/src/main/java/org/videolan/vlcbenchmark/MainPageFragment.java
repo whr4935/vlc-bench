@@ -339,8 +339,11 @@ public class MainPageFragment extends Fragment {
         return Unit.INSTANCE;
     }
 
+    // the isVisible condition is supposed to stop an IllegalStateException occurring in some
+    // cases when dismissing the dialog from DownloadFilesTask.onPostExecute method.
+    // Waiting for user validation as I cannot reproduce.
     public void dismissDialog() {
-        if (progressDialog != null) {
+        if (progressDialog != null && progressDialog.isVisible()) {
             progressDialog.dismiss();
         }
     }
