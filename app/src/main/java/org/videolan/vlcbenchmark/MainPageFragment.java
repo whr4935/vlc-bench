@@ -80,7 +80,7 @@ public class MainPageFragment extends Fragment {
     private void redirectToVlcStore() {
         Intent viewIntent;
         viewIntent = new Intent("android.intent.action.VIEW",
-                Uri.parse("https://play.google.com/store/apps/details?id=org.videolan.vlc&hl=en"));
+                Uri.parse("https://play.google.com/store/apps/details?id=org.videolan.vlc"));
         startActivity(viewIntent);
     }
 
