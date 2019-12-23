@@ -216,7 +216,7 @@ public class MainPageFragment extends Fragment {
 
     private void checkForPreviousBench(final int numberOfTests, final int fileNumber) {
         final List<TestInfo>[] previousTest = ProgressSaver.load(getContext());
-        if (previousTest == null) {
+        if (previousTest == null || numberOfTests != previousTest.length) {
             startTestWarning(numberOfTests);
         } else {
             int loopIndex = 0;
