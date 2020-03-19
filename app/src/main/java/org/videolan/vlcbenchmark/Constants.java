@@ -28,6 +28,7 @@ public class Constants {
         public static int VLC = 2;
         public static int GOOGLE_CONNECTION = 3;
         public static int OPENGL = 4;
+        public static int SELECTED_FILE = 4;
     }
 
     public static class ResultCodes {

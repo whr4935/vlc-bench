@@ -61,6 +61,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,6 +157,19 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
      */
     @UiThread
     final public void launchTests(int numberOfTests, List<TestInfo>[] previousTest) {
+        ArrayList<String> files = new ArrayList<>();
+        for (MediaInfo m : model.getTestFiles()) {
+            files.add(m.getName());
+            Log.i(TAG, "file: " + m.getName());
+        }
+
+        Intent intent = new Intent(this, FileList.class);
+        intent.putStringArrayListExtra("files", files);
+        startActivityForResult(intent, Constants.RequestCodes.SELECTED_FILE);
+    }
+
+    @UiThread
+    final public void doLaunchTests(int numberOfTests, List<TestInfo>[] previousTest) {
         if (previousTest == null) {
             if (numberOfTests == 1) {
                 model.setLoopTotal(1);
@@ -167,7 +181,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
                 Log.e(TAG, "Wrong number of tests to start: " + numberOfTests);
                 return;
             }
-            model.setFileIndex(0);
+//            model.setFileIndex(0);
             model.setLoopNumber(0);
         } else {
             model.testResults = previousTest;
@@ -299,6 +313,16 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             } else {
                 Log.e(TAG, "onActivityResult: GOOGLE_CONNECTION: fragment is null");
             }
+        } else if (requestCode == Constants.RequestCodes.SELECTED_FILE) {
+            if (data != null) {
+                int position = data.getIntExtra("index", 0);
+                model.setFileIndex(position);
+
+                doLaunchTests(1, null);
+            } else {
+                Log.w(TAG, "You hasn't select a file to play!");
+            }
+
         }
     }
 
@@ -453,10 +477,13 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
             if (model.getTestIndex() == TestTypes.HARDWARE_PLAYBACK) {
                 model.testResults[model.getLoopNumber()].add(model.lastTestInfo);
                 model.setFileIndex(model.getFileIndex() + 1);
-                if (model.getFileIndex() >= model.getTestFiles().size()) {
-                    model.setLoopNumber(model.getLoopNumber() + 1);
-                    model.setFileIndex(0);
-                }
+
+//                if (model.getFileIndex() >= model.getTestFiles().size()) {
+//                    model.setLoopNumber(model.getLoopNumber() + 1);
+//                    model.setFileIndex(0);
+//                }
+                model.setLoopNumber(model.getLoopNumber() + 1);
+
                 if (model.getLoopNumber() >= model.getLoopTotal()) {
                     onTestsFinished(model.testResults);
                     return;

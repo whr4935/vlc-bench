@@ -48,8 +48,10 @@ import org.videolan.vlcbenchmark.tools.CheckFilesTask;
 import org.videolan.vlcbenchmark.tools.DialogInstance;
 import org.videolan.vlcbenchmark.tools.DownloadFilesTask;
 import org.videolan.vlcbenchmark.tools.FormatStr;
+import org.videolan.vlcbenchmark.tools.JSonParser;
 import org.videolan.vlcbenchmark.tools.MediaInfo;
 import org.videolan.vlcbenchmark.tools.ProgressSaver;
+import org.videolan.vlcbenchmark.tools.StorageManager;
 import org.videolan.vlcbenchmark.tools.TestInfo;
 import org.videolan.vlcbenchmark.tools.VLCProxy;
 
@@ -101,7 +103,8 @@ public class MainPageFragment extends Fragment {
             Log.e(TAG, "checkForVLC: null context");
             return;
         }
-        Boolean vlcSignature = VLCProxy.Companion.checkSignature(getActivity());
+//        Boolean vlcSignature = VLCProxy.Companion.checkSignature(getActivity());
+        Boolean vlcSignature = true;
         Boolean vlcVersion = VLCProxy.Companion.checkVlcVersion(getActivity());
         if (!vlcSignature || !vlcVersion) {
             if (!vlcSignature) {
@@ -167,7 +170,7 @@ public class MainPageFragment extends Fragment {
         ((CheckFilesTask)task).execute();
     }
 
-    public void onFilesChecked(long size) {
+    public void onFilesChecked(long size, int totalSize) {
         if (size > 0) {
             if (getContext() == null) {
                 Log.e(TAG, "onFilesChecked: null context");

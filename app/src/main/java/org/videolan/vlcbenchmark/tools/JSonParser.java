@@ -23,14 +23,19 @@ package org.videolan.vlcbenchmark.tools;
 
 import android.content.Context;
 import android.util.JsonReader;
+import android.util.Log;
 import android.util.Pair;
 
 import org.videolan.vlcbenchmark.R;
 import org.videolan.vlcbenchmark.tools.MediaInfo;
 
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -40,6 +45,7 @@ import java.util.List;
  * Created by penava_b on 12/07/16.
  */
 public class JSonParser {
+    private final static  String TAG = "JSonParser";
 
     private static String encoding = null;
 
@@ -48,10 +54,17 @@ public class JSonParser {
     }
 
     public static List<MediaInfo> getMediaInfos(Context context) throws IOException {
-        URL url = new URL(context.getString(R.string.config_file_location_url));
-        URLConnection connection = url.openConnection();
-        InputStream in = connection.getInputStream();
-        encoding = connection.getContentEncoding();
+        InputStream in = getCache(context);
+        if (in == null) {
+            URL url = new URL(context.getString(R.string.config_file_location_url));
+            URLConnection connection = url.openConnection();
+            in = connection.getInputStream();
+            encoding = connection.getContentEncoding();
+            saveCache(context, in);
+
+            in = getCache(context);
+        }
+
         encoding = (encoding == null ? "UTF-8" : encoding);
         JsonReader reader = null;
         try {
@@ -59,6 +72,55 @@ public class JSonParser {
             return readMessagesArray(reader);
         } finally {
             reader.close();
+        }
+    }
+
+    private static InputStream getCache(Context context) {
+        FileInputStream in = null;
+
+        try {
+            in = context.openFileInput("filelist");
+        } catch (IOException e) {
+            Log.e(TAG, "filelist doesn't found!");
+        }
+
+        if (in != null) {
+            Log.i(TAG, "getCache success!");
+        } else {
+            Log.i(TAG, "getCache failed!");
+        }
+        return in;
+    }
+
+    private static void saveCache(Context context, InputStream in) {
+        FileOutputStream out = null;
+
+        try {
+            out = context.openFileOutput("filelist", context.MODE_PRIVATE);
+
+            int byteCount = 0;
+            int bytesWritten = 0;
+            byte[] bytes = new byte[1024];
+
+            while ((byteCount = in.read(bytes)) != -1) {
+                out.write(bytes, 0, byteCount);
+                bytesWritten += byteCount;
+            }
+            Log.i(TAG, "filelist saved, size:" + bytesWritten);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

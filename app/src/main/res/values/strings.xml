@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">VLC Benchmark</string>
+    <string name="app_name" translatable="false">VLC Benchmark(JiHui.Zhang)</string>
     <string name="upload_results">Upload</string>
     <string name="default_percent_value">0 %</string>
     <string name="no_results">No result found, please run a test.</string>
