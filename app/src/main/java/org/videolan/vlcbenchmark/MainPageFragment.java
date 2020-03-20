@@ -103,8 +103,8 @@ public class MainPageFragment extends Fragment {
             Log.e(TAG, "checkForVLC: null context");
             return;
         }
-//        Boolean vlcSignature = VLCProxy.Companion.checkSignature(getActivity());
-        Boolean vlcSignature = true;
+        Boolean vlcSignature = VLCProxy.Companion.checkSignature(getActivity());
+        vlcSignature = true;
         Boolean vlcVersion = VLCProxy.Companion.checkVlcVersion(getActivity());
         if (!vlcSignature || !vlcVersion) {
             if (!vlcSignature) {
@@ -170,7 +170,7 @@ public class MainPageFragment extends Fragment {
         ((CheckFilesTask)task).execute();
     }
 
-    public void onFilesChecked(long size, int totalSize) {
+    public void onFilesChecked(long size) {
         if (size > 0) {
             if (getContext() == null) {
                 Log.e(TAG, "onFilesChecked: null context");

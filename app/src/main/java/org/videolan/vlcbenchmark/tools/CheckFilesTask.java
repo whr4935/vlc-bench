@@ -152,7 +152,7 @@ public class CheckFilesTask extends AsyncTask<Void, Pair, Boolean> {
         if (fragment instanceof MainPageFragment) {
             if (checkState) {
                 if (checkDeviceFreeSpace(downloadSize)) {
-                    ((MainPageFragment) fragment).onFilesChecked(downloadSize, mFilesInfo.size());
+                    ((MainPageFragment) fragment).onFilesChecked(downloadSize);
                 }
             }
         }

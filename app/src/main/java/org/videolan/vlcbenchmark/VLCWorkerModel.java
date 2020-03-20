@@ -320,6 +320,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
 
                 doLaunchTests(1, null);
             } else {
+                dismissDialog();
                 Log.w(TAG, "You hasn't select a file to play!");
             }
 
