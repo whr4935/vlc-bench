@@ -399,6 +399,7 @@ public abstract class VLCWorkerModel extends AppCompatActivity {
         } else if (!model.getTestIndex().isScreenshot()) {
             model.lastTestInfo.setBadFrames(data.getIntExtra("number_of_dropped_frames", 0), model.getTestIndex().isSoftware());
             model.lastTestInfo.setWarningNumber(data.getIntExtra("late_frames", 0), model.getTestIndex().isSoftware());
+            Log.i(TAG, "number_of_dropped_frames = " + data.getIntExtra("number_of_dropped_frames", 0));
         }
     }
 
